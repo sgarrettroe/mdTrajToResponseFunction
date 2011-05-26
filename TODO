@@ -1,0 +1,17 @@
+In this revamp here is what I want to do
+
+1) mdTrajToFreq and freqTrajToR5: redo the input arguments using get
+long opt so that I can get options in and out more easily
+
+2) mdTrajToFreq: be able to read in a mapping from forces / coords in
+a general way so that I can try skinner's or phil's or anybody else's
+mapping. And switch between OH and OD in a simple way rather than this
+ugly by hand way.
+
+3) mdTrajToFreq: be able to output dipole moment and frequency for
+ground and excited states
+
+3) freqTrajToR5: update the way the calculation is done to be able to
+inclde the noncondon effects and dependence of anharmonicity on
+frequency
+
