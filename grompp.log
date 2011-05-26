@@ -1,0 +1,332 @@
+Reading MDP file minimize.mdp
+Done reading MDP file, there were 17 entries in there
+Inp 1 = 
+; VARIOUS PREPROCESSING OPTIONS
+Inp 2 = ; Preprocessor information: use cpp syntax.
+Inp 3 = ; e.g.: -I/home/joe/doe -I/home/mary/hoe
+Inp 4 = include
+Inp 5 = ; e.g.: -DI_Want_Cookies -DMe_Too
+Inp 6 = define
+Inp 7 = 
+; RUN CONTROL PARAMETERS
+Inp 8 = integrator
+Inp 9 = ; Start time and timestep in ps
+Inp 10 = tinit
+Inp 11 = dt
+Inp 12 = nsteps
+Inp 13 = ; For exact run continuation or redoing part of a run
+Inp 14 = ; Part index is updated automatically on checkpointing (keeps files separate)
+Inp 15 = simulation_part
+Inp 16 = init_step
+Inp 17 = ; mode for center of mass motion removal
+Inp 18 = comm-mode
+Inp 19 = ; number of steps for center of mass motion removal
+Inp 20 = nstcomm
+Inp 21 = ; group(s) for center of mass motion removal
+Inp 22 = comm-grps
+Inp 23 = 
+; LANGEVIN DYNAMICS OPTIONS
+Inp 24 = ; Friction coefficient (amu/ps) and random seed
+Inp 25 = bd-fric
+Inp 26 = ld-seed
+Inp 27 = 
+; ENERGY MINIMIZATION OPTIONS
+Inp 28 = ; Force tolerance and initial step-size
+Inp 29 = emtol
+Inp 30 = emstep
+Inp 31 = ; Max number of iterations in relax_shells
+Inp 32 = niter
+Inp 33 = ; Step size (ps^2) for minimization of flexible constraints
+Inp 34 = fcstep
+Inp 35 = ; Frequency of steepest descents steps when doing CG
+Inp 36 = nstcgsteep
+Inp 37 = nbfgscorr
+Inp 38 = 
+; TEST PARTICLE INSERTION OPTIONS
+Inp 39 = rtpi
+Inp 40 = 
+; OUTPUT CONTROL OPTIONS
+Inp 41 = ; Output frequency for coords (x), velocities (v) and forces (f)
+Inp 42 = nstxout
+Inp 43 = nstvout
+Inp 44 = nstfout
+Inp 45 = ; Output frequency for energies to log file and energy file
+Inp 46 = nstlog
+Inp 47 = nstenergy
+Inp 48 = ; Output frequency and precision for xtc file
+Inp 49 = nstxtcout
+Inp 50 = xtc-precision
+Inp 51 = ; This selects the subset of atoms for the xtc file. You can
+Inp 52 = ; select multiple groups. By default all atoms will be written.
+Inp 53 = xtc-grps
+Inp 54 = ; Selection of energy groups
+Inp 55 = energygrps
+Inp 56 = 
+; NEIGHBORSEARCHING PARAMETERS
+Inp 57 = ; nblist update frequency
+Inp 58 = nstlist
+Inp 59 = ; ns algorithm (simple or grid)
+Inp 60 = ns_type
+Inp 61 = ; Periodic boundary conditions: xyz, no, xy
+Inp 62 = pbc
+Inp 63 = periodic_molecules
+Inp 64 = ; nblist cut-off
+Inp 65 = rlist
+Inp 66 = 
+; OPTIONS FOR ELECTROSTATICS AND VDW
+Inp 67 = ; Method for doing electrostatics
+Inp 68 = coulombtype
+Inp 69 = ; cut-off lengths
+Inp 70 = rcoulomb-switch
+Inp 71 = rcoulomb
+Inp 72 = ; Relative dielectric constant for the medium and the reaction field
+Inp 73 = epsilon_r
+Inp 74 = epsilon_rf
+Inp 75 = ; Method for doing Van der Waals
+Inp 76 = vdw-type
+Inp 77 = ; cut-off lengths
+Inp 78 = rvdw-switch
+Inp 79 = rvdw
+Inp 80 = ; Apply long range dispersion corrections for Energy and Pressure
+Inp 81 = DispCorr
+Inp 82 = ; Extension of the potential lookup tables beyond the cut-off
+Inp 83 = table-extension
+Inp 84 = ; Seperate tables between energy group pairs
+Inp 85 = energygrp_table
+Inp 86 = ; Spacing for the PME/PPPM FFT grid
+Inp 87 = fourierspacing
+Inp 88 = ; FFT grid size, when a value is 0 fourierspacing will be used
+Inp 89 = fourier_nx
+Inp 90 = fourier_ny
+Inp 91 = fourier_nz
+Inp 92 = ; EWALD/PME/PPPM parameters
+Inp 93 = pme_order
+Inp 94 = ewald_rtol
+Inp 95 = ewald_geometry
+Inp 96 = epsilon_surface
+Inp 97 = optimize_fft
+Inp 98 = 
+; IMPLICIT SOLVENT ALGORITHM
+Inp 99 = implicit_solvent
+Inp 100 = 
+; GENERALIZED BORN ELECTROSTATICS
+Inp 101 = ; Algorithm for calculating Born radii
+Inp 102 = gb_algorithm
+Inp 103 = ; Frequency of calculating the Born radii inside rlist
+Inp 104 = nstgbradii
+Inp 105 = ; Cutoff for Born radii calculation; the contribution from atoms
+Inp 106 = ; between rlist and rgbradii is updated every nstlist steps
+Inp 107 = rgbradii
+Inp 108 = ; Dielectric coefficient of the implicit solvent
+Inp 109 = gb_epsilon_solvent
+Inp 110 = ; Salt concentration in M for Generalized Born models
+Inp 111 = gb_saltconc
+Inp 112 = ; Scaling factors used in the OBC GB model. Default values are OBC(II)
+Inp 113 = gb_obc_alpha
+Inp 114 = gb_obc_beta
+Inp 115 = gb_obc_gamma
+Inp 116 = ; Surface tension (kJ/mol/nm^2) for the SA (nonpolar surface) part of GBSA
+Inp 117 = ; The default value (2.092) corresponds to 0.005 kcal/mol/Angstrom^2.
+Inp 118 = sa_surface_tension
+Inp 119 = 
+; OPTIONS FOR WEAK COUPLING ALGORITHMS
+Inp 120 = ; Temperature coupling
+Inp 121 = tcoupl
+Inp 122 = ; Groups to couple separately
+Inp 123 = tc-grps
+Inp 124 = ; Time constant (ps) and reference temperature (K)
+Inp 125 = tau-t
+Inp 126 = ref-t
+Inp 127 = ; Pressure coupling
+Inp 128 = Pcoupl
+Inp 129 = Pcoupltype
+Inp 130 = ; Time constant (ps), compressibility (1/bar) and reference P (bar)
+Inp 131 = tau-p
+Inp 132 = compressibility
+Inp 133 = ref-p
+Inp 134 = ; Scaling of reference coordinates, No, All or COM
+Inp 135 = refcoord_scaling
+Inp 136 = ; Random seed for Andersen thermostat
+Inp 137 = andersen_seed
+Inp 138 = 
+; OPTIONS FOR QMMM calculations
+Inp 139 = QMMM
+Inp 140 = ; Groups treated Quantum Mechanically
+Inp 141 = QMMM-grps
+Inp 142 = ; QM method
+Inp 143 = QMmethod
+Inp 144 = ; QMMM scheme
+Inp 145 = QMMMscheme
+Inp 146 = ; QM basisset
+Inp 147 = QMbasis
+Inp 148 = ; QM charge
+Inp 149 = QMcharge
+Inp 150 = ; QM multiplicity
+Inp 151 = QMmult
+Inp 152 = ; Surface Hopping
+Inp 153 = SH
+Inp 154 = ; CAS space options
+Inp 155 = CASorbitals
+Inp 156 = CASelectrons
+Inp 157 = SAon
+Inp 158 = SAoff
+Inp 159 = SAsteps
+Inp 160 = ; Scale factor for MM charges
+Inp 161 = MMChargeScaleFactor
+Inp 162 = ; Optimization of QM subsystem
+Inp 163 = bOPT
+Inp 164 = bTS
+Inp 165 = 
+; SIMULATED ANNEALING
+Inp 166 = ; Type of annealing for each temperature group (no/single/periodic)
+Inp 167 = annealing
+Inp 168 = ; Number of time points to use for specifying annealing in each group
+Inp 169 = annealing_npoints
+Inp 170 = ; List of times at the annealing points for each group
+Inp 171 = annealing_time
+Inp 172 = ; Temp. at each annealing point, for each group.
+Inp 173 = annealing_temp
+Inp 174 = 
+; GENERATE VELOCITIES FOR STARTUP RUN
+Inp 175 = gen-vel
+Inp 176 = gen-temp
+Inp 177 = gen-seed
+Inp 178 = 
+; OPTIONS FOR BONDS
+Inp 179 = constraints
+Inp 180 = ; Type of constraint algorithm
+Inp 181 = constraint_algorithm
+Inp 182 = ; Do not constrain the start configuration
+Inp 183 = continuation
+Inp 184 = ; Use successive overrelaxation to reduce the number of shake iterations
+Inp 185 = Shake-SOR
+Inp 186 = ; Relative tolerance of shake
+Inp 187 = shake_tol
+Inp 188 = ; Highest order in the expansion of the constraint coupling matrix
+Inp 189 = lincs-order
+Inp 190 = ; Number of iterations in the final step of LINCS. 1 is fine for
+Inp 191 = ; normal simulations, but use 2 to conserve energy in NVE runs.
+Inp 192 = ; For energy minimization with constraints it should be 4 to 8.
+Inp 193 = lincs_iter
+Inp 194 = ; Lincs will write a warning to the stderr if in one step a bond
+Inp 195 = ; rotates over more degrees than
+Inp 196 = lincs-warnangle
+Inp 197 = ; Convert harmonic bonds to morse potentials
+Inp 198 = morse
+Inp 199 = 
+; ENERGY GROUP EXCLUSIONS
+Inp 200 = ; Pairs of energy groups for which all non-bonded interactions are excluded
+Inp 201 = energygrp_excl
+Inp 202 = 
+; WALLS
+Inp 203 = ; Number of walls, type, atom types, densities and box-z scale factor for Ewald
+Inp 204 = nwall
+Inp 205 = wall_type
+Inp 206 = wall_r_linpot
+Inp 207 = wall_atomtype
+Inp 208 = wall_density
+Inp 209 = wall_ewald_zfac
+Inp 210 = 
+; COM PULLING
+Inp 211 = ; Pull type: no, umbrella, constraint or constant_force
+Inp 212 = pull
+Inp 213 = 
+; NMR refinement stuff
+Inp 214 = ; Distance restraints type: No, Simple or Ensemble
+Inp 215 = disre
+Inp 216 = ; Force weighting of pairs in one distance restraint: Conservative or Equal
+Inp 217 = disre-weighting
+Inp 218 = ; Use sqrt of the time averaged times the instantaneous violation
+Inp 219 = disre-mixed
+Inp 220 = disre-fc
+Inp 221 = disre-tau
+Inp 222 = ; Output frequency for pair distances to energy file
+Inp 223 = nstdisreout
+Inp 224 = ; Orientation restraints: No or Yes
+Inp 225 = orire
+Inp 226 = ; Orientation restraints force constant and tau for time averaging
+Inp 227 = orire-fc
+Inp 228 = orire-tau
+Inp 229 = orire-fitgrp
+Inp 230 = ; Output frequency for trace(SD) and S to energy file
+Inp 231 = nstorireout
+Inp 232 = ; Dihedral angle restraints: No or Yes
+Inp 233 = dihre
+Inp 234 = dihre-fc
+Inp 235 = 
+; Free energy control stuff
+Inp 236 = free-energy
+Inp 237 = init-lambda
+Inp 238 = delta-lambda
+Inp 239 = sc-alpha
+Inp 240 = sc-power
+Inp 241 = sc-sigma
+Inp 242 = couple-moltype
+Inp 243 = couple-lambda0
+Inp 244 = couple-lambda1
+Inp 245 = couple-intramol
+Inp 246 = 
+; Non-equilibrium MD stuff
+Inp 247 = acc-grps
+Inp 248 = accelerate
+Inp 249 = freezegrps
+Inp 250 = freezedim
+Inp 251 = cos-acceleration
+Inp 252 = deform
+Inp 253 = 
+; Electric fields
+Inp 254 = ; Format is number of terms (int) and for all terms an amplitude (real)
+Inp 255 = ; and a phase angle (real)
+Inp 256 = E-x
+Inp 257 = E-xt
+Inp 258 = E-y
+Inp 259 = E-yt
+Inp 260 = E-z
+Inp 261 = E-zt
+Inp 262 = 
+; User defined thingies
+Inp 263 = user1-grps
+Inp 264 = user2-grps
+Inp 265 = userint1
+Inp 266 = userint2
+Inp 267 = userint3
+Inp 268 = userint4
+Inp 269 = userreal1
+Inp 270 = userreal2
+Inp 271 = userreal3
+Inp 272 = userreal4
+Just opened (0):
+Added 1 command line arguments            defaults:               invalid  
+           atomtypes:              defaults               invalid  
+           bondtypes:             atomtypes               invalid  
+     constrainttypes:             atomtypes               invalid  
+           pairtypes:             atomtypes               invalid  
+          angletypes:             atomtypes               invalid  
+       dihedraltypes:             atomtypes               invalid  
+      nonbond_params:             atomtypes               invalid  
+        moleculetype:             atomtypes               invalid  
+               atoms:          moleculetype               invalid  
+      virtual_sites2:                 atoms               invalid  
+      virtual_sites3:                 atoms               invalid  
+      virtual_sites4:                 atoms               invalid  
+      virtual_sitesn:                 atoms               invalid  
+               bonds:                 atoms               invalid  
+          exclusions:                 bonds           constraints               settles               invalid  
+               pairs:                 atoms               invalid  
+            pairs_nb:                 atoms               invalid  
+              angles:                 atoms               invalid  
+           dihedrals:                 atoms               invalid  
+         constraints:                 atoms               invalid  
+             settles:                 atoms               invalid  
+        polarization:                 atoms               invalid  
+  water_polarization:                 atoms               invalid  
+  thole_polarization:                 atoms               invalid  
+              system:          moleculetype               invalid  
+           molecules:                system               invalid  
+ position_restraints:                 atoms               invalid  
+    angle_restraints:                 atoms               invalid  
+  angle_restraints_z:                 atoms               invalid  
+ distance_restraints:                 atoms               invalid  
+orientation_restraints:                 atoms               invalid  
+ dihedral_restraints:                 atoms               invalid  
+h2o.top :    1 : #include spce.itp

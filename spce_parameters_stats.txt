@@ -1,0 +1,22 @@
+This is ../../freqTrajStats called as
+../../freqTrajStats -m md.mdp spce_dw.dat times-0_0.dat spce On: Tue Apr 21 17:52:00 2009
+
+
+Parameters:
+dt = 0.002000
+n_bins = 64
+n_c2_output = 100
+nsteps = 5001
+nmols = 1019
+nstepsmax = 5001
+nprotonsmax = 2038
+n_c2 = 8192
+n_c3 = 64
+c3_stepsize = 0.010000
+c3_max = 0.640000
+n_t2_t4_pairs = 2036621151
+
+Frequency trajectory statistics:
+Mean     	-237.163040 cm-1
+Std dev  	93.783127 cm-1
+Skewness 	-0.148961

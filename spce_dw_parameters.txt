@@ -1,0 +1,10 @@
+This is ../../mdTrajToFreq called as
+../../mdTrajToFreq spce_coord.xvg spce_force.xvg spce_dw
+On: Sun Apr 19 00:45:16 2009
+
+
+Parameters:
+nsteps = 5001
+nmols = 1019
+fact = 0.067077
+FUDGE = 0.188000

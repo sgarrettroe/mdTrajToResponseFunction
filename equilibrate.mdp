@@ -1,0 +1,36 @@
+title               =  spce H2O equilibrate
+cpp                 =  /usr/bin/cpp
+constraints         =  none
+integrator          =  md
+dt                  =  0.002      ; ps !
+nsteps              =  100000    ; total 200 ps.
+nstcomm             =  1
+nstxout             =  100
+nstvout             =  0
+nstfout             =  100
+nstenergy           =  100
+nstlist             =  100
+ns_type             =  grid
+rlist               =  1.5
+vdwtype             =  Switch
+rvdw_switch         =  1.3
+rvdw                =  1.4
+rcoulomb            =  1.5
+coulombtype         =  PME
+; Berendsen temperature coupling is on in two groups
+Tcoupl              =  v-rescale
+tau_t               =  .1
+tc-grps             =  SOL
+ref_t               =  300
+; Energy monitoring
+energygrps          =  SOL
+; Pressure coupling is not on
+Pcoupl              =  berendsen
+tau_p               =  100
+compressibility     =  7.6e-4
+ref_p               =  1.0
+; Generate velocites is on at 300 K.
+gen_vel             =  yes
+gen_temp            =  300.0
+gen_seed            =  173529
+

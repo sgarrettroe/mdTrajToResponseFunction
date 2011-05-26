@@ -1,0 +1,36 @@
+title               =  spce water
+cpp                 =  /usr/bin/cpp
+constraints         =  none
+integrator          =  md
+dt                  =  0.002      ; ps !
+nsteps              =  5000     ; total 0.01 ns.
+nstcomm             =  1
+nstxout             =  1
+nstvout             =  50
+nstfout             =  5
+nstenergy           =  50
+nstlist             =  10
+ns_type             =  grid
+rlist               =  1.5
+rcoulomb            =  1.5
+vdwtype             =  Switch
+rvdw_switch         =  1.0
+rvdw                =  1.3
+coulombtype         =  PME
+; Berendsen temperature coupling is on in two groups
+Tcoupl              =  v-rescale
+tau_t               =  10.0
+tc-grps             =  SOL
+ref_t               =  300
+; Energy monitoring
+energygrps          =  SOL
+; Pressure coupling is not on
+Pcoupl              =  no
+tau_p               =  0.5
+compressibility     =  4.5e-5
+ref_p               =  1.0
+; Generate velocites is on at 300 K.
+gen_vel             =  no
+;gen_temp            =  300.0
+;gen_seed            =  173529
+
