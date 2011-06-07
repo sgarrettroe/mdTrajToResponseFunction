@@ -1,0 +1,33 @@
+#a comment line
+dt = 0.01 
+order = 3 #2D spectroscopy
+fit_order = 1 #a_0 + a_1 E 
+
+q_H = 0.4238 #spc/e charge parameter for proton
+# \omega_{10} parameters
+a_0_0 = 2792.7
+a_0_1 = -0.15237 # -7995.9/49613.895
+# \omega_{21} parameters
+a_1_0 = 2700.6
+a_1_1 = -0.16645 # -8258/49613.895
+# \x_{10} parameters
+b_0_0 = 0.0081787 #nm	
+b_0_1 = 9.266e-7 #nm / cm-1 
+# \x_{21} parameters
+b_1_0 = 0.011493 #nm
+b_1_1 = 1.3057e-6 # nm / cm-1
+# \mu/\mu_g parameters
+mu_mug_0 = 1.177
+mu_mug_1 = 1.448e-3 #71.86 / 49613.895
+
+# use mass weighted forces? Skinner type = 0 (false) Geissler type =1 (true)
+flag_massweightedforce = 0
+
+# calculate dipole and noncondon effects?
+flag_noncondon = 1
+
+# treat as a two-level system? 
+flag_twolevelsystem = 0
+
+# compress output?
+flag_compressoutput = 1

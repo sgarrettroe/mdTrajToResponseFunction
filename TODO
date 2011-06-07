@@ -1,17 +1,29 @@
 In this revamp here is what I want to do
 
-1) mdTrajToFreq and freqTrajToR5: redo the input arguments using get
+OK 1a) mdTrajToFreq : redo the input arguments using get
 long opt so that I can get options in and out more easily
 
-2) mdTrajToFreq: be able to read in a mapping from forces / coords in
+1b) freqTrajToR5 : redo the input arguments using get
+long opt so that I can get options in and out more easily
+
+OK 2) mdTrajToFreq: be able to read in a mapping from forces / coords in
 a general way so that I can try skinner's or phil's or anybody else's
 mapping. And switch between OH and OD in a simple way rather than this
 ugly by hand way.
 
-3) mdTrajToFreq: be able to output dipole moment and frequency for
+OK 3) mdTrajToFreq: be able to output dipole moment and frequency for
 ground and excited states
 
 3) freqTrajToR5: update the way the calculation is done to be able to
 inclde the noncondon effects and dependence of anharmonicity on
 frequency
 
+4) move headers and helper functions into separate files (?)
+
+5) mdFreqTraj : scaling of force to freq is probably wrong, only 60 cm-1 fwhm for whatever random water model I found. Rerun SPC/e to be sure
+
+OK6) mdTrajToFreq : test compression output
+
+7) freqTrajToR5 : read compressed input
+
+8) mdTrajToFreq : read compressed input
