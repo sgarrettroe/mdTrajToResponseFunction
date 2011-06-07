@@ -17,6 +17,9 @@ CFLAGS_FAST=-Wall -O3 -ffast-math -lm
 %.wall: %.c
 	$(CC) -Wall -lm $< -o $*
 
+%.gdb: %.c
+	$(CC) -ggdb -Wall -lm $< -o $*
+
 tools: mdTrajToFreq.fast mdTrajToFreq.fast freqTrajToResponse.fast freqTrajStats.fast
 
 clean:

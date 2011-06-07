@@ -22,8 +22,8 @@ frequency
 
 5) mdFreqTraj : scaling of force to freq is probably wrong, only 60 cm-1 fwhm for whatever random water model I found. Rerun SPC/e to be sure
 
-OK6) mdTrajToFreq : test compression output
+OK 6) mdTrajToFreq : test compression output
 
 7) freqTrajToR5 : read compressed input
 
-8) mdTrajToFreq : read compressed input
+OK 8) mdTrajToFreq : read compressed input

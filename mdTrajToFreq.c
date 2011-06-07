@@ -150,12 +150,14 @@ struct globalArgs_t {
   int flag_noncondon;
   int flag_twolevelsystem;
   int flag_compressoutput;
+  int flag_compressedinput;
 } globalArgs;
 
 void initialize_globalArgs( void ){
   // generate the default values of the global arguments above
   globalArgs.test = 1;
   globalArgs.flag_compressoutput = 0;
+  globalArgs.flag_compressedinput = 0;
 }
 
 void display_options( void ){
@@ -187,6 +189,7 @@ void display_options( void ){
   printf("flag_noncondon \t%d\n",globalArgs.flag_noncondon); 
   printf("flag_twolevelsystem \t%d\n",globalArgs.flag_twolevelsystem); 
   printf("flag_compressoutput \t%d\n",globalArgs.flag_compressoutput); 
+  printf("flag_compressedinput \t%d\n",globalArgs.flag_compressedinput); 
 
   printf("\n\n");
 }
@@ -235,6 +238,7 @@ void mdTrajToFreq(const char* coord_file_name, const char* force_file_name, cons
   const int n_levels = (globalArgs.flag_twolevelsystem == 0 ? (globalArgs.order+1)/2 : 1); //TEST TEST!!!
   const int fit_order = globalArgs.fit_order;
   const int flag_compressoutput = globalArgs.flag_compressoutput;
+  const int flag_compressedinput = globalArgs.flag_compressedinput;
   const float q_H = globalArgs.q_H;
 
 
@@ -268,26 +272,63 @@ void mdTrajToFreq(const char* coord_file_name, const char* force_file_name, cons
   // and read one line with "head" and then "wc -w" to get the
   // number of molecules
   printf("Determine number of steps and number of molecules from coordinate file.\n");
-  if (asprintf(&string,"wc -l %s",coord_file_name)<0){
+  char *command_template;
+  if (flag_compressedinput == 0){
+    //if input is ascii
+    if (asprintf(&command_template,"wc -l %%s") < 0){
+      fprintf(stderr,"failed to write string");
+      exit(EXIT_FAILURE);
+    }
+  } else {
+    //if compressed input
+    if (asprintf(&command_template,"gzip -cd %%s | wc -l") < 0){
+      fprintf(stderr,"failed to write string");
+      exit(EXIT_FAILURE);
+    }
+  }
+  //  if (asprintf(&string,"wc -l %s",coord_file_name)<0){
+  if (asprintf(&string,command_template,coord_file_name)<0){
     fprintf(stderr,"failed to write string");
     exit(EXIT_FAILURE);
   }
+  free(command_template);
   fid = popen(string,"r");
-  free(string);
-  if(fid==NULL) nrerror("Opening 'wc -l coord_file_name' pipe failed.");
+  if(fid==NULL){
+    fprintf(stderr,"Opening '%s' pipe failed.",string);
+    exit(EXIT_FAILURE);
+  }
   fscanf(fid,"%ld",&nsteps);
   pclose(fid);
+  free(string);
   printf("Found %ld steps in file %s\n", nsteps, coord_file_name);
   
-  if (asprintf(&string,"head -n 1 %s | wc -w",coord_file_name) < 0){
+  if (flag_compressedinput == 0){
+    //if input is ascii
+    if (asprintf(&command_template,"head -n1 %%s | wc -w") < 0){
+      fprintf(stderr,"failed to write string");
+      exit(EXIT_FAILURE);
+    }
+  } else {
+    //if compressed input
+    if (asprintf(&command_template,"gzip -cd %%s | head -n1 | wc -w") < 0){
+      fprintf(stderr,"failed to write string");
+      exit(EXIT_FAILURE);
+    }
+  }
+  //  if (asprintf(&string,"head -n 1 %s | wc -w",coord_file_name) < 0){
+  if (asprintf(&string,command_template,coord_file_name)<0){
     fprintf(stderr,"failed to write string");
     exit(EXIT_FAILURE);
   }
+  free(command_template);
   fid = popen(string,"r");
-  free(string);
-  if(fid==NULL) nrerror("Opening 'head -n 1 coord_file_name | wc -w' pipe failed.");
+  if(fid==NULL){
+    fprintf(stderr,"Opening '%s' pipe failed.",string);
+    exit(EXIT_FAILURE);
+  }
   fscanf(fid,"%ld",&natoms);
   pclose(fid);
+  free(string);
   
   natoms = (natoms-1)/3; //substract 1 for the time stamp 
   //and div by 3 for x y z coords
@@ -318,12 +359,41 @@ void mdTrajToFreq(const char* coord_file_name, const char* force_file_name, cons
   
   
   // open coordinate and force files
-  coord_fid = fopen(coord_file_name,"rt");
-  if(coord_fid==NULL) nrerror("opening coordinate file failed.");
-  force_fid = fopen(force_file_name,"rt");
-  if(force_fid==NULL) nrerror("opening force file failed.");
   printf("Open trajectory files\n");  
-  
+  if (flag_compressedinput==0){
+    // plain text
+    coord_fid = fopen(coord_file_name,"rt");
+    if(coord_fid==NULL) nrerror("opening coordinate file failed.");
+    force_fid = fopen(force_file_name,"rt");
+    if(force_fid==NULL) nrerror("opening force file failed.");
+  } else {
+    // compressed
+    if (asprintf(&string,"gzip -cd %s",coord_file_name) < 0)
+      {
+	fprintf(stderr,"failed to write string");
+	exit(EXIT_FAILURE);
+      }
+    coord_fid = popen(string,"r");
+    free(string);
+    if(coord_fid==NULL) nrerror("opening coordinate file gzip pipe failed.");
+    /*    fscanf(coord_fid,"%f",&dummy);
+    printf(" coord file pipe (1) %f\n",dummy);
+    fscanf(coord_fid,"%f",&dummy);
+    printf(" coord file pipe (2) %f\n",dummy);
+    fscanf(coord_fid,"%f",&dummy);
+    printf(" coord file pipe (3) %f\n",dummy);
+    */
+
+    if (asprintf(&string,"gzip -cd %s",force_file_name) < 0)
+      {
+	fprintf(stderr,"failed to write string");
+	exit(EXIT_FAILURE);
+      }
+    force_fid = popen(string,"r");
+    free(string);
+    if(force_fid==NULL) nrerror("opening force file gzip pipe failed.");    
+  }
+
   //set these up as /dev/NULL if not desired and then just calculate everything
   w_fid_array = malloc(n_levels*sizeof(FILE*));
   x_fid_array = malloc(n_levels*sizeof(FILE*));
@@ -424,6 +494,7 @@ void mdTrajToFreq(const char* coord_file_name, const char* force_file_name, cons
   /*
    * loop over timesteps 
    */
+  if (DEBUG_LEVEL>=1) printf("start reading coord and force files\n");
   for(i=1;i<=nsteps;i++)
     {
       // the first number is the time, which I throw away
@@ -605,9 +676,9 @@ void read_input_parameters(char *parameter_file_name){
     }
 
     // if it is not a comment character try to process it
-    //if (sscanf(line,"%as = %f",&name,&val) < 2){ //I don't know why this doesn't work!!! (also uncomment name declaration above
+    //if (sscanf(line,"%as = %f",&name,&val) < 2){ //only works in gnu's libcnot freebsd!!!
     if (sscanf(line,"%s = %f",name,&val) < 2){
-      printf("skip line: \n%s",line);
+      if (DEBUG_LEVEL>=1) printf("skip input parameter line: \n%s",line);
       continue;
     }
     
@@ -674,6 +745,9 @@ void read_input_parameters(char *parameter_file_name){
     if (fnmatch("flag_compressoutput",name,FNM_CASEFOLD)==0){
       globalArgs.flag_compressoutput= (int) val;
     }
+    if (fnmatch("flag_compressedinput",name,FNM_CASEFOLD)==0){
+      globalArgs.flag_compressedinput= (int) val;
+    }
     
   } //end while(feof(fid)==0)
 
@@ -695,6 +769,7 @@ int main( int argc, char *argv[] ) {
   printf("process options\n");
   /* process command line arguments */
   while((opt = getopt_long( argc, argv, optString,longOpts, &longIndex))!=-1)
+    //if (DEBUG_LEVEL>2) printf("%c",opt);
     switch(opt){
     case 'c': //coord file
       if (asprintf(&coord_file_name,"%s",optarg) < 0)
@@ -702,6 +777,9 @@ int main( int argc, char *argv[] ) {
 	  fprintf(stderr,"failed to write string");
 	  exit(EXIT_FAILURE);
 	}
+      if (fnmatch("*.gz",coord_file_name,FNM_CASEFOLD)==0){
+	globalArgs.flag_compressedinput = 1;
+      }
       break;
     case 'f': //forces file
       if (asprintf(&force_file_name,"%s",optarg) < 0)
@@ -709,6 +787,9 @@ int main( int argc, char *argv[] ) {
 	  fprintf(stderr,"failed to write string");
 	  exit(EXIT_FAILURE);
 	}
+      if (fnmatch("*.gz",force_file_name,FNM_CASEFOLD)==0){
+	globalArgs.flag_compressedinput = 1;
+      }
       break;
     case 'o': //output base name
       if (asprintf(&base_name,"%s",optarg) < 0)
