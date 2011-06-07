@@ -18,7 +18,7 @@ ground and excited states
 inclde the noncondon effects and dependence of anharmonicity on
 frequency
 
-4) move headers and helper functions into separate files (?)
+OK 4) move headers and helper functions into separate files (?)
 
 5) mdFreqTraj : scaling of force to freq is probably wrong, only 60 cm-1 fwhm for whatever random water model I found. Rerun SPC/e to be sure
 
@@ -27,3 +27,7 @@ OK 6) mdTrajToFreq : test compression output
 7) freqTrajToR5 : read compressed input
 
 OK 8) mdTrajToFreq : read compressed input
+
+OK 9) mdTrajToFreq: get rid of fixed width buffers
+
+10) freqTrajToR5 : get rid of fixed width buffers
