@@ -1,0 +1,6 @@
+# ignore all emacs backups
+*~
+
+# ignore our executables
+mdTrajToFreq
+freqTrajToR5
