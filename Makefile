@@ -3,6 +3,8 @@ SRC_DIR = src/
 
 VPATH = $(SRC_DIR)
 CC = gcc
+CFLAGS = -Wall
+LDFLAGS = -lm
 CFLAGS_FAST=-Wall -O3 -ffast-math -lm
 
 H_FILES = globalArgs.h mymath.h

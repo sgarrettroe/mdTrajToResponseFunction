@@ -4,3 +4,6 @@
 # ignore our executables
 mdTrajToFreq
 freqTrajToR5
+
+# ignore object files
+*.o

@@ -105,14 +105,15 @@ void initialize_globalArgs( void ){
   globalArgs.flag_compressedinput = 0;
 }
 
-void mdTrajToFreq(const char* coord_file_name, const char* force_file_name, const char* base_name)
+void mdTrajToFreq(const char* parameter_file_name, const char* coord_file_name, const char* force_file_name, const char* base_name)
 {
   FILE *coord_fid,*force_fid;
   FILE *fid; 
   FILE **w_fid_array;// = malloc(3*sizeof(FILE*));//TEST TEST
   FILE **x_fid_array;// = malloc(3*sizeof(FILE*));//TEST TEST!!!
-  char *name,*string;
+  char *string,*fname,*pname,*param_name;
   //,coord_file_name[100],force_file_name[100],base_name[100],
+  char *command_template;
   
   const float NA = 6.023e23; // mol^-1
   const float mass = 1.67262158e-27; //kg
@@ -182,7 +183,6 @@ void mdTrajToFreq(const char* coord_file_name, const char* force_file_name, cons
   // and read one line with "head" and then "wc -w" to get the
   // number of molecules
   printf("Determine number of steps and number of molecules from coordinate file.\n");
-  char *command_template;
   if (flag_compressedinput == 0){
     //if input is ascii
     if (asprintf(&command_template,"wc -l %%s") < 0){
@@ -314,83 +314,155 @@ void mdTrajToFreq(const char* coord_file_name, const char* force_file_name, cons
     if (DEBUG_LEVEL>=0) printf("open files for text output\n");
     for (i_level=0;i_level<n_levels;i_level++){
       //freq files
-      //sprintf(name,"%s_dw%i.dat",base_name,(int)i_level);
-      if (asprintf(&name,"%s_dw%i.dat",base_name,(int)i_level) < 0)
+
+      //build the name of the output file
+      if (asprintf(&fname,"%s_dw%i.dat",base_name,(int)i_level) < 0)
 	{
 	  fprintf(stderr,"failed to write string");
 	  exit(EXIT_FAILURE);
 	}
-      w_fid_array[i_level]=fopen(name,"wt"); 
-      if (w_fid_array[i_level]==NULL){
-	fprintf(stderr,"Error opening file %s for output\n",name);
+
+      //build the name of the variable in the parameter file param_name
+      if (asprintf(&param_name,"w_file_%i",i_level) < 0) {
+	fprintf(stderr,"failed to write string");
 	exit(EXIT_FAILURE);
       }
-      free(name);
+      
+      //open the file fname
+      w_fid_array[i_level]=fopen(fname,"wt"); 
+      if (w_fid_array[i_level]==NULL){
+	fprintf(stderr,"Error opening file %s for output\n",fname);
+	exit(EXIT_FAILURE);
+      }
+
+      //save the file name to the parameter file 
+      gaWriteString(parameter_file_name,param_name,fname);
+      free(param_name);
+      free(fname);
 
       //mu files
-      if (flag_noncondon==1){
-  	    //sprintf(name,"%s_mu%i.dat",base_name,(int)i_level);
-	if (asprintf(&name,"%s_mu%i.dat",base_name,(int)i_level) < 0)
-	  {
-	    fprintf(stderr,"failed to write string");
-	    exit(EXIT_FAILURE);
-	  }
-      } else {
-	    //sprintf(name,"/dev/null");
-	if (asprintf(&name,"/dev/null") < 0)
-	  {
-	    fprintf(stderr,"failed to write string");
-	    exit(EXIT_FAILURE);
-	  }
-      }      
-      x_fid_array[i_level]=fopen(name,"wt"); 
-      if (x_fid_array[i_level]==NULL){
-	fprintf(stderr,"Error opening file %s for output\n",name);
+      //build the name of the variable in the parameter file
+      if (asprintf(&param_name,"mu_file_%i",i_level) < 0) {
+	fprintf(stderr,"failed to write string");
 	exit(EXIT_FAILURE);
       }
-      free(name);
+      if (flag_noncondon==1){
+	//build the file name
+	if (asprintf(&fname,"%s_mu%i.dat",base_name,(int)i_level) < 0)
+	  {
+	    fprintf(stderr,"failed to write string");
+	    exit(EXIT_FAILURE);
+	  }
+    
+	//save the file name to the parameter file 
+	gaWriteString(parameter_file_name,param_name,fname);
+      } else {
+	//use dev null if no file
+	if (asprintf(&fname,"/dev/null") < 0)
+	  {
+	    fprintf(stderr,"failed to write string");
+	    exit(EXIT_FAILURE);
+	  }
+
+	//clear the name if it is in the parameter file
+	gaRemoveString(parameter_file_name,param_name);
+      }      
+      //open the file (which can be a real file or dev null)
+      x_fid_array[i_level]=fopen(fname,"wt"); 
+      if (x_fid_array[i_level]==NULL){
+	fprintf(stderr,"Error opening file %s for output\n",fname);
+	exit(EXIT_FAILURE);
+      }
+      free(param_name);
+      free(fname);
     }
   } else {
     //open a pipe to gz to compress the output
     if (DEBUG_LEVEL>=0) printf("open pipe to gzip files for compressed output\n");
     for (i_level=0;i_level<n_levels;i_level++){
       //freq files
-      //    sprintf(name,"gzip > %s_dw%i.dat.gz",base_name,(int)i_level);
-      if (asprintf(&name,"gzip > %s_dw%i.dat.gz",base_name,(int)i_level) < 0)
+      
+      //build the name of the variable in the parameter file param_name
+      if (asprintf(&param_name,"w_file_%i",i_level) < 0) {
+	fprintf(stderr,"failed to write string");
+	exit(EXIT_FAILURE);
+      }
+      
+      //build the name of the output file
+      if (asprintf(&fname,"%s_dw%i.dat.gz",base_name,(int)i_level) < 0)
 	{
 	  fprintf(stderr,"failed to write string");
 	  exit(EXIT_FAILURE);
 	}
-      if (DEBUG_LEVEL>=2) printf("%s\n",name);
-      w_fid_array[i_level] = popen(name,"w"); //TEST TEST
+
+      //build the pipe
+      if (asprintf(&pname,"gzip > %s",fname,(int)i_level) < 0)
+	{
+	  fprintf(stderr,"failed to write string");
+	  exit(EXIT_FAILURE);
+	}
+   
+      if (DEBUG_LEVEL>=2) printf("%s\n",pname);
+      w_fid_array[i_level] = popen(pname,"w"); //TEST TEST
       if (w_fid_array[i_level]==NULL){
-	fprintf(stderr,"Error opening pipe %s for output\n",name);
+	fprintf(stderr,"Error opening pipe %s for output\n",pname);
 	exit(EXIT_FAILURE);
       }
-      free(name);
+
+      //save the file name to the parameter file 
+      gaWriteString(parameter_file_name,param_name,fname);
+      free(fname);
+      free(pname);
+      free(param_name);
 
       //mu files
-      if (flag_noncondon==1){
-	//sprintf(name,"gzip > %s_mu%i.dat.gz",base_name,(int)i_level);
-	if (asprintf(&name,"gzip > %s_mu%i.dat.gz",base_name,(int)i_level) < 0)
-	  {
-	    fprintf(stderr,"failed to write string");
-	    exit(EXIT_FAILURE);
-	  }
-      } else {
-	//    sprintf(name,"/dev/null");
-	if (asprintf(&name,"/dev/null") < 0)
-	  {
-	    fprintf(stderr,"failed to write string");
-	    exit(EXIT_FAILURE);
-	  }
-      }        
-      x_fid_array[i_level]=popen(name,"w"); //TEST TEST
-      if (x_fid_array[i_level]==NULL){
-	fprintf(stderr,"Error opening pipe %s for output\n",name);
+
+      //build the name of the variable in the parameter file
+      if (asprintf(&param_name,"mu_file_%i",i_level) < 0) {
+	fprintf(stderr,"failed to write string");
 	exit(EXIT_FAILURE);
       }
-      free(name);
+
+      if (flag_noncondon==1){
+	//build file name
+	if (asprintf(&fname,"%s_mu%i.dat.gz",base_name,(int)i_level) < 0)
+	  {
+	    fprintf(stderr,"failed to write string");
+	    exit(EXIT_FAILURE);
+	  }
+
+	//save the file name to the parameter file 
+	gaWriteString(parameter_file_name,param_name,fname);
+
+      } else {
+
+	// use dev null if not outputting to a real file
+	if (asprintf(&fname,"/dev/null") < 0)
+	  {
+	    fprintf(stderr,"failed to write string");
+	    exit(EXIT_FAILURE);
+	  }
+
+	//clear the name if it is in the parameter file
+	gaRemoveString(parameter_file_name,param_name);
+
+      }        
+
+      //build pipe name
+      if (asprintf(&pname,"gzip > %s",fname,(int)i_level) < 0)
+	{
+	  fprintf(stderr,"failed to write string");
+	  exit(EXIT_FAILURE);
+	}
+
+      x_fid_array[i_level]=popen(pname,"w");
+      if (x_fid_array[i_level]==NULL){
+	fprintf(stderr,"Error opening pipe %s for output\n",pname);
+	exit(EXIT_FAILURE);
+      }
+      free(fname);
+      free(pname);
+      free(param_name);
 
     }
   }
@@ -635,13 +707,14 @@ int main( int argc, char *argv[] ) {
   //read_input_data(parameter_file_name);
 
   //do the main calculation
-  mdTrajToFreq(coord_file_name,force_file_name,base_name);
+  mdTrajToFreq(parameter_file_name,coord_file_name,force_file_name,base_name);
 
   //output the results
 
   //cleanup
 
   // we're done!
+  printf("done\n");
   exit(EXIT_SUCCESS);
 
 }//end main()

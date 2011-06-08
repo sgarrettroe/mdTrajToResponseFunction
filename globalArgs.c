@@ -167,9 +167,94 @@ void read_input_parameters(char *parameter_file_name){
     if (fnmatch("flag_compressedinput",name,FNM_CASEFOLD)==0){
       globalArgs.flag_compressedinput= (int) val;
     }
+    if (fnmatch("nt",name,FNM_CASEFOLD)==0){
+      globalArgs.nt = (int) val;
+    }
+    if (fnmatch("ntint",name,FNM_CASEFOLD)==0){
+      globalArgs.nt = (int) val;
+    }
+    if (fnmatch("nskip",name,FNM_CASEFOLD)==0){
+      globalArgs.nt = (int) val;
+    }
     
   } //end while(feof(fid)==0)
 
   fclose(fid);
 
 }
+
+int gaRewriteString(const char *parameter_file_name,const char *name,const char *val){
+  char *command;
+  FILE *pid;
+  int ret;
+
+  if (asprintf(&command,"perl -i .bak -pe \'s/^%s\\s*=\\s*(\\w*.\\w*)\\s*#(.*) / %s = %s #?$2/g\' %s",name,name,val,parameter_file_name) < 0){
+    fprintf(stderr,"failed to write string");
+    exit(EXIT_FAILURE);
+  }
+  if (DEBUG_LEVEL>=1) printf("%s\n",command);
+  ret = system(command);
+      if(ret!=0)
+	fprintf(stderr,"Error %d executing (system()) %s",ret,command);
+
+  
+  return(0);
+}
+
+int gaRemoveString(const char *parameter_file_name,const char *name){
+  char *command;
+  FILE *pid;
+  int ret;
+
+  //  if (asprintf(&command,"perl -i.bak -pe \'s/^%s\\s*=.*//g\' %s",name,parameter_file_name) < 0){
+  if (asprintf(&command,"perl -i.bak -ne \'print unless /^%s[\\s=]/\' %s",name,parameter_file_name) < 0){
+    fprintf(stderr,"failed to write string");
+    exit(EXIT_FAILURE);
+  }
+  if (DEBUG_LEVEL>=1)  printf("%s\n",command);
+  ret = system(command);
+      if(ret!=0)
+	fprintf(stderr,"Error %d executing (system()) %s",ret,command);
+
+  return(0);
+}
+
+int gaAppendString(const char *parameter_file_name,const char *name, const char *val){
+  char *command;
+  FILE *pid;
+  int ret;
+
+  ret = 0;
+  if (asprintf(&command,"echo %s = %s >> %s",name,val,parameter_file_name) < 0){
+    fprintf(stderr,"failed to write string");
+    exit(EXIT_FAILURE);
+  }
+  if (DEBUG_LEVEL>=1) printf("%s\n",command);
+  ret = system(command);
+  if(ret!=0)
+    {
+      fprintf(stderr,"Error %d executing (system()) %s",ret,command);
+      exit(EXIT_FAILURE);
+    }
+
+  return(ret);
+}
+
+int gaWriteString(const char *parameter_file_name,const char *name,const char *val){
+  int ret=0;
+  
+  ret = gaRemoveString(parameter_file_name,name);
+  ret = gaAppendString(parameter_file_name,name,val);
+  return(ret);
+}
+
+int gaWriteInt(const char * name,int val){
+  int ret = 0;
+  return(ret);
+}
+
+int gaWriteFloat(const char * name,float val){
+  int ret = 0;
+  return(ret);
+}
+

@@ -25,3 +25,8 @@ struct globalArgs_t {
 void display_options( void );
 
 void read_input_parameters(char *parameter_file_name);
+
+int gaRewriteString(const char *parameter_file_name,const char *name,const char *val);
+int gaRemoveString(const char *parameter_file_name,const char *name);
+int gaAppendString(const char *parameter_file_name,const char *name,const char *val);
+int gaWriteString(const char *parameter_file_name,const char *name,const char *val);
