@@ -37,3 +37,4 @@ void jointProbabilityDensity3D(float seq[],unsigned long n_steps,float edges[],u
 void threePointCorrelation(float seq[],unsigned long n_steps,unsigned long lags[],unsigned long n_lags,float **c3);
 void histTri(float x[],float y[],float z[],unsigned long n_steps,float edges[],unsigned long n_edges,float ***hist_tensor);
 
+#define PI 3.1415927

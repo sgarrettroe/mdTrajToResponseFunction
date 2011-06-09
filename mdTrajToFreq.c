@@ -98,12 +98,6 @@ static const struct option longOpts[] = {
   { NULL, no_argument, NULL,0}
 };
 
-void initialize_globalArgs( void ){
-  // generate the default values of the global arguments
-  globalArgs.test = 1;
-  globalArgs.flag_compressoutput = 0;
-  globalArgs.flag_compressedinput = 0;
-}
 
 void mdTrajToFreq(const char* parameter_file_name, const char* coord_file_name, const char* force_file_name, const char* base_name)
 {
@@ -137,24 +131,17 @@ void mdTrajToFreq(const char* parameter_file_name, const char* coord_file_name, 
   int i_level;
   float dipole;
 
-  //int dummy;
-
   const int flag_massweightedforces = globalArgs.flag_massweightedforces;
   const int flag_noncondon = globalArgs.flag_noncondon;
   const int flag_twolevelsystem = globalArgs.flag_twolevelsystem;
-  //  const float **a = globalArgs.a;
-  //  const float **b = globalArgs.b;
-  float **a, **b; //why doesn't the above work???
+  float **a = globalArgs.a; //why can't these be const?
+  float **b = globalArgs.b;
   const float *mu_mug = globalArgs.mu_mug;
   const int n_levels = (globalArgs.flag_twolevelsystem == 0 ? (globalArgs.order+1)/2 : 1);
   const int fit_order = globalArgs.fit_order;
   const int flag_compressoutput = globalArgs.flag_compressoutput;
   const int flag_compressedinput = globalArgs.flag_compressedinput;
   const float q_H = globalArgs.q_H;
-
-
-  a = globalArgs.a;
-  b = globalArgs.b;
 
   if (DEBUG_LEVEL>=1){
     printf("entering mdTrajtoFreq()\n");
@@ -245,7 +232,13 @@ void mdTrajToFreq(const char* parameter_file_name, const char* coord_file_name, 
   nmols = natoms/3; //3 atoms per H2O molecule
   nprotons = nmols*2;//2 protons
   printf("Found %ld atoms, %ld molecules in file %s\n", natoms, nmols, coord_file_name);
-  
+
+  // add these values to the parameter file
+  globalArgs.nprotons_in_file = nprotons;
+  gaWriteInt(parameter_file_name,"nprotons_in_file",nmols); //only output one freq per molecule
+  globalArgs.nsteps_in_file = nprotons;
+  gaWriteInt(parameter_file_name,"nsteps_in_file",nsteps);
+
   posO    = vector(1,3);
   posH1   = vector(1,3);
   posH2   = vector(1,3);
@@ -257,13 +250,6 @@ void mdTrajToFreq(const char* parameter_file_name, const char* coord_file_name, 
     
   /*
    * Read trajectory files (coordinate and forces)
-   *
-   * The trajectory files should be a command-line input. Read these
-   * files line by line and for each time-step calculate the resulting
-   * frequency of each OH. Save this in a matrix to be used later for
-   * collecting statistics. Finally, make sure to subtract the mean
-   * frequency. For a 1 ns trajectory of 2000 protons molecules with
-   * zeropadding, the resulting dw_matrix is ~ 1 Gi, so be careful.
    *
    */
   
@@ -286,13 +272,6 @@ void mdTrajToFreq(const char* parameter_file_name, const char* coord_file_name, 
     coord_fid = popen(string,"r");
     free(string);
     if(coord_fid==NULL) nrerror("opening coordinate file gzip pipe failed.");
-    /*    fscanf(coord_fid,"%f",&dummy);
-    printf(" coord file pipe (1) %f\n",dummy);
-    fscanf(coord_fid,"%f",&dummy);
-    printf(" coord file pipe (2) %f\n",dummy);
-    fscanf(coord_fid,"%f",&dummy);
-    printf(" coord file pipe (3) %f\n",dummy);
-    */
 
     if (asprintf(&string,"gzip -cd %s",force_file_name) < 0)
       {
@@ -365,7 +344,7 @@ void mdTrajToFreq(const char* parameter_file_name, const char* coord_file_name, 
 	  }
 
 	//clear the name if it is in the parameter file
-	gaRemoveString(parameter_file_name,param_name);
+	gaRemoveParameter(parameter_file_name,param_name);
       }      
       //open the file (which can be a real file or dev null)
       x_fid_array[i_level]=fopen(fname,"wt"); 
@@ -444,7 +423,7 @@ void mdTrajToFreq(const char* parameter_file_name, const char* coord_file_name, 
 	  }
 
 	//clear the name if it is in the parameter file
-	gaRemoveString(parameter_file_name,param_name);
+	gaRemoveParameter(parameter_file_name,param_name);
 
       }        
 
@@ -620,6 +599,9 @@ int main( int argc, char *argv[] ) {
   /* initialize global arguments */
   initialize_globalArgs();
 
+  /* initialize base name */
+  if (asprintf(&base_name,"",FNM_CASEFOLD) < 0) nrerror("Failed to write string.");
+
   printf("process options\n");
   /* process command line arguments */
   while((opt = getopt_long( argc, argv, optString,longOpts, &longIndex))!=-1)
@@ -646,6 +628,7 @@ int main( int argc, char *argv[] ) {
       }
       break;
     case 'o': //output base name
+      free(base_name);
       if (asprintf(&base_name,"%s",optarg) < 0)
 	{
 	  fprintf(stderr,"failed to write string");
@@ -702,6 +685,9 @@ int main( int argc, char *argv[] ) {
 
   // make sure options are okay
   display_options();
+
+  // error if base_name is empty
+  if (fnmatch(base_name,"",FNM_CASEFOLD) == 0) nrerror("please supply a base name with the -o flag!");
 
   //input required data
   //read_input_data(parameter_file_name);
