@@ -60,17 +60,7 @@ void display_options( void ){
   printf("\n\n");
 }
 
-void initialize_globalArgs( void ){ 
-  // generate the default values of the global arguments
-  globalArgs.test = 1;
-  globalArgs.flag_compressoutput = 0;
-  globalArgs.flag_compressedinput = 0;
-  globalArgs.nsteps_in_file = -1;
-  globalArgs.nprotons_in_file = -1;
-  globalArgs.nskip = 15;
-}
-
-void read_input_parameters(char *parameter_file_name){
+void read_input_parameters(const char *parameter_file_name){
   //read the input paramter file
   FILE *fid;
   char *unparsed_line;
@@ -243,6 +233,19 @@ void read_input_parameters(char *parameter_file_name){
   fclose(fid);
 
 }
+
+void initialize_globalArgs(const char *parameter_file_name ){ 
+  // generate the default values of the global arguments
+  globalArgs.test = 1;
+  globalArgs.flag_compressoutput = 0;
+  globalArgs.flag_compressedinput = 0;
+  globalArgs.nsteps_in_file = -1;
+  globalArgs.nprotons_in_file = -1;
+  globalArgs.nskip = 15;
+
+  read_input_parameters(parameter_file_name);
+}
+
 
 /*
  * general functions

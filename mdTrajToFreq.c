@@ -92,6 +92,7 @@ static const struct option longOpts[] = {
   { "forces", required_argument,NULL,'f'},
   { "output", required_argument,NULL,'o'},
   { "parameters", required_argument,NULL,'p'},
+  { "dt", required_argument,NULL,0},
   { "compress_output",no_argument,NULL,0},
   { "verbose",no_argument,NULL,'v'},
   { "help",no_argument,NULL, 'h'},
@@ -596,16 +597,48 @@ int main( int argc, char *argv[] ) {
   int opt = 0, longIndex=0; //for getopt_long
   char *parameter_file_name,*coord_file_name,*force_file_name,*base_name;
 
-  /* initialize global arguments */
-  initialize_globalArgs();
-
   /* initialize base name */
   if (asprintf(&base_name,"",FNM_CASEFOLD) < 0) nrerror("Failed to write string.");
 
+  /* initialize parameter file name */
+  if (asprintf(&parameter_file_name,"",FNM_CASEFOLD) < 0) nrerror("Failed to write string.");
+
+  /* look for parameter file in argument list */
+  //this is a shitty solution because I can't get getopt_long to work twice
+  /*  int count = 0;
+  while(count<argc){
+    count++;
+    if (fnmatch(argv[count],"-p",FNM_CASEFOLD) == 0 || fnmatch(argv[count],"--parameters",FNM_CASEFOLD) == 0){
+      printf("got it\n");
+      free(parameter_file_name);
+      if (asprintf(&parameter_file_name,"%s",argv[count+1]) < 0) nrerror("Failed to write string");
+      break;
+    }
+  }
+  */
+  //find the parameter file from the input options
+  while((opt = getopt_long( argc, argv, optString,longOpts, &longIndex))!=-1)
+    switch(opt){
+    case 'p': //parameter file
+      free(parameter_file_name);
+      if (asprintf(&parameter_file_name,"%s",optarg) < 0)
+	{
+	  fprintf(stderr,"failed to write string");
+	  exit(EXIT_FAILURE);
+	}
+      break;
+    }
+
+  // input parameters
+  /* initialize global arguments */
+  initialize_globalArgs(parameter_file_name);
+
   printf("process options\n");
   /* process command line arguments */
+  // reset getopt's variables
+  optind = 1;
+  longIndex = 0;
   while((opt = getopt_long( argc, argv, optString,longOpts, &longIndex))!=-1)
-    //if (DEBUG_LEVEL>2) printf("%c",opt);
     switch(opt){
     case 'c': //coord file
       if (asprintf(&coord_file_name,"%s",optarg) < 0)
@@ -636,7 +669,7 @@ int main( int argc, char *argv[] ) {
 	}
       break;
     case 'p': //parameter file
-      //strcpy(parameter_file_name,optarg);
+      free(parameter_file_name);
       if (asprintf(&parameter_file_name,"%s",optarg) < 0)
 	{
 	  fprintf(stderr,"failed to write string");
@@ -657,16 +690,9 @@ int main( int argc, char *argv[] ) {
       if (fnmatch("compress_output",longOpts[longIndex].name, FNM_CASEFOLD ) == 0 ){
 	globalArgs.flag_compressoutput=1;
       }
-/*       if( strcmp( "link_radius", longOpts[longIndex].name ) == 0 ){ */
-/* 	sscanf(optarg,"%f",&val); */
-/* 	globalArgs.link_radius = val; */
-/*       } else if( strcmp( "link_minimum_weight", longOpts[longIndex].name ) == 0 ){ */
-/* 	sscanf(optarg,"%f",&val); */
-/* 	globalArgs.link_minimum_weight = val;      */
-/*       } else { */
-/* 	fprintf(stderr,"WARNING!!! Commandline option %s not recognized!!! \n",string); */
-/* 	exit(EXIT_FAILURE); */
-/*       } */
+      if (fnmatch("dt",longOpts[longIndex].name, FNM_CASEFOLD ) == 0 ){
+	sscanf(optarg,"%f",&globalArgs.dt);
+      }
       break;
     default:
       /* should never get here */
@@ -680,8 +706,6 @@ int main( int argc, char *argv[] ) {
       display_usage();
     }
 
-  // input parameters
-  read_input_parameters(parameter_file_name);
 
   // make sure options are okay
   display_options();
