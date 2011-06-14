@@ -31,3 +31,8 @@ flag_twolevelsystem = 0
 
 # compress output?
 flag_compressoutput = 1
+
+# for response functions
+nt = 32
+ntint = 4
+nskip = 15

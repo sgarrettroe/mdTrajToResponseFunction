@@ -26,6 +26,7 @@ void display_options( void ){
   printf("nt =             \t%12i\n",globalArgs.nt); 
   printf("nsteps_in_file = \t%12i\n",globalArgs.nsteps_in_file); 
   printf("nprotons_in_file =\t%12i\n",globalArgs.nprotons_in_file); 
+  printf("nmols_in_file =\t%12i\n",globalArgs.nmols_in_file); 
   printf("ntint =          \t%12i\n",globalArgs.ntint); 
   printf("nskip =          \t%12i\n",globalArgs.nskip); 
   printf("order =          \t%12i\n",globalArgs.order); 
@@ -197,10 +198,10 @@ void read_input_parameters(const char *parameter_file_name){
       globalArgs.nt = (int) val;
     }
     if (fnmatch("ntint",name,FNM_CASEFOLD)==0){
-      globalArgs.nt = (int) val;
+      globalArgs.ntint = (int) val;
     }
     if (fnmatch("nskip",name,FNM_CASEFOLD)==0){
-      globalArgs.nt = (int) val;
+      globalArgs.nskip = (int) val;
     }
     if (fnmatch("w_file_*",name,FNM_CASEFOLD)==0){
       sscanf(name,"w_file_%d",&i);
@@ -219,6 +220,9 @@ void read_input_parameters(const char *parameter_file_name){
 	  fprintf(stderr,"failed to write string");
 	  exit(EXIT_FAILURE);
 	}
+    }
+    if (fnmatch("nmols_in_file",name,FNM_CASEFOLD)==0){
+      globalArgs.nmols_in_file = (int) val;
     }
     if (fnmatch("nprotons_in_file",name,FNM_CASEFOLD)==0){
       globalArgs.nprotons_in_file = (int) val;
@@ -241,7 +245,9 @@ void initialize_globalArgs(const char *parameter_file_name ){
   globalArgs.flag_compressedinput = 0;
   globalArgs.nsteps_in_file = -1;
   globalArgs.nprotons_in_file = -1;
+  globalArgs.nmols_in_file = -1;
   globalArgs.nskip = 15;
+  globalArgs.flag_fft = 1;
 
   read_input_parameters(parameter_file_name);
 }

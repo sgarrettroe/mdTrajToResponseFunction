@@ -99,16 +99,100 @@ static const struct option longOpts[] = {
   { NULL, no_argument, NULL,0}
 };
 
+void read_nprotons_and_nsteps_from_coords( char * parameter_file_name, char* coord_file_name  ){
+  // use the shell command "wc -l" to scan the length of the coord
+  // file to get the number of steps
+  // and read one line with "head" and then "wc -w" to get the
+  // number of molecules
+
+  int nsteps_in_file, natoms, nmols_in_file,nprotons_in_file;
+  char *string, *command_template;
+  int flag_compressedinput;
+  FILE *fid;
+
+  if (fnmatch("*.gz",coord_file_name,FNM_CASEFOLD) == 0){
+    if (DEBUG_LEVEL>=1) printf("%s is compressed\n",coord_file_name);
+    flag_compressedinput = 1;
+  } else {
+    if (DEBUG_LEVEL>=1) printf("%s is not compressed\n",coord_file_name);
+  }
+
+  printf("Determine number of steps and number of molecules from coordinate file.\n");
+  if (flag_compressedinput == 0){
+    //if input is ascii
+    if (asprintf(&command_template,"wc -l %%s") < 0) 
+      nrerror( "failed to write string");
+  } else {
+    //if compressed input
+    if (asprintf(&command_template,"gzip -cd %%s | wc -l") < 0) 
+      nrerror("failed to write string");
+  }
+  //  if (asprintf(&string,"wc -l %s",coord_file_name)<0){
+  if (asprintf(&string,command_template,coord_file_name)<0)
+    nrerror("failed to write string");
+  free(command_template);
+  if (DEBUG_LEVEL>=1) printf("opening %s\n",string);
+  fid = popen(string,"r");
+  if(fid==NULL){
+    fprintf(stderr,"Opening '%s' pipe failed.",string);
+    exit(EXIT_FAILURE);
+  }
+  fscanf(fid,"%i",&nsteps_in_file);
+  pclose(fid);
+  free(string);
+  printf("Found %i steps in file %s\n", nsteps_in_file, coord_file_name);
+  
+  if (flag_compressedinput == 0){
+    //if input is ascii
+    if (asprintf(&command_template,"head -n1 %%s | wc -w") < 0){
+      fprintf(stderr,"failed to write string");
+      exit(EXIT_FAILURE);
+    }
+  } else {
+    //if compressed input
+    if (asprintf(&command_template,"gzip -cd %%s | head -n1 | wc -w") < 0){
+      fprintf(stderr,"failed to write string");
+      exit(EXIT_FAILURE);
+    }
+  }
+  //  if (asprintf(&string,"head -n 1 %s | wc -w",coord_file_name) < 0){
+  if (asprintf(&string,command_template,coord_file_name)<0){
+    fprintf(stderr,"failed to write string");
+    exit(EXIT_FAILURE);
+  }
+  free(command_template);
+  if (DEBUG_LEVEL>=1) printf("opening %s",string);
+  fid = popen(string,"r");
+  if(fid==NULL){
+    fprintf(stderr,"Opening '%s' pipe failed.",string);
+    exit(EXIT_FAILURE);
+  }
+  fscanf(fid,"%i",&natoms);
+  pclose(fid);
+  free(string);
+  
+  natoms = (natoms-1)/3; //substract 1 for the time stamp, div by 3 for xyz coords
+  nmols_in_file = natoms/3; //3 atoms per H2O molecule
+  nprotons_in_file = nmols_in_file;//2 protons but only produce output for one!!!
+  printf("Found %i atoms, %i molecules in file %s\n", natoms, nmols_in_file, coord_file_name);
+
+  // add these values to the parameter file
+  globalArgs.nmols_in_file = nmols_in_file;
+  gaWriteInt(parameter_file_name,"nmols_in_file",nmols_in_file); //only output one freq per molecule
+  globalArgs.nprotons_in_file = nprotons_in_file;
+  gaWriteInt(parameter_file_name,"nprotons_in_file",nprotons_in_file); //only output one freq per molecule
+  globalArgs.nsteps_in_file = nsteps_in_file;
+  gaWriteInt(parameter_file_name,"nsteps_in_file",nsteps_in_file);
+
+  printf("\n");
+  }
 
 void mdTrajToFreq(const char* parameter_file_name, const char* coord_file_name, const char* force_file_name, const char* base_name)
 {
   FILE *coord_fid,*force_fid;
-  FILE *fid; 
   FILE **w_fid_array;// = malloc(3*sizeof(FILE*));//TEST TEST
   FILE **x_fid_array;// = malloc(3*sizeof(FILE*));//TEST TEST!!!
   char *string,*fname,*pname,*param_name;
-  //,coord_file_name[100],force_file_name[100],base_name[100],
-  char *command_template;
   
   const float NA = 6.023e23; // mol^-1
   const float mass = 1.67262158e-27; //kg
@@ -121,7 +205,7 @@ void mdTrajToFreq(const char* parameter_file_name, const char* coord_file_name, 
   
   //vars for force trajectory
   float dummy;
-  unsigned long nsteps, natoms, nmols, nprotons;
+  //unsigned long nsteps_in_file, natoms, nmols, nprotons_in_file;
   
   float *posO,*posH1,*posH2,*forceO,*forceH1,*forceH2,*force,*bond,bond_length;
   unsigned long i,j,k;
@@ -143,6 +227,10 @@ void mdTrajToFreq(const char* parameter_file_name, const char* coord_file_name, 
   const int flag_compressoutput = globalArgs.flag_compressoutput;
   const int flag_compressedinput = globalArgs.flag_compressedinput;
   const float q_H = globalArgs.q_H;
+
+  const int nsteps_in_file = globalArgs.nsteps_in_file;
+  //  const int nprotons_in_file = globalArgs.nprotons_in_file;
+  const int nmols_in_file = globalArgs.nmols_in_file;
 
   if (DEBUG_LEVEL>=1){
     printf("entering mdTrajtoFreq()\n");
@@ -166,79 +254,7 @@ void mdTrajToFreq(const char* parameter_file_name, const char* coord_file_name, 
   //fact = (float) sqrt(9./4.*(Anh/w0)*1e18*1e6/pow(NA,2)/(w0*c*h)/(mu*mass)*1e-24);
   //fact = sqrt(9/4*(Anh/w0)*10^18*10^6/NA^2/(w0*c*h)/(mu*mass)*10^-24*wavenumbersToInvPs);
   
-  // use the shell command "wc -l" to scan the length of the coord
-  // file to get the number of steps
-  // and read one line with "head" and then "wc -w" to get the
-  // number of molecules
-  printf("Determine number of steps and number of molecules from coordinate file.\n");
-  if (flag_compressedinput == 0){
-    //if input is ascii
-    if (asprintf(&command_template,"wc -l %%s") < 0){
-      fprintf(stderr,"failed to write string");
-      exit(EXIT_FAILURE);
-    }
-  } else {
-    //if compressed input
-    if (asprintf(&command_template,"gzip -cd %%s | wc -l") < 0){
-      fprintf(stderr,"failed to write string");
-      exit(EXIT_FAILURE);
-    }
-  }
-  //  if (asprintf(&string,"wc -l %s",coord_file_name)<0){
-  if (asprintf(&string,command_template,coord_file_name)<0){
-    fprintf(stderr,"failed to write string");
-    exit(EXIT_FAILURE);
-  }
-  free(command_template);
-  fid = popen(string,"r");
-  if(fid==NULL){
-    fprintf(stderr,"Opening '%s' pipe failed.",string);
-    exit(EXIT_FAILURE);
-  }
-  fscanf(fid,"%ld",&nsteps);
-  pclose(fid);
-  free(string);
-  printf("Found %ld steps in file %s\n", nsteps, coord_file_name);
-  
-  if (flag_compressedinput == 0){
-    //if input is ascii
-    if (asprintf(&command_template,"head -n1 %%s | wc -w") < 0){
-      fprintf(stderr,"failed to write string");
-      exit(EXIT_FAILURE);
-    }
-  } else {
-    //if compressed input
-    if (asprintf(&command_template,"gzip -cd %%s | head -n1 | wc -w") < 0){
-      fprintf(stderr,"failed to write string");
-      exit(EXIT_FAILURE);
-    }
-  }
-  //  if (asprintf(&string,"head -n 1 %s | wc -w",coord_file_name) < 0){
-  if (asprintf(&string,command_template,coord_file_name)<0){
-    fprintf(stderr,"failed to write string");
-    exit(EXIT_FAILURE);
-  }
-  free(command_template);
-  fid = popen(string,"r");
-  if(fid==NULL){
-    fprintf(stderr,"Opening '%s' pipe failed.",string);
-    exit(EXIT_FAILURE);
-  }
-  fscanf(fid,"%ld",&natoms);
-  pclose(fid);
-  free(string);
-  
-  natoms = (natoms-1)/3; //substract 1 for the time stamp 
-  //and div by 3 for x y z coords
-  nmols = natoms/3; //3 atoms per H2O molecule
-  nprotons = nmols*2;//2 protons
-  printf("Found %ld atoms, %ld molecules in file %s\n", natoms, nmols, coord_file_name);
-
-  // add these values to the parameter file
-  globalArgs.nprotons_in_file = nprotons;
-  gaWriteInt(parameter_file_name,"nprotons_in_file",nmols); //only output one freq per molecule
-  globalArgs.nsteps_in_file = nprotons;
-  gaWriteInt(parameter_file_name,"nsteps_in_file",nsteps);
+  /* cut from here */
 
   posO    = vector(1,3);
   posH1   = vector(1,3);
@@ -296,19 +312,15 @@ void mdTrajToFreq(const char* parameter_file_name, const char* coord_file_name, 
       //freq files
 
       //build the name of the output file
-      if (asprintf(&fname,"%s_dw%i.dat",base_name,(int)i_level) < 0)
-	{
-	  fprintf(stderr,"failed to write string");
-	  exit(EXIT_FAILURE);
-	}
+      if (asprintf(&fname,"%s_dw%i.dat",base_name,(int)i_level) < 0) 
+	nrerror("failed to write string");
 
       //build the name of the variable in the parameter file param_name
-      if (asprintf(&param_name,"w_file_%i",i_level) < 0) {
-	fprintf(stderr,"failed to write string");
-	exit(EXIT_FAILURE);
-      }
+      if (asprintf(&param_name,"w_file_%i",i_level) < 0)  
+	nrerror("failed to write string");
       
       //open the file fname
+      if (DEBUG_LEVEL>=1) printf("Opening: %s\n",fname);
       w_fid_array[i_level]=fopen(fname,"wt"); 
       if (w_fid_array[i_level]==NULL){
 	fprintf(stderr,"Error opening file %s for output\n",fname);
@@ -322,32 +334,24 @@ void mdTrajToFreq(const char* parameter_file_name, const char* coord_file_name, 
 
       //mu files
       //build the name of the variable in the parameter file
-      if (asprintf(&param_name,"mu_file_%i",i_level) < 0) {
-	fprintf(stderr,"failed to write string");
-	exit(EXIT_FAILURE);
-      }
+      if (asprintf(&param_name,"mu_file_%i",i_level) < 0) nrerror("failed to write string");
+
       if (flag_noncondon==1){
 	//build the file name
-	if (asprintf(&fname,"%s_mu%i.dat",base_name,(int)i_level) < 0)
-	  {
-	    fprintf(stderr,"failed to write string");
-	    exit(EXIT_FAILURE);
-	  }
+	if (asprintf(&fname,"%s_mu%i.dat",base_name,(int)i_level) < 0) 
+	  nrerror("failed to write string");
     
 	//save the file name to the parameter file 
 	gaWriteString(parameter_file_name,param_name,fname);
       } else {
 	//use dev null if no file
-	if (asprintf(&fname,"/dev/null") < 0)
-	  {
-	    fprintf(stderr,"failed to write string");
-	    exit(EXIT_FAILURE);
-	  }
+	if (asprintf(&fname,"/dev/null") < 0) nrerror("failed to write string");
 
 	//clear the name if it is in the parameter file
 	gaRemoveParameter(parameter_file_name,param_name);
       }      
       //open the file (which can be a real file or dev null)
+      if (DEBUG_LEVEL>=1) printf("Opening: %s\n",fname);
       x_fid_array[i_level]=fopen(fname,"wt"); 
       if (x_fid_array[i_level]==NULL){
 	fprintf(stderr,"Error opening file %s for output\n",fname);
@@ -363,26 +367,17 @@ void mdTrajToFreq(const char* parameter_file_name, const char* coord_file_name, 
       //freq files
       
       //build the name of the variable in the parameter file param_name
-      if (asprintf(&param_name,"w_file_%i",i_level) < 0) {
-	fprintf(stderr,"failed to write string");
-	exit(EXIT_FAILURE);
-      }
+      if (asprintf(&param_name,"w_file_%i",i_level) < 0) nrerror("failed to write string");
       
       //build the name of the output file
-      if (asprintf(&fname,"%s_dw%i.dat.gz",base_name,(int)i_level) < 0)
-	{
-	  fprintf(stderr,"failed to write string");
-	  exit(EXIT_FAILURE);
-	}
+      if (asprintf(&fname,"%s_dw%i.dat.gz",base_name,(int)i_level) < 0) 
+	nrerror("failed to write string");
 
       //build the pipe
       if (asprintf(&pname,"gzip > %s",fname,(int)i_level) < 0)
-	{
-	  fprintf(stderr,"failed to write string");
-	  exit(EXIT_FAILURE);
-	}
+	nrerror("failed to write string");
    
-      if (DEBUG_LEVEL>=2) printf("%s\n",pname);
+      if (DEBUG_LEVEL>=1) printf("Opening: %s\n",pname);
       w_fid_array[i_level] = popen(pname,"w"); //TEST TEST
       if (w_fid_array[i_level]==NULL){
 	fprintf(stderr,"Error opening pipe %s for output\n",pname);
@@ -398,19 +393,14 @@ void mdTrajToFreq(const char* parameter_file_name, const char* coord_file_name, 
       //mu files
 
       //build the name of the variable in the parameter file
-      if (asprintf(&param_name,"mu_file_%i",i_level) < 0) {
-	fprintf(stderr,"failed to write string");
-	exit(EXIT_FAILURE);
-      }
+      if (asprintf(&param_name,"mu_file_%i",i_level) < 0) 
+	nrerror("failed to write string");
 
       if (flag_noncondon==1){
 	//build file name
-	if (asprintf(&fname,"%s_mu%i.dat.gz",base_name,(int)i_level) < 0)
-	  {
-	    fprintf(stderr,"failed to write string");
-	    exit(EXIT_FAILURE);
-	  }
-
+	if (asprintf(&fname,"%s_mu%i.dat.gz",base_name,(int)i_level) < 0) 
+	  nrerror("failed to write string");
+	  
 	//save the file name to the parameter file 
 	gaWriteString(parameter_file_name,param_name,fname);
 
@@ -418,10 +408,7 @@ void mdTrajToFreq(const char* parameter_file_name, const char* coord_file_name, 
 
 	// use dev null if not outputting to a real file
 	if (asprintf(&fname,"/dev/null") < 0)
-	  {
-	    fprintf(stderr,"failed to write string");
-	    exit(EXIT_FAILURE);
-	  }
+	  nrerror("failed to write string");
 
 	//clear the name if it is in the parameter file
 	gaRemoveParameter(parameter_file_name,param_name);
@@ -430,11 +417,9 @@ void mdTrajToFreq(const char* parameter_file_name, const char* coord_file_name, 
 
       //build pipe name
       if (asprintf(&pname,"gzip > %s",fname,(int)i_level) < 0)
-	{
-	  fprintf(stderr,"failed to write string");
-	  exit(EXIT_FAILURE);
-	}
+	nrerror("failed to write string");
 
+      if (DEBUG_LEVEL>=1) printf("Opening: %s\n",pname);
       x_fid_array[i_level]=popen(pname,"w");
       if (x_fid_array[i_level]==NULL){
 	fprintf(stderr,"Error opening pipe %s for output\n",pname);
@@ -447,17 +432,17 @@ void mdTrajToFreq(const char* parameter_file_name, const char* coord_file_name, 
     }
   }
 
-  if(DEBUG_LEVEL>=3)
+  if(DEBUG_LEVEL>=2)
     for (i_level=0;i_level<n_levels;i_level++){
-      printf("%p\n",w_fid_array[i_level]);
-      printf("%p\n",x_fid_array[i_level]);
+      printf("w_fid_array[%i] = %p\n",i_level,w_fid_array[i_level]);
+      printf("w_fid_array[%i] = %p\n",i_level,x_fid_array[i_level]);
     }
 
   /*
    * loop over timesteps 
    */
   if (DEBUG_LEVEL>=1) printf("start reading coord and force files\n");
-  for(i=1;i<=nsteps;i++)
+  for(i=1;i<=nsteps_in_file;i++)
     {
       // the first number is the time, which I throw away
       // if reading the file doesn't correctly read a number then nrerror
@@ -465,7 +450,7 @@ void mdTrajToFreq(const char* parameter_file_name, const char* coord_file_name, 
         nrerror("Reading coord file failed before end of file (time).");
       if(fscanf(force_fid,"%f",&dummy)!=1)
         nrerror("Reading force file failed before end of file (time).");
-      for(j=1;j<=nmols;j++)
+      for(j=1;j<=nmols_in_file;j++)
 	{
 	  // read configuration for one time-step
 	  if(fscanf(coord_fid,"%f %f %f",&posO[1],&posO[2],&posO[3])!=3)
@@ -548,7 +533,7 @@ void mdTrajToFreq(const char* parameter_file_name, const char* coord_file_name, 
 	  }//end loop over levels
 	
 	
-	}//end for j=1:nmols
+	}//end for j=1:nmols_in_file
       
       //print a newline to each freq and mu file
       for (i_level=0;i_level<n_levels;i_level++){
@@ -556,7 +541,7 @@ void mdTrajToFreq(const char* parameter_file_name, const char* coord_file_name, 
 	fprintf(x_fid_array[i_level],"\n");
       }
 
-    } //end for i = 1:nsteps
+    } //end for i = 1:nsteps_in_file
 
   // close coordinate and force files
   fclose(coord_fid);
@@ -605,17 +590,17 @@ int main( int argc, char *argv[] ) {
 
   /* look for parameter file in argument list */
   //this is a shitty solution because I can't get getopt_long to work twice
-  /*  int count = 0;
+  int count = 0;
   while(count<argc){
     count++;
     if (fnmatch(argv[count],"-p",FNM_CASEFOLD) == 0 || fnmatch(argv[count],"--parameters",FNM_CASEFOLD) == 0){
-      printf("got it\n");
       free(parameter_file_name);
       if (asprintf(&parameter_file_name,"%s",argv[count+1]) < 0) nrerror("Failed to write string");
+      if (DEBUG_LEVEL>=2) printf("found parameter file %s\n",parameter_file_name);
       break;
     }
   }
-  */
+  /*
   //find the parameter file from the input options
   while((opt = getopt_long( argc, argv, optString,longOpts, &longIndex))!=-1)
     switch(opt){
@@ -628,6 +613,7 @@ int main( int argc, char *argv[] ) {
 	}
       break;
     }
+  */
 
   // input parameters
   /* initialize global arguments */
@@ -714,6 +700,9 @@ int main( int argc, char *argv[] ) {
   if (fnmatch(base_name,"",FNM_CASEFOLD) == 0) nrerror("please supply a base name with the -o flag!");
 
   //input required data
+  if (globalArgs.nsteps_in_file == -1 || globalArgs.nprotons_in_file == -1 || globalArgs.nmols_in_file == -1)
+    read_nprotons_and_nsteps_from_coords(parameter_file_name,coord_file_name);
+
   //read_input_data(parameter_file_name);
 
   //do the main calculation
