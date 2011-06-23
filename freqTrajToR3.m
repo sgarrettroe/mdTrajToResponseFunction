@@ -360,8 +360,8 @@ w1 = fftFreqAxis(t1,...
     'freq_units','cm-1',...
     'zeropad',2*nt,...
     'fftshift','on');
-w1 = w1 + mean_w - Delta_anh/2;
-w3 = w1 + mean_w + Delta_anh/2;
+w1 = w1 + mean_w01 ;
+w3 = w1 - Delta_anh/2;
 
 s2d = construct2d;
 s2d.t1 = t1;
@@ -429,7 +429,7 @@ ylabel('S(\omega)')
 
 %
 figure(12),clf
-my2dPlot(w1,w3,R,n_contours)
+my2dPlot(w1,w3,R,'n_contours',n_contours,'pumpprobe',false)
 
 if flag_twolevelsystem==0
   figure(13),clf
@@ -437,14 +437,14 @@ if flag_twolevelsystem==0
   R_r_f  = fftshift(sgrsfft2(R_r,2*nt));
   R_r_f  = fliplr(  circshift(R_r_f,[0 -1]) );
   R = real(R_r_f + R_nr_f);
-  my2dPlot(w1,w3,R,n_contours)
+  my2dPlot(w1,w3,R,'n_contours',n_contours,'pumpprobe',false)
 
   figure(14),clf
   R_nr_f = fftshift(sgrsfft2(R6,2*nt));
   R_r_f  = fftshift(sgrsfft2(R3,2*nt));
   R_r_f  = fliplr(  circshift(R_r_f,[0 -1]) );
   R = real(R_r_f + R_nr_f);
-  my2dPlot(w1,w3,R,n_contours)
+  my2dPlot(w1,w3,R,'n_contours',n_contours,'pumpprobe',false)
 end
 
 end %if flag_plot
