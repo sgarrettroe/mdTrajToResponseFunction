@@ -490,7 +490,7 @@ void mdTrajToFreq(const char* parameter_file_name, const char* coord_file_name, 
 	  force_proj = 0;
 	  for(k=1;k<=3;k++)
 	    force_proj += force[k]*bond[k];
-	  field = force_proj/q_H;
+	  field = force_proj/q_H/bond_length;
 
 
 	  //calculate frequencies and anharmonicities

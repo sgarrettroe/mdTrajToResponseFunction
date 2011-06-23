@@ -8,7 +8,9 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <fnmatch.h>
+#include <sys/param.h>
 #include "globalArgs.h"
+#include <limits.h>
 #include "mymath.h"
 
 int DEBUG_LEVEL = 0;
@@ -32,6 +34,7 @@ void display_options( void ){
   printf("order =          \t%12i\n",globalArgs.order); 
   printf("n_levels =       \t%12i\n",globalArgs.n_levels); 
   printf("fit_order =      \t%12i\n",globalArgs.fit_order); 
+  printf("q_H =            \t%12i\n",globalArgs.q_H); 
   for (i=0;i<=(globalArgs.order-1)/2;i++){
     for (j=0;j<=globalArgs.fit_order;j++){
       printf("a_%i_%i =              \t%12f\n",i,j,globalArgs.a[i][j]);
@@ -64,11 +67,9 @@ void display_options( void ){
 void read_input_parameters(const char *parameter_file_name){
   //read the input paramter file
   FILE *fid;
-  char *unparsed_line;
   char *line;
   char name[100];
   //char *name;
-  //int bytes_read;
   float val;
   char sval[100];
   int count=0;
@@ -85,22 +86,32 @@ void read_input_parameters(const char *parameter_file_name){
   while(feof(fid)==0){
     count += 1;
 
-    
+
+
+#ifdef BSD /* defined in sys/param.h */
+#warning "BSD fgetln()"
+    char *unparsed_line;
     unparsed_line = fgetln(fid,&len);
     if (DEBUG_LEVEL>=3) printf("len  %i\n",(int)len);
     line = calloc(len,sizeof(char));
     strncpy(line,unparsed_line,(int)len);
-    if (DEBUG_LEVEL>=2)
-      printf("line %i: %s",count,line);
-    
-    /* //getline is not in FreeBSD's libc yet ... 
-    line = (char *) malloc(100 * sizeof(char));
-    bytes_read= getline(&line, &len,fid);
+#else
+#warning "GLIBC getline()"
+      int bytes_read;
+     //getline is not in FreeBSD's libc yet ... 
+      len = 100;
+    line = (char *) malloc(len * sizeof(char));
+    bytes_read = getline(&line, &len, fid);
+    /* //dont ask me why this isn't working correctly and always gives -1 even though it reads the line...???
     if (bytes_read == -1){
-      fprintf(stderr,"Unable to read line of parameter file:\n%s",line);
+      fprintf(stderr,"Unable to read line of parameter file %s\n",parameter_file_name);
       exit(EXIT_FAILURE);
     }
     */
+#endif /* BSD */
+    if (DEBUG_LEVEL>=2)
+      printf("line %i: %s",count,line);
+    
     if (len == 0){
       continue;
     } //end if len>0
@@ -357,7 +368,7 @@ int gaAppendFloat(const char *parameter_file_name,const char *name, const float 
    int ret;
 
   ret = 0;
-  if (asprintf(&command,"echo %s = %i >> %s",name,val,parameter_file_name) < 0){
+  if (asprintf(&command,"echo %s = %f >> %s",name,val,parameter_file_name) < 0){
     fprintf(stderr,"failed to write string");
     exit(EXIT_FAILURE);
   }

@@ -7,6 +7,7 @@ struct globalArgs_t {
   int test; 
   float dt;
   int nt;
+  int nmols_in_file;
   int nprotons_in_file;
   int nsteps_in_file;
   int ntint;
@@ -23,6 +24,7 @@ struct globalArgs_t {
   int flag_twolevelsystem;
   int flag_compressoutput;
   int flag_compressedinput;
+  int flag_fft;
   char **w_file_names;
   char **mu_file_names;
 } globalArgs;
