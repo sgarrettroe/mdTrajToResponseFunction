@@ -2,7 +2,7 @@ function [freq,mu,field] = mdTrajToFreq(p,force_file_name,coord_file_name,vararg
 %mimic what I am doing in C
 
 n_levels = 2;
-flag_massweightedforces = 0;
+flag_massweightedforces = p.flag_massweightedforces;
 
 %nsteps = 100;
 %nmols = 1019;

@@ -34,7 +34,7 @@ void display_options( void ){
   printf("order =          \t%12i\n",globalArgs.order); 
   printf("n_levels =       \t%12i\n",globalArgs.n_levels); 
   printf("fit_order =      \t%12i\n",globalArgs.fit_order); 
-  printf("q_H =            \t%12i\n",globalArgs.q_H); 
+  printf("q_H =            \t%12f\n",globalArgs.q_H); 
   for (i=0;i<=(globalArgs.order-1)/2;i++){
     for (j=0;j<=globalArgs.fit_order;j++){
       printf("a_%i_%i =              \t%12f\n",i,j,globalArgs.a[i][j]);

@@ -21,6 +21,7 @@
  */
 
 void normalizeResults(int nt,unsigned long isample,
+		      int n_levels, int flag_noncondon,float *mean_mu,
                       float S_re[],float S_im[],
                       float **P1_re,float **P1_im,float **P2_re,float **P2_im,
                       float ***R1_re,float ***R1_im,float ***R2_re,float ***R2_im,
@@ -208,7 +209,7 @@ void mdTrajToFreq(const char* parameter_file_name, const char* coord_file_name, 
   //unsigned long nsteps_in_file, natoms, nmols, nprotons_in_file;
   
   float *posO,*posH1,*posH2,*forceO,*forceH1,*forceH2,*force,*bond,bond_length;
-  unsigned long i,j,k;
+  int i,j,k;
   float w; //frequency
   float x; //position matrix element
   float force_proj; //forces projected on OH bond
@@ -217,7 +218,7 @@ void mdTrajToFreq(const char* parameter_file_name, const char* coord_file_name, 
   float dipole;
 
   const int flag_massweightedforces = globalArgs.flag_massweightedforces;
-  const int flag_noncondon = globalArgs.flag_noncondon;
+  const int flag_noncondon = 1;//let's always output the mu also //globalArgs.flag_noncondon;
   const int flag_twolevelsystem = globalArgs.flag_twolevelsystem;
   float **a = globalArgs.a; //why can't these be const?
   float **b = globalArgs.b;
@@ -511,13 +512,13 @@ void mdTrajToFreq(const char* parameter_file_name, const char* coord_file_name, 
 	    //calculate the harmonic dipole ???
 	    dipole = 0;
 	    for (k=0;k<=fit_order;k++)
-	      dipole = mu_mug[k]*pow(field,k);
+	      dipole += mu_mug[k]*pow(field,k);
 	    //combine
 	    dipole = dipole*x;
 
 	    //output freq 
 	    if(DEBUG_LEVEL>=3){
-	      printf("print w = %f step %lu mol %lu i_level %i pointer %p\n",w,i,j,i_level,w_fid_array[i_level]);
+	      printf("print w = %f step %i mol %i i_level %i pointer %p\n",w,i,j,i_level,w_fid_array[i_level]);
 	      printf("%p\n",w_fid_array[i_level]);
 	      printf("%p\n",x_fid_array[i_level]);
 	    }
@@ -526,7 +527,7 @@ void mdTrajToFreq(const char* parameter_file_name, const char* coord_file_name, 
 
 		  
 	    //output dipole
-	    if (DEBUG_LEVEL>=3) printf("print x = %f step %lu mol %lu\n",dipole,i,j);
+	    if (DEBUG_LEVEL>=3) printf("print x = %f step %i mol %i\n",dipole,i,j);
 	    fprintf(x_fid_array[i_level],"%12.5f ",dipole);
 	    if (DEBUG_LEVEL>=3) fflush(x_fid_array[i_level]);
 	    
