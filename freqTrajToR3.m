@@ -1,5 +1,6 @@
 function [s1d,s2d] = freqTrajToR3(p,f,x)
 global c 
+wavenumbersToRadiansPerPs = 2*pi*c*1e-12;
 
 n_contours = 10;
 flag_noncondon = p.flag_noncondon;
@@ -46,7 +47,10 @@ mean_w = mean(f{1});
 dt = 0.01*ntint;
 
 %convert from wavenumbers to rad/ps-1
-dw = (freq-mean_w)*2*pi*c*1e-12;
+dw = (freq-mean_w)*wavenumbersToRadiansPerPs;
+disp(sprintf('mean w_01 %f cm-1 %f rad/ps',mean_w,mean_w*wavenumbersToRadiansPerPs));
+disp(sprintf('mean dw_01 %f cm-1 %f rad/ps',mean(dw)/wavenumbersToRadiansPerPs,mean(dw)));
+disp(sprintf('mean dw_01^2 %f cm-1 %f rad/ps',std(dw)/wavenumbersToRadiansPerPs,std(dw)));
 
 %take every 4th point
 %dw = dw(1:ntint:end);
@@ -71,6 +75,9 @@ it0 = 1:nskip:nsteps/ntint-nt;
 for is = 1:ntrajectories
     DW1(:,is) = dw(it0(is):it0(is)+nt-1);
 end
+
+disp('dwint = ');
+DW1(:,1)
 
 %calculate the time integral for each minitrajectory
 sdw = cumtrapz(DW1,1)*dt;
@@ -103,10 +110,10 @@ end
 S = S*nskip/(nsteps/ntint-nt);
 
 %the first time points need to be divided by 2 (Sect 9.5.3)
-S(1) = S(1)/2;
+%S(1) = S(1)/2;
 
 %do the fft
-Sf = real(fftshift(fft(S,2*nt)));
+Sf = real(fftshift(sgrsfft(S,2*nt)));
 
 %plot
 t1 = (0:nt-1)*dt;
@@ -154,9 +161,9 @@ end
 
 
 %convert from wavenumbers to rad/ps-1
-dw_01 = (f{1}-mean_w01)*2*pi*c*1e-12;
-dw_12 = (f{2}-mean_w12)*2*pi*c*1e-12;
-shift_w = shift_w*2*pi*c*1e-12;
+dw_01 = (f{1}-mean_w01)*wavenumbersToRadiansPerPs;
+dw_12 = (f{2}-mean_w12)*wavenumbersToRadiansPerPs;
+shift_w = shift_w*wavenumbersToRadiansPerPs;
 
 %set up the time axes
 [T1,T3] = meshgrid(t1,t1);
@@ -180,7 +187,7 @@ nsteps = length(dw_01); %update nsteps
 it2 = round(t2/dt);
 
 ntrajectories = floor((nsteps/ntint - 2*nt - it2)/nskip);
-R_r  = zeros(nt,nt); % rephasing diagrams (really R1 + R2)
+R_r  = zeros(nt,nt); % rephasing diagrams (really R1 + R2 in the book notation)
 R_nr = zeros(nt,nt); % non-rephasing (R4 + R5)
 R3  = zeros(nt,nt); % rephasing excited state abs (R3)
 R6  = zeros(nt,nt); % non-rephasing e.s.a. (R6)
@@ -341,12 +348,6 @@ R_nr = R_nr*nskip/(nsteps/ntint-nt);
 R3   = R3  *nskip/(nsteps/ntint-nt);
 R6   = R6  *nskip/(nsteps/ntint-nt);
 
-%the first time points need to be divided by 2 (Sect 9.5.3)
-%R_r(:,1)  = R_r(:,1)/2;
-%R_r(1,:)  = R_r(1,:)/2;
-%R_nr(:,1) = R_nr(:,1)/2;
-%R_nr(1,:) = R_nr(1,:)/2;
-
 %do the fft
 R_nr_f = fftshift(sgrsfft2(R_nr + R6,2*nt));
 R_r_f  = fftshift(sgrsfft2(R_r  + R3,2*nt));
@@ -382,38 +383,6 @@ toc
 disp('done')
 
 if flag_plot
-%figure(10)
-%contourf(real(R_r))
-%figure(11)
-%contourf(real(R_nr))
-
-%
-%add the excited state absorption
-% [T1,T3] = meshgrid(t1,t3);
-% Delta = 240;
-% R_r_anh = (2*exp(1i*Delta/2*(2*pi*c*1e-12).*T3) - 2*exp(-1i*Delta/2/(2*pi*c*1e-12).*T3)).*R_r;
-% R_nr_anh = (2*exp(1i*Delta/2*(2*pi*c*1e-12).*T3) - 2*exp(-1i*Delta/2/(2*pi*c*1e-12).*T3)).*R_nr;
-
-% %the first time points need to be divided by 2 (Sect 9.5.3)
-% R_r_anh(:,1) = R_r_anh(:,1)/2;
-% R_r_anh(1,:) = R_r_anh(1,:)/2;
-% R_nr_anh(:,1) = R_nr_anh(:,1)/2;
-% R_nr_anh(1,:) = R_nr_anh(1,:)/2;
-% 
-% %do the fft
-% R_nr_anh_f = fftshift(fft2(R_nr_anh,2*nt,2*nt));
-% R_r_anh_f  = fftshift(fft2(R_r_anh, 2*nt,2*nt));
-% R_r_anh_f = fliplr(circshift(R_r_anh_f,[0 -1]));
-% %R_r_anh_f  = circshift(fliplr(R_r_anh_f),[-1 0]);
-% R_anh    = real(R_r_anh_f + R_nr_anh_f);
-
-%figure(12)
-%contourf(w1,w1,R,n_contours)
-
-%figure(1),
-%plot((0:nt-1)*ntint,dw(1:nt),'o',...
-%    (0:nt-1)*ntint,DW1(:,1),'s',...
-%    0:(nt-1)*ntint,(freq(1:(nt-1)*ntint+1)-mean_w)*2*pi*c*1e-12);
 
 figure(10)
 title('FID');
