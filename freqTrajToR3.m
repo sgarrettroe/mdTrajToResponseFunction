@@ -2,7 +2,7 @@ function [s1d,s2d] = freqTrajToR3(p,f,x)
 global c 
 wavenumbersToRadiansPerPs = 2*pi*c*1e-12;
 
-n_contours = 10;
+n_contours = 20;
 flag_noncondon = p.flag_noncondon;
 flag_bsxfun = exist('bsxfun','builtin'),
 flag_plot = 1;
@@ -56,7 +56,7 @@ disp(sprintf('mean dw_01^2 %f cm-1 %f rad/ps',std(dw)/wavenumbersToRadiansPerPs,
 %dw = dw(1:ntint:end);
 
 %take an average over ntint points
-dw = dw(1:floor(nsteps/ntint)*ntint); %throw away extra points
+dw = dw(1:(floor(nsteps/ntint)*ntint)); %throw away extra points
 nsteps = length(dw); %update nsteps
 dw = trapz(reshape(dw,ntint,[]),1)./(ntint-1); 
 
@@ -171,22 +171,27 @@ shift_w = shift_w*wavenumbersToRadiansPerPs;
 %take an average over ntint points
 dw_01 = dw_01(1:floor(nsteps/ntint)*ntint); %throw away extra points
 dw_12 = dw_12(1:floor(nsteps/ntint)*ntint); %throw away extra points
-dw_01 = trapz(reshape(dw_01,ntint,[]),1)./(ntint-1); 
-dw_12 = trapz(reshape(dw_12,ntint,[]),1)./(ntint-1); 
+nsteps = length(dw_01); %update nsteps
 
 %take an average over ntint points
 mu_01 = x{1}(1:floor(nsteps/ntint)*ntint); %throw away extra points
 mu_12 = x{2}(1:floor(nsteps/ntint)*ntint); %throw away extra points
+
+%average over ntint time points
+dw_01 = trapz(reshape(dw_01,ntint,[]),1)./(ntint-1); 
+dw_12 = trapz(reshape(dw_12,ntint,[]),1)./(ntint-1); 
 mu_01 = trapz(reshape(mu_01,ntint,[]),1)./(ntint-1); 
 mu_12 = trapz(reshape(mu_12,ntint,[]),1)./(ntint-1); 
 
-nsteps = length(dw_01); %update nsteps
 
 
 %
 it2 = round(t2/dt);
 
+%how many trajectories will we average
 ntrajectories = floor((nsteps/ntint - 2*nt - it2)/nskip);
+disp(sprintf('nsteps = %i ntint = %i nt = %i it2 = %i nskip = %i ntrajectories = %f',nsteps,ntint,nt,it2,nskip,ntrajectories));
+
 R_r  = zeros(nt,nt); % rephasing diagrams (really R1 + R2 in the book notation)
 R_nr = zeros(nt,nt); % non-rephasing (R4 + R5)
 R3  = zeros(nt,nt); % rephasing excited state abs (R3)
@@ -206,7 +211,8 @@ for is = 1:ntrajectories
 end
 for is = 1:ntrajectories
     for it1 = 1:nt
-        DW2(it1,:,is) = dw_01(it0(is)+it1+it2:it0(is)+it1+it2+nt-1);
+        %DW2(it1,:,is) = dw_01(it0(is)+it1+it2:it0(is)+it1+it2+nt-1);
+        DW2(:,it1,is) = dw_01(it0(is)+it1+it2:it0(is)+it1+it2+nt-1);
     end
 end
 
@@ -215,14 +221,17 @@ sdw = cumtrapz(DW1,1)*dt;
 
 %copy this out into a matrix for (t1,t3)
 if flag_bsxfun == 0
-  SDW = repmat(reshape(sdw,[nt 1 ntrajectories]),[1 nt 1]);
+  %SDW = repmat(reshape(sdw,[nt 1 ntrajectories]),[1 nt 1]);
+  SDW = repmat(reshape(sdw,[1 nt ntrajectories]),[nt 1 1]);
 else
-  SDW = reshape(sdw,[nt 1 ntrajectories]);
+  %SDW = reshape(sdw,[nt 1 ntrajectories]);
+  SDW = reshape(sdw,[1 nt ntrajectories]);
 end
 
 %for the t3 dependence
 %PDW = zeros(nt,nt,ntrajectories);
-PDW = cumtrapz(DW2,2)*dt;
+%PDW = cumtrapz(DW2,2)*dt;
+PDW = cumtrapz(DW2,1)*dt;
 
 if flag_noncondon == 0
     disp('condon ground state + stim emission');
@@ -246,15 +255,18 @@ else
         MU1_MU0(:,is) = mu_01(it0(is)).*mu_01(it0(is):it0(is)+nt-1);
     end
     if flag_bsxfun == 0
-      MU1_MU0 = repmat(reshape(MU1_MU0,[nt 1 ntrajectories]),[1 nt 1]);
+      %MU1_MU0 = repmat(reshape(MU1_MU0,[nt 1 ntrajectories]),[1 nt 1]);
+      MU1_MU0 = repmat(reshape(MU1_MU0,[1 nt ntrajectories]),[nt 1 1]);
     else
-      MU1_MU0 = reshape(MU1_MU0,[nt 1 ntrajectories]);
+      %MU1_MU0 = reshape(MU1_MU0,[nt 1 ntrajectories]);
+      MU1_MU0 = reshape(MU1_MU0,[1 nt ntrajectories]);
     end
     
     MU3_MU2 = zeros(nt,nt,ntrajectories);
     for is = 1:ntrajectories
         for it1 = 1:nt
-            MU3_MU2(it1,:,is) = mu_01(it0(is)+it1+it2).*mu_01(it0(is)+it1+it2:it0(is)+it1+it2+nt-1);
+            %MU3_MU2(it1,:,is) = mu_01(it0(is)+it1+it2).*mu_01(it0(is)+it1+it2:it0(is)+it1+it2+nt-1);
+            MU3_MU2(:,it1,is) = mu_01(it0(is)+it1+it2).*mu_01(it0(is)+it1+it2:it0(is)+it1+it2+nt-1);
         end
     end    
     
@@ -271,8 +283,8 @@ else
       R_nr = 2*sum(bsxfun(@times,MU3_MU2,MU1_MU0).*exp(-1i.*(bsxfun(@plus, PDW, SDW))),3);
     end
 end    
-R_r  = exp( 1i*shift_w*T3).*R_r;
-R_nr = exp( 1i*shift_w*T3).*R_nr;
+R_r  = exp(-1i*shift_w*T3).*R_r;
+R_nr = exp(-1i*shift_w*T3).*R_nr;
 
 if flag_twolevelsystem == false
     %add excited state if we need to
@@ -282,22 +294,24 @@ if flag_twolevelsystem == false
     %DW2 is now the 12 transition
     for is = 1:ntrajectories
         for it1 = 1:nt
-            DW2(it1,:,is) = dw_12(it0(is)+it1+it2:it0(is)+it1+it2+nt-1);
+            %DW2(it1,:,is) = dw_12(it0(is)+it1+it2:it0(is)+it1+it2+nt-1);
+            DW2(:,it1,is) = dw_12(it0(is)+it1+it2:it0(is)+it1+it2+nt-1);
         end
     end
     
     %for the t3 dependence
     %PDW = zeros(nt,nt,ntrajectories);
-    PDW = cumtrapz(DW2,2)*dt;
+    %PDW = cumtrapz(DW2,2)*dt;
+    PDW = cumtrapz(DW2,1)*dt;
 
    if flag_noncondon == 0
        disp('condon excited state abs');
        if flag_bsxfun == 0
-	 R3 = -2 * mean_mu^4 .* sum(exp(-1i.*PDW + 1i*SDW),3);
-	 R6 = -2 * mean_mu^4 .* sum(exp(-1i.*PDW - 1i*SDW),3);
+           R3 = -2 * mean_mu^4 .* sum(exp(-1i.*PDW + 1i*SDW),3);
+           R6 = -2 * mean_mu^4 .* sum(exp(-1i.*PDW - 1i*SDW),3);
        else
-	 R3 = -2 * mean_mu^4 .* sum(exp(-1i.*(bsxfun(@minus,PDW, SDW))),3);
-	 R6 = -2 * mean_mu^4 .* sum(exp(-1i.*(bsxfun(@plus, PDW, SDW))),3);
+           R3 = -2 * mean_mu^4 .* sum(exp(-1i.*(bsxfun(@minus,PDW, SDW))),3);
+           R6 = -2 * mean_mu^4 .* sum(exp(-1i.*(bsxfun(@plus, PDW, SDW))),3);
        end
        %R_r  = sum(exp(-1i.*PDW + 1i*SDW),3);
        %R_nr = sum(exp(-1i.*PDW - 1i*SDW),3);
@@ -311,16 +325,18 @@ if flag_twolevelsystem == false
            MU1_MU0(:,is) = mu_12(it0(is)) .* mu_12(it0(is):it0(is)+nt-1);
        end
        if flag_bsxfun == 0
-	 MU1_MU0 = repmat(reshape(MU1_MU0,[nt 1 ntrajectories]),[1 nt 1]);
+           %MU1_MU0 = repmat(reshape(MU1_MU0,[nt 1 ntrajectories]),[1 nt 1]);
+           MU1_MU0 = repmat(reshape(MU1_MU0,[1 nt ntrajectories]),[nt 1 1]);
        else
-	 MU1_MU0 = reshape(MU1_MU0,[nt 1 ntrajectories]);
+           %MU1_MU0 = reshape(MU1_MU0,[nt 1 ntrajectories]);
+           MU1_MU0 = reshape(MU1_MU0,[1 nt ntrajectories]);
        end
 
        
        MU3_MU2 = zeros(nt,nt,ntrajectories);
        for is = 1:ntrajectories
            for it1 = 1:nt
-               MU3_MU2(it1,:,is) = mu_12(it0(is)+it1+it2).*mu_12(it0(is)+it1+it2:it0(is)+it1+it2+nt-1);
+               MU3_MU2(:,it1,is) = mu_12(it0(is)+it1+it2).*mu_12(it0(is)+it1+it2:it0(is)+it1+it2+nt-1);
            end
        end
     
@@ -330,15 +346,15 @@ if flag_twolevelsystem == false
        %don't need to do a repmat to make a SDW an nt x nt matrix and the same
        %for MU1_MU0)
        if flag_bsxfun == 0
-	 R3 = -1 * sum(MU3_MU2.*MU1_MU0.*exp(-1i.*PDW + 1i.*SDW),3);
-	 R6 = -1 * sum(MU3_MU2.*MU1_MU0.*exp(-1i.*PDW - 1i.*SDW),3);
+           R3 = -1 * sum(MU3_MU2.*MU1_MU0.*exp(-1i.*PDW + 1i.*SDW),3);
+           R6 = -1 * sum(MU3_MU2.*MU1_MU0.*exp(-1i.*PDW - 1i.*SDW),3);
        else
-	 R3 = -1 * sum(bsxfun(@times,MU3_MU2,MU1_MU0).*exp(-1i.*(bsxfun(@minus,PDW, SDW))),3);
-	 R6 = -1 * sum(bsxfun(@times,MU3_MU2,MU1_MU0).*exp(-1i.*(bsxfun(@plus, PDW, SDW))),3);
+           R3 = -1 * sum(bsxfun(@times,MU3_MU2,MU1_MU0).*exp(-1i.*(bsxfun(@minus,PDW, SDW))),3);
+           R6 = -1 * sum(bsxfun(@times,MU3_MU2,MU1_MU0).*exp(-1i.*(bsxfun(@plus, PDW, SDW))),3);
        end
    end
-   R3 = exp(-1i*shift_w.*T3).*R3;
-   R6 = exp(-1i*shift_w.*T3).*R6;
+   R3 = exp(1i*shift_w.*T3).*R3;
+   R6 = exp(1i*shift_w.*T3).*R6;
 
 end
   
@@ -349,10 +365,9 @@ R3   = R3  *nskip/(nsteps/ntint-nt);
 R6   = R6  *nskip/(nsteps/ntint-nt);
 
 %do the fft
-R_nr_f = fftshift(sgrsfft2(R_nr + R6,2*nt));
-R_r_f  = fftshift(sgrsfft2(R_r  + R3,2*nt));
+R_nr_f = fftshift(sgrsifft2(R_nr + R6,2*nt));
+R_r_f  = fftshift(sgrsifft2(R_r  + R3,2*nt));
 R_r_f  = fliplr(  circshift(R_r_f,[0 -1]));
-%R_r_f  = circshift(fliplr(R_r_f),[-1 0]);
 R      = real(R_r_f + R_nr_f);
 
 %the freq axis for plotting
@@ -400,17 +415,20 @@ ylabel('S(\omega)')
 figure(12),clf
 my2dPlot(w1,w3,R,'n_contours',n_contours,'pumpprobe',false)
 
+figure(2),clf
+my2dPlot(t1,t3,real(R_r),'n_contours',n_contours,'pumpprobe',false)
+
 if flag_twolevelsystem==0
   figure(13),clf
-  R_nr_f = fftshift(sgrsfft2(R_nr,2*nt));
-  R_r_f  = fftshift(sgrsfft2(R_r,2*nt));
+  R_nr_f = fftshift(sgrsifft2(R_nr,2*nt));
+  R_r_f  = fftshift(sgrsifft2(R_r,2*nt));
   R_r_f  = fliplr(  circshift(R_r_f,[0 -1]) );
   R = real(R_r_f + R_nr_f);
   my2dPlot(w1,w3,R,'n_contours',n_contours,'pumpprobe',false)
 
   figure(14),clf
-  R_nr_f = fftshift(sgrsfft2(R6,2*nt));
-  R_r_f  = fftshift(sgrsfft2(R3,2*nt));
+  R_nr_f = fftshift(sgrsifft2(R6,2*nt));
+  R_r_f  = fftshift(sgrsifft2(R3,2*nt));
   R_r_f  = fliplr(  circshift(R_r_f,[0 -1]) );
   R = real(R_r_f + R_nr_f);
   my2dPlot(w1,w3,R,'n_contours',n_contours,'pumpprobe',false)
