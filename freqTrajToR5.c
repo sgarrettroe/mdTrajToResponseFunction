@@ -1010,6 +1010,7 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 		  muint1[it]/=(ntint);
 		}
 	      
+	      /* output the first freq trajectory for debugging purposes */
 	      if (DEBUG_LEVEL>=1){
 		if (iproton==1 && isample==1){
 		  printf("dwint1 = \n");
@@ -1018,6 +1019,7 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 		}
 	      }
 	      
+	      /* do the same preintegration for the higher states */
 	      if (n_levels>=2){
 		i_level = 1; /* the 12 transition */
 		dw=&w_matrices[i_level][iproton][1+(isample-1)*nskip];
@@ -1045,7 +1047,7 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 		      muint2[it]+=mu[(it-1)*ntint+j];
 		    muint2[it]/=(ntint);
 		  }
-	      }
+	      } //end if (n_levels>=2) 
 		
 	    if (flag_noncondon==0){
 	      
@@ -1076,11 +1078,11 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 		      {
 			if (it3<nt)
 			  {
-			    pdw1[it3+1][it1]=pdw1[it3][it1]-dwint1[it3+nt2+it1];
-			    pdw2[it3+1][it1]=pdw2[it3][it1]-dwint1[it3+nt2+it1];
+			    pdw1[it3+1][it1]=pdw1[it3][it1]-dwint1[it3+nt2+it1-1];
+			    pdw2[it3+1][it1]=pdw2[it3][it1]-dwint1[it3+nt2+it1-1];
 			    if (n_levels>=2){
-			      pdw3[it3+1][it1]=pdw3[it3][it1]-dwint2[it3+nt2+it1];
-			      pdw4[it3+1][it1]=pdw4[it3][it1]-dwint2[it3+nt2+it1];
+			      pdw3[it3+1][it1]=pdw3[it3][it1]-dwint2[it3+nt2+it1-1];
+			      pdw4[it3+1][it1]=pdw4[it3][it1]-dwint2[it3+nt2+it1-1];
 			    }
 			  }
 			P1_re[it3][it1]+=cos(pdw1[it3][it1]);
@@ -1122,11 +1124,11 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 			{
 			  if (it3<nt)
 			    {
-			      pdw1[it3+1][it1]=pdw1[it3][it1]-dwint1[it3+nt2+it1]; //should this be it3+nt+it1-1???
-			      pdw2[it3+1][it1]=pdw2[it3][it1]-dwint1[it3+nt2+it1];
+			      pdw1[it3+1][it1]=pdw1[it3][it1]-dwint1[it3+nt2+it1-1]; //should this be it3+nt+it1-1???
+			      pdw2[it3+1][it1]=pdw2[it3][it1]-dwint1[it3+nt2+it1-1];
 			      if (n_levels>=2){
-				pdw3[it3+1][it1]=pdw3[it3][it1]-dwint2[it3+nt2+it1];
-				pdw4[it3+1][it1]=pdw4[it3][it1]-dwint2[it3+nt2+it1];
+				pdw3[it3+1][it1]=pdw3[it3][it1]-dwint2[it3+nt2+it1-1];
+				pdw4[it3+1][it1]=pdw4[it3][it1]-dwint2[it3+nt2+it1-1];
 			      }
 			    }
 			  
