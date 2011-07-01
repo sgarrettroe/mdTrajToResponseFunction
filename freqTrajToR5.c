@@ -18,33 +18,6 @@
                                                                  *  one file of forces) and calculate response functions from that.
 *
 */
-void normalizeResults(int nt,unsigned long isample,
-                      float S_re[],float S_im[],
-                      float **P1_re,float **P1_im,float **P2_re,float **P2_im,
-                      float ***R1_re,float ***R1_im,float ***R2_re,float ***R2_im,
-                      float ***R3_re,float ***R3_im,float ***R4_re,float ***R4_im,
-                      float Sf_re[],float Sf_im[],
-                      float **P1f_re,float **P1f_im,float **P2f_re,float **P2f_im,
-                      float ***R1f_re,float ***R1f_im,float ***R2f_re,float ***R2f_im,
-                      float ***R3f_re,float ***R3f_im,float ***R4f_re,float ***R4f_im);
-/* 
-void fourierTransformResults(int nt,
-                             float Sf_re[],float Sf_im[],
-                             float **P1f_re,float **P1f_im,float **P2f_re,float **P2f_im,
-                             float ***R1f_re,float ***R1f_im,float ***R2f_re,float ***R2f_im,
-                             float ***R3f_re,float ***R3f_im,float ***R4f_re,float ***R4f_im);
-
-void writeResults(const char base_name[],int nt,char extension[],
-                  float Sf_re[],float Sf_im[],
-                  float **P1f_re,float **P1f_im,float **P2f_re,float **P2f_im,
-                  float ***R1f_re,float ***R1f_im,float ***R2f_re,float ***R2f_im,
-                  float ***R3f_re,float ***R3f_im,float ***R4f_re,float ***R4f_im);
-*/
-void writeResultsTime(const char base_name[],int nt,char extension[],
-                  float Sf_re[],float Sf_im[],
-                  float **P1f_re,float **P1f_im,float **P2f_re,float **P2f_im,
-                  float ***R1f_re,float ***R1f_im,float ***R2f_re,float ***R2f_im,
-                  float ***R3f_re,float ***R3f_im,float ***R4f_re,float ***R4f_im);
 
 
 
@@ -310,9 +283,9 @@ void read_x_files(int nprotons, int proton_offset, int nsteps, int step_offset,f
     mean = sum/(nsteps*nprotons);
     mean_x[i_level] = mean;
 
-    for(i=1;i<=nprotons;i++)
-      for(j=1;j<=nsteps;j++)
-        dw_matrix[i][j] = dw_matrix[i][j] - mean;
+/*     for(i=1;i<=nprotons;i++) */
+/*       for(j=1;j<=nsteps;j++) */
+/*         dw_matrix[i][j] = dw_matrix[i][j] - mean; */
     printf("The mean dipole of the trajectory, counting all protons is %f \n",mean);
     
     //calculate the standard deviation for diagonstic purposes
@@ -471,6 +444,207 @@ void read_w_files(int nprotons, int proton_offset, int nsteps, int step_offset,f
   free_matrix(dw_read,1,nprotons_in_file,1,nsteps);
 
 }
+
+
+void writeResultsTime(const char base_name[],const int nt,const char extension[],
+		      const int n_levels,
+		      float Sf_re[],float Sf_im[],
+		      float **P1f_re,float **P1f_im,float **P2f_re,float **P2f_im,
+		      float **P3f_re,float **P3f_im,float **P4f_re,float **P4f_im,
+		      float **P1tot_re,float **P1tot_im,float **P2tot_re,float **P2tot_im,
+		      float ***R1f_re,float ***R1f_im,float ***R2f_re,float ***R2f_im,
+		      float ***R3f_re,float ***R3f_im,float ***R4f_re,float ***R4f_im)
+/* This version is for outputting the data in the time domain with no
+ * flipping or FT or anything like that, just the data as it is
+ * calculated with the highest time argument as the fastest changing
+ * element (t5 then t3 then t1) */
+{
+  char *name;
+  int it1,it3,it5;
+  FILE *out1D,*out2D,*out3D;
+  
+  printf("Write Results\n");
+  if (asprintf(&name,"%s_t_spec1D%s",base_name,extension) < 0) nrerror("failed to write string");
+
+  /* 1D */
+  out1D=fopen(name,"wt");
+  for(it1=1;it1<=nt;it1++)
+  {
+    fprintf(out1D,"%10.5g %10.5g",Sf_re[it1],Sf_im[it1]);
+    fprintf(out1D,"\n");
+  }
+  fclose(out1D);
+  free(name);
+
+  /* 2D gsb + se (which are always calculated) */
+  if (asprintf(&name,"%s_t_spec2D%s",base_name,extension) < 0) nrerror("failed to write string");
+  out2D=fopen(name,"wt");
+  for(it1=1;it1<=nt;it1++)
+    for(it3=1;it3<=nt;it3++)
+    {
+      fprintf(out2D,"%10.5g %10.5g %10.5g %10.5g",
+	      P1f_re[it3][it1],P1f_im[it3][it1],
+	      P2f_re[it3][it1],P2f_im[it3][it1]);
+      fprintf(out2D,"\n");
+    }
+  fclose(out2D);
+  free(name);
+
+  /* if we calculated higher states print them out, too */
+  if (n_levels>=2){
+    /* 2D esa */
+    if (asprintf(&name,"%s_t_spec2D_esa%s",base_name,extension) < 0) nrerror("failed to write string");
+    out2D=fopen(name,"wt");
+    for(it1=1;it1<=nt;it1++)
+      for(it3=1;it3<=nt;it3++)
+	{
+	  fprintf(out2D,"%10.5g %10.5g %10.5g %10.5g",
+		  P3f_re[it3][it1],P3f_im[it3][it1],
+		  P4f_re[it3][it1],P4f_im[it3][it1]);
+	  fprintf(out2D,"\n");
+	}
+    fclose(out2D);
+    free(name);
+
+    /* 2D total spectrum */
+    if (asprintf(&name,"%s_t_spec2D_tot%s",base_name,extension) < 0) nrerror("failed to write string");
+    out2D=fopen(name,"wt");
+    for(it1=1;it1<=nt;it1++)
+      for(it3=1;it3<=nt;it3++)
+	{
+	  fprintf(out2D,"%10.5g %10.5g %10.5g %10.5g",
+		  P1tot_re[it3][it1],P1tot_im[it3][it1],
+		  P2tot_re[it3][it1],P2tot_im[it3][it1]);
+	  fprintf(out2D,"\n");
+	}
+    fclose(out2D);
+    free(name);
+  } /* end if n_levels>=2 */
+
+  if (asprintf(&name,"%s_t_spec3D%s",base_name,extension) < 0) nrerror("failed to write string");
+  out3D=fopen(name,"wt");
+  for(it1=1;it1<=nt;it1++)
+    for(it3=1;it3<=nt;it3++)
+      for(it5=1;it5<=nt;it5++)
+      {
+        fprintf(out3D,"%10.5g %10.5g %10.5g %10.5g %10.5g %10.5g %10.5g %10.5g",
+                R1f_re[it5][it3][it1],
+                R1f_im[it5][it3][it1],
+                R2f_re[it5][it3][it1],
+                R2f_im[it5][it3][it1],
+                R3f_re[it5][it3][it1],
+                R3f_im[it5][it3][it1],
+                R4f_re[it5][it3][it1],
+                R4f_im[it5][it3][it1]);
+        fprintf(out3D,"\n");
+      }
+  fclose(out3D);
+  free(name);
+}
+void normalizeResults(int nt,float dt,unsigned long isample,
+		      int n_levels, int flag_noncondon,float *mean_w,float *mean_mu,
+                      float S_re[],float S_im[],
+                      float **P1_re,float **P1_im,float **P2_re,float **P2_im,
+                      float **P3_re,float **P3_im,float **P4_re,float **P4_im,
+                      float ***R1_re,float ***R1_im,float ***R2_re,float ***R2_im,
+                      float ***R3_re,float ***R3_im,float ***R4_re,float ***R4_im,
+                      float Sf_re[],float Sf_im[],
+                      float **P1f_re,float **P1f_im,float **P2f_re,float **P2f_im,
+                      float **P3f_re,float **P3f_im,float **P4f_re,float **P4f_im,
+                      float **P1tot_re,float **P1tot_im,float **P2tot_re,float **P2tot_im,
+                      float ***R1f_re,float ***R1f_im,float ***R2f_re,float ***R2f_im,
+                      float ***R3f_re,float ***R3f_im,float ***R4f_re,float ***R4f_im)
+{
+  int it1,it3,it5;
+  float mu_01_2,mu_12_2,mu_23_2;
+  float shift_w;
+  float a,b,phi;
+
+  mu_01_2 = 1;
+  mu_12_2 = 1;
+  mu_23_2 = 1;
+  if (flag_noncondon==0){
+    if (n_levels>=1) mu_01_2 = mean_mu[0]*mean_mu[0];
+    if (n_levels>=2) mu_12_2 = mean_mu[1]*mean_mu[1];
+    if (n_levels>=3) mu_23_2 = mean_mu[2]*mean_mu[2];
+  }
+  
+  /* calculate shift frequency based on number of levels we've calculated */
+  if (n_levels==1) shift_w = 0;
+  if (n_levels==2) shift_w =(mean_w[0] - mean_w[1])/2; // 0;//  M_PI/(2*dt);// 
+  if (n_levels==3){
+    shift_w = 0; /*this needs to be worked out*/
+  }
+
+  printf("shift_w = %f dt = %f\n",shift_w,dt);
+
+  for(it1=1;it1<=nt;it1++)
+    {
+      Sf_re[it1] = mu_01_2 * S_re[it1] / isample;
+      Sf_im[it1] = mu_01_2 * S_im[it1] / isample;
+      for(it3=1;it3<=nt;it3++)
+	{
+	  /* the factor of 2 is for the 2 diagrams which contribute,
+	     ground state bleach and excited state emission. The a and
+	     b terms are are do the rotation in the complex plane to
+	     account for the frequency shifts due to anharmonicity. */
+	  phi = -shift_w*dt*(it3-1);
+	  a = 2 * mu_01_2 * mu_01_2 * P1_re[it3][it1] / isample;
+	  b = 2 * mu_01_2 * mu_01_2 * P1_im[it3][it1] / isample;
+	  P1f_re[it3][it1] = a * cos(phi) - b * sin(phi);
+	  P1f_im[it3][it1] = a * sin(phi) + b * cos(phi);
+
+	  a = 2 * mu_01_2 * mu_01_2 * P2_re[it3][it1] / isample;
+	  b = 2 * mu_01_2 * mu_01_2 * P2_im[it3][it1] / isample;
+	  P2f_re[it3][it1] = a * cos(phi) - b * sin(phi);
+	  P2f_im[it3][it1] = a * sin(phi) + b * cos(phi);
+
+	  /* old way
+	  P1f_re[it3][it1] = 2 * mu_01_2 * mu_01_2 * P1_re[it3][it1] / isample;
+	  P1f_im[it3][it1] = 2 * mu_01_2 * mu_01_2 * P1_im[it3][it1] / isample;
+	  P2f_re[it3][it1] = 2 * mu_01_2 * mu_01_2 * P2_re[it3][it1] / isample;
+	  P2f_im[it3][it1] = 2 * mu_01_2 * mu_01_2 * P2_im[it3][it1] / isample;
+	  */
+
+	  if (n_levels>=2){
+	    /* the -1 factor is because of an odd number of arrows on
+	       the left of the diagrams (ie it is excited state
+	       absorption */
+	    a = -1 * mu_12_2 * mu_01_2 * P3_re[it3][it1] / isample;
+	    b = -1 * mu_12_2 * mu_01_2 * P3_im[it3][it1] / isample;
+	    P3f_re[it3][it1] = a * cos(-phi) - b * sin(-phi);
+	    P3f_im[it3][it1] = a * sin(-phi) + b * cos(-phi);
+	    a = -1 * mu_12_2 * mu_01_2 * P4_re[it3][it1] / isample;
+	    b = -1 * mu_12_2 * mu_01_2 * P4_im[it3][it1] / isample;
+	    P4f_re[it3][it1] = a * cos(-phi) - b * sin(-phi);
+	    P4f_im[it3][it1] = a * sin(-phi) + b * cos(-phi);
+	    /* old way
+	    P3f_re[it3][it1] = -1 * mu_12_2 * mu_01_2 * P3_re[it3][it1] / isample;
+	    P3f_im[it3][it1] = -1 * mu_12_2 * mu_01_2 * P3_im[it3][it1] / isample;
+	    P4f_re[it3][it1] = -1 * mu_12_2 * mu_01_2 * P4_re[it3][it1] / isample;
+	    P4f_im[it3][it1] = -1 * mu_12_2 * mu_01_2 * P4_im[it3][it1] / isample;
+	    */
+
+	    P1tot_re[it3][it1] = P1f_re[it3][it1] + P3f_re[it3][it1];
+	    P1tot_im[it3][it1] = P1f_im[it3][it1] + P3f_im[it3][it1];
+	    P2tot_re[it3][it1] = P2f_re[it3][it1] + P4f_re[it3][it1];
+	    P2tot_im[it3][it1] = P2f_im[it3][it1] + P4f_im[it3][it1];
+	  }
+	  for(it5=1;it5<=nt;it5++)
+	    {
+	      R1f_re[it5][it3][it1]=R1_re[it5][it3][it1]/isample;
+	      R1f_im[it5][it3][it1]=R1_im[it5][it3][it1]/isample;
+	      R2f_re[it5][it3][it1]=R2_re[it5][it3][it1]/isample;
+	      R2f_im[it5][it3][it1]=R2_im[it5][it3][it1]/isample;
+	      R3f_re[it5][it3][it1]=R3_re[it5][it3][it1]/isample;
+	      R3f_im[it5][it3][it1]=R3_im[it5][it3][it1]/isample;
+	      R4f_re[it5][it3][it1]=R4_re[it5][it3][it1]/isample;
+	      R4f_im[it5][it3][it1]=R4_im[it5][it3][it1]/isample;
+	    }
+	}
+    }
+}
+
 void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4_pairs,const int nsteps,const int nprotons,float ***w_matrices, float ***x_matrices,float *mean_w,float *mean_mu ){
   
   //vars for force trajectory
@@ -500,7 +674,9 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
   float *mu;
 
   //vars for response function calcultions
-  float **pdw1,**pdw2,*sdw,***rdw1,***rdw2,***rdw3,***rdw4;
+  float *sdw;
+  float **pdw1,**pdw2,**pdw3,**pdw4;
+  float ***rdw1,***rdw2,***rdw3,***rdw4;
   //  float ***R1_re,***R1_im,***R2_re,***R2_im,***R3_re,***R3_im,***R4_re,***R4_im;
   //3D response functions
   float ***R1_re, ***R1_im, ***R2_re, ***R2_im, ***R3_re, ***R3_im, ***R4_re, ***R4_im;
@@ -512,36 +688,42 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
   float **P1_re,**P1_im,**P2_re,**P2_im,**P3_re,**P3_im,**P4_re,**P4_im;
   //1D response functions
   float *S_re,*S_im;
-  // for saving data (cut them?)
-  float ***R1f_re,***R1f_im,***R2f_re,***R2f_im,***R3f_re,***R3f_im,***R4f_re,***R4f_im,
-    **P1f_re,**P2f_re,**P2f_im,**P1f_im,*Sf_re,*Sf_im;
-
-  //unsigned long n_t2_t4_pairs; //number of times we will calculate joint prob dens
-  //float **t2_t4_pairs;//matrix of times (t2,t4)
+  // for saving data
+  float *Sf_re,*Sf_im;
+  float **P1f_re,**P2f_re,**P2f_im,**P1f_im;
+  float **P3f_re,**P4f_re,**P3f_im,**P4f_im;
+  float **P1tot_re,**P1tot_im,**P2tot_re,**P2tot_im;
+  float ***R1f_re,***R1f_im,***R2f_re,***R2f_im,***R3f_re,***R3f_im,***R4f_re,***R4f_im;
+  float ***R5f_re, ***R5f_im, ***R6f_re, ***R6f_im, ***R7f_re, ***R7f_im, ***R8f_re, ***R8f_im;
+  float ***R9f_re, ***R9f_im, ***R10f_re,***R10f_im,***R11f_re,***R11f_im,***R12f_re,***R12f_im;
+  float ***R13f_re,***R13f_im,***R14f_re,***R14f_im,***R15f_re,***R15f_im,***R16f_re,***R16f_im;
+  float ***R17f_re,***R17f_im,***R18f_re,***R18f_im,***R19f_re,***R19f_im,***R20f_re,***R20f_im;
 
   float t2,t4;
   
   int i,j,isample,i_level,it,it1,it3,it5,nt2,nt4,ntraject,nsamples,ipoptime,iproton;
-  //  int iproton;
-  float *dwint;           /* trajectories after preintegrating/coarse graining  */   
-  float *muint;           /* trajectories after preintegrating/coarse graining  */   
-  
+  float *dwint1;          /* trajectories after preintegrating/coarse graining  */   
+  float *dwint2;          /* trajectories after preintegrating/coarse graining  */   
+  float *dwint3;          /* trajectories after preintegrating/coarse graining  */   
+  float *muint1;          /* trajectories after preintegrating/coarse graining  */   
+  float *muint2;          /* trajectories after preintegrating/coarse graining  */   
+  float *muint3;          /* trajectories after preintegrating/coarse graining  */   
+ 
   float mean_w01;
   float mean_w12;
   float mean_w23;
   float mean_mu01;
   float mean_mu12;
   float mean_mu23;
-  float mean_mu2; /* mean dipole^2 */
-  float mean_mu4; /* mean dipole^4 */
-  float mean_mu6; /* mean dipole^6 */
-    
+
+  float mu2_mu1;
+  float mu4_mu3_mu2_mu1;
   double sum,sum2;
 
   /*allocate arrays*/
   printf("Initialize Arrays\n");
   
-  //
+  /* 3D peak 1 */
   R1_re=f3tensor(1,nt,1,nt,1,nt);
   R1_im=f3tensor(1,nt,1,nt,1,nt);
   R2_re=f3tensor(1,nt,1,nt,1,nt);
@@ -550,7 +732,7 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
   R3_im=f3tensor(1,nt,1,nt,1,nt);
   R4_re=f3tensor(1,nt,1,nt,1,nt);
   R4_im=f3tensor(1,nt,1,nt,1,nt);
-  //
+  /* 3D peak 2 */
   R5_re=f3tensor(1,nt,1,nt,1,nt);
   R5_im=f3tensor(1,nt,1,nt,1,nt);
   R6_re=f3tensor(1,nt,1,nt,1,nt);
@@ -559,7 +741,7 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
   R7_im=f3tensor(1,nt,1,nt,1,nt);
   R8_re=f3tensor(1,nt,1,nt,1,nt);
   R8_im=f3tensor(1,nt,1,nt,1,nt);
-  //
+  /* 3D peak 3 */
   R9_re=f3tensor(1,nt,1,nt,1,nt);
   R9_im=f3tensor(1,nt,1,nt,1,nt);
   R10_re=f3tensor(1,nt,1,nt,1,nt);
@@ -568,7 +750,7 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
   R11_im=f3tensor(1,nt,1,nt,1,nt);
   R12_re=f3tensor(1,nt,1,nt,1,nt);
   R12_im=f3tensor(1,nt,1,nt,1,nt);
-  //
+  /* 3D peak 4 */
   R13_re=f3tensor(1,nt,1,nt,1,nt);
   R13_im=f3tensor(1,nt,1,nt,1,nt);
   R14_re=f3tensor(1,nt,1,nt,1,nt);
@@ -577,7 +759,7 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
   R15_im=f3tensor(1,nt,1,nt,1,nt);
   R16_re=f3tensor(1,nt,1,nt,1,nt);
   R16_im=f3tensor(1,nt,1,nt,1,nt);
-  //
+  /* 3D peak 5 */
   R17_re=f3tensor(1,nt,1,nt,1,nt);
   R17_im=f3tensor(1,nt,1,nt,1,nt);
   R18_re=f3tensor(1,nt,1,nt,1,nt);
@@ -586,20 +768,21 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
   R19_im=f3tensor(1,nt,1,nt,1,nt);
   R20_re=f3tensor(1,nt,1,nt,1,nt);
   R20_im=f3tensor(1,nt,1,nt,1,nt);
-  // gb + se
+  /* 2D gb + se */
   P1_re=matrix(1,nt,1,nt);
   P1_im=matrix(1,nt,1,nt);
   P2_re=matrix(1,nt,1,nt);
   P2_im=matrix(1,nt,1,nt);
-  // esa
+  /* 2D esa */
   P3_re=matrix(1,nt,1,nt);
   P3_im=matrix(1,nt,1,nt);
   P4_re=matrix(1,nt,1,nt);
   P4_im=matrix(1,nt,1,nt);
-  //
+  /* 1D */
   S_re=vector(1,nt);
   S_im=vector(1,nt);
   
+  /* normalized results and final output */
   R1f_re=f3tensor(1,nt,1,nt,1,nt);
   R1f_im=f3tensor(1,nt,1,nt,1,nt);
   R2f_re=f3tensor(1,nt,1,nt,1,nt);
@@ -608,18 +791,31 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
   R3f_im=f3tensor(1,nt,1,nt,1,nt);
   R4f_re=f3tensor(1,nt,1,nt,1,nt);
   R4f_im=f3tensor(1,nt,1,nt,1,nt);
-  //
+  /* 2D gb + se */
   P1f_re=matrix(1,nt,1,nt);
   P1f_im=matrix(1,nt,1,nt);
   P2f_re=matrix(1,nt,1,nt);
   P2f_im=matrix(1,nt,1,nt);
+  /* 2D esa */
+  P3f_re=matrix(1,nt,1,nt);
+  P3f_im=matrix(1,nt,1,nt);
+  P4f_re=matrix(1,nt,1,nt);
+  P4f_im=matrix(1,nt,1,nt);
+  /* 2D total spectrum */
+  P1tot_re=matrix(1,nt,1,nt);
+  P1tot_im=matrix(1,nt,1,nt);
+  P2tot_re=matrix(1,nt,1,nt);
+  P2tot_im=matrix(1,nt,1,nt);
+  /* 1D */
   Sf_re=vector(1,nt);
   Sf_im=vector(1,nt);
   
-  
+  /* the time integrals to evaluate inside the exponent */
   sdw=vector(1,nt);
   pdw1=matrix(1,nt,1,nt);
   pdw2=matrix(1,nt,1,nt);
+  pdw3=matrix(1,nt,1,nt);
+  pdw4=matrix(1,nt,1,nt);
   rdw1=f3tensor(1,nt,1,nt,1,nt);
   rdw2=f3tensor(1,nt,1,nt,1,nt);
   rdw3=f3tensor(1,nt,1,nt,1,nt);
@@ -722,33 +918,36 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
       if (asprintf(&extension,"_t2_%d_t4_%d.dat",(int) t2,(int) t4) < 0) nrerror("failed to write string");
       printf("Extension: %s\n",extension);
       
-      //nt2 and nt4 are the number of coarse grained points
-      //during population times in trajectory
+      /* nt2 and nt4 are the number of coarse grained points
+       * during population times in trajectory */
       nt4=round(t4/ntint);
       nt2=round(t2/ntint);
      
       ntraject=3*nt+nt2+nt4; // number of points in the coarse-grained trajectory
-      //      ntraject=nt;
-      dwint=vector(1,ntraject); // that selection averaged over ntint
+      dwint1=vector(1,ntraject); // that selection averaged over ntint
                                 // points (for H20 about 6)
-      muint=vector(1,ntraject); // dipole selection averaged over ntint
+      dwint2=vector(1,ntraject); // that selection averaged over ntint
+                                // points (for H20 about 6)
+      dwint3=vector(1,ntraject); // that selection averaged over ntint
+                                // points (for H20 about 6)
+      muint1=vector(1,ntraject); // dipole selection averaged over ntint
+                                // points (for H20 about 6)
+      muint2=vector(1,ntraject); // dipole selection averaged over ntint
+                                // points (for H20 about 6)
+      muint3=vector(1,ntraject); // dipole selection averaged over ntint
                                 // points (for H20 about 6)
       
-      //calculate the maximum number of dw trajectories in the total
-      //time evolution as <nsamples>
+      /* calculate the maximum number of dw trajectories in the total
+       * time evolution as <nsamples> */
       if (nsteps<ntraject*ntint)
-	{
 	  nrerror("ERROR: trajectory is too short for response function calculation!");
-	}
-      else
-	{   
-	  nsamples = floor( (nsteps-ntraject*ntint)/nskip );
-	  printf("The number of samples for this set of delays is %6.4i\n",nsamples);
-	}
+      nsamples = floor( (nsteps-ntraject*ntint)/nskip );
+      printf("The number of samples for this set of delays is %6.4i\n",nsamples);
       
-      //convert units
+      /* convert units */
       for (i_level=0;i_level<n_levels;i_level++){
-	sum = 0;
+	sum  = 0;
+	sum2 = 0;
 	for (i=1;i<=nprotons;i++)
 	  for (j=1;j<=nsteps;j++){
 	    sum+=(double)w_matrices[i_level][i][j];
@@ -784,67 +983,170 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 	    // offset by an amount (nskip) to make this an independent,
 	    // uncorrlated trajectory
 
-	    if (order>=1){
-	      i_level = 0;
+	      i_level = 0; /* 01 transition */
 	      dw=&w_matrices[i_level][iproton][1+(isample-1)*nskip];
 	      mu=&x_matrices[i_level][iproton][1+(isample-1)*nskip];
-        
+	      
 	      //preintegrate the frequency and convert units
 	      for(it=1;it<=ntraject;it++)
 		{
-		  dwint[it]=(dw[(it-1)*ntint+1]+dw[it*ntint+1])/2;
+		  dwint1[it]=(dw[(it-1)*ntint+1]+dw[it*ntint+1])/2;
 		  for(j=2;j<=ntint;j++)
-		    dwint[it]+=dw[(it-1)*ntint+j];
-		  //the code above has an effective length of ntint+1
-		  //(where matlab trapz() has a length of ntint-1!
-		  dwint[it]*=dt/(ntint);//*=dt;//factors of ntint and units are already included in dt
+		    dwint1[it]+=dw[(it-1)*ntint+j];
+		  
+		  /* the code above has an effective length of
+		   * ntint+1 (where matlab trapz() has a length of
+		   * ntint-1!  but hte denom has to be ntint in the
+		   * denom to get agreement with matlab???
+		   */
+		  dwint1[it]*=dt/ntint;
 		}
-	      if (iproton==1 && isample==1){
-		printf("dwint = \n");
-		for (i=1;i<=ntraject;i++)
-		  printf("%f\n",dwint[i]);
-	      }
-
 	      //preintegrate the dipole
 	      for(it=1;it<=ntraject;it++)
 		{
-		  muint[it]=(mu[(it-1)*ntint+1]+mu[it*ntint+1])/2;
+		  muint1[it]=(mu[(it-1)*ntint+1]+mu[it*ntint+1])/2;
 		  for(j=2;j<=ntint;j++)
-		    muint[it]+=mu[(it-1)*ntint+j];
-		  muint[it]/=(ntint);
+		    muint1[it]+=mu[(it-1)*ntint+j];
+		  muint1[it]/=(ntint);
 		}
+	      
+	      if (DEBUG_LEVEL>=1){
+		if (iproton==1 && isample==1){
+		  printf("dwint1 = \n");
+		  for (i=1;i<=ntraject;i++)
+		    printf("%f\n",dwint1[i]);
+		}
+	      }
+	      
+	      if (n_levels>=2){
+		i_level = 1; /* the 12 transition */
+		dw=&w_matrices[i_level][iproton][1+(isample-1)*nskip];
+		mu=&x_matrices[i_level][iproton][1+(isample-1)*nskip];
+		
+		//preintegrate the frequency and convert units
+		for(it=1;it<=ntraject;it++)
+		  {
+		    dwint2[it]=(dw[(it-1)*ntint+1]+dw[it*ntint+1])/2;
+		    for(j=2;j<=ntint;j++)
+		      dwint2[it]+=dw[(it-1)*ntint+j];
+		    
+		    /* the code above has an effective length of
+		     * ntint+1 (where matlab trapz() has a length of
+		     * ntint-1!  but hte denom has to be ntint in the
+		     * denom to get agreement with matlab???
+		     */
+		    dwint2[it]*=dt/ntint;
+		  }
+		
+		for(it=1;it<=ntraject;it++)
+		  {
+		    muint2[it]=(mu[(it-1)*ntint+1]+mu[it*ntint+1])/2;
+		    for(j=2;j<=ntint;j++)
+		      muint2[it]+=mu[(it-1)*ntint+j];
+		    muint2[it]/=(ntint);
+		  }
+	      }
+		
+	    if (flag_noncondon==0){
+	      
 	      /*
 	       * Calculate nonlinear polarisation
 	       *
 	       */
 	      
-	      if (flag_noncondon==0){
+	      sdw[1]=0;
+	      pdw1[1][1]=0;
+	      pdw2[1][1]=0;
+	      pdw3[1][1]=0;
+	      pdw4[1][1]=0;
+	      for(it1=1;it1<=nt;it1++)
+		{
+		  if (it1<nt)
+		    {
+		      sdw[it1+1]=sdw[it1]-dwint1[it1];
+		      pdw1[1][it1+1]=pdw1[1][it1]+dwint1[it1];
+		      pdw2[1][it1+1]=pdw2[1][it1]-dwint1[it1];
+		      pdw3[1][it1+1]=pdw3[1][it1]+dwint1[it1];
+		      pdw4[1][it1+1]=pdw4[1][it1]-dwint1[it1];
+		    }
+		  S_re[it1]+=cos(sdw[it1]);
+		  S_im[it1]+=sin(sdw[it1]);
+		  if (order>=3) 
+		    for(it3=1;it3<=nt;it3++)
+		      {
+			if (it3<nt)
+			  {
+			    pdw1[it3+1][it1]=pdw1[it3][it1]-dwint1[it3+nt2+it1];
+			    pdw2[it3+1][it1]=pdw2[it3][it1]-dwint1[it3+nt2+it1];
+			    if (n_levels>=2){
+			      pdw3[it3+1][it1]=pdw3[it3][it1]-dwint2[it3+nt2+it1];
+			      pdw4[it3+1][it1]=pdw4[it3][it1]-dwint2[it3+nt2+it1];
+			    }
+			  }
+			P1_re[it3][it1]+=cos(pdw1[it3][it1]);
+			P1_im[it3][it1]+=sin(pdw1[it3][it1]);
+			P2_re[it3][it1]+=cos(pdw2[it3][it1]);
+			P2_im[it3][it1]+=sin(pdw2[it3][it1]);
+			if (n_levels>=2){
+			  P3_re[it3][it1]+=cos(pdw3[it3][it1]);
+			  P3_im[it3][it1]+=sin(pdw3[it3][it1]);
+			  P4_re[it3][it1]+=cos(pdw4[it3][it1]);
+			  P4_im[it3][it1]+=sin(pdw4[it3][it1]);
+			}
+		      }//end order >=3 and it3
+		}//end for it1
+	    }//end if condon
+	    
+	    if (flag_noncondon==1){
+	      // non condon code goes here
+	      
 		sdw[1]=0;
-		for(it1=1;it1<=nt;it1++)
-		  {
+		pdw1[1][1]=0;
+		pdw2[1][1]=0;
+		pdw3[1][1]=0;
+		pdw4[1][1]=0;
+		for(it1=1;it1<=nt;it1++){
 		    if (it1<nt)
 		      {
-			sdw[it1+1]=sdw[it1]+dwint[it1];
+			sdw[it1+1]=sdw[it1]-dwint1[it1];
+			pdw1[1][it1+1]=pdw1[1][it1]+dwint1[it1];
+			pdw2[1][it1+1]=pdw2[1][it1]-dwint1[it1];
+			pdw3[1][it1+1]=pdw3[1][it1]+dwint1[it1];
+			pdw4[1][it1+1]=pdw4[1][it1]-dwint1[it1];
 		      }
-		    S_re[it1]+=cos(sdw[it1]);
-		    S_im[it1]+=sin(sdw[it1]);
-		  }
-	      } else {
-		// non condon code goes here
-		sdw[1]=0;
-		for(it1=1;it1<=nt;it1++)
-		  {
-		    if (it1<nt)
-		      {
-			sdw[it1+1]=sdw[it1]+dwint[it1]*dt;
-		      }
-		    S_re[it1]+=muint[it1]*muint[1]*cos(sdw[it1]);
-		    S_im[it1]+=muint[it1]*muint[1]*sin(sdw[it1]);
-		  }
-	      }
-
-
-	    }// end if order >=1
+		    mu2_mu1 = muint1[it1]*muint1[1];
+		    S_re[it1]+=mu2_mu1*cos(sdw[it1]);
+		    S_im[it1]+=mu2_mu1*sin(sdw[it1]);
+		    if (order>=3) 
+		      for(it3=1;it3<=nt;it3++)
+			{
+			  if (it3<nt)
+			    {
+			      pdw1[it3+1][it1]=pdw1[it3][it1]-dwint1[it3+nt2+it1]; //should this be it3+nt+it1-1???
+			      pdw2[it3+1][it1]=pdw2[it3][it1]-dwint1[it3+nt2+it1];
+			      if (n_levels>=2){
+				pdw3[it3+1][it1]=pdw3[it3][it1]-dwint2[it3+nt2+it1];
+				pdw4[it3+1][it1]=pdw4[it3][it1]-dwint2[it3+nt2+it1];
+			      }
+			    }
+			  
+			  mu4_mu3_mu2_mu1 = muint1[it1+nt2+it3-1]*muint1[it1+nt2]*mu2_mu1;
+			  
+			  P1_re[it3][it1]+=mu4_mu3_mu2_mu1*cos(pdw1[it3][it1]);
+			  P1_im[it3][it1]+=mu4_mu3_mu2_mu1*sin(pdw1[it3][it1]);
+			  P2_re[it3][it1]+=mu4_mu3_mu2_mu1*cos(pdw2[it3][it1]);
+			  P2_im[it3][it1]+=mu4_mu3_mu2_mu1*sin(pdw2[it3][it1]);
+			  if (n_levels>=2){
+			    mu4_mu3_mu2_mu1 = muint2[it1+nt2+it3-1]*muint2[it1+nt2]*mu2_mu1;
+			    P3_re[it3][it1]+=mu4_mu3_mu2_mu1*cos(pdw3[it3][it1]);
+			    P3_im[it3][it1]+=mu4_mu3_mu2_mu1*sin(pdw3[it3][it1]);
+			    P4_re[it3][it1]+=mu4_mu3_mu2_mu1*cos(pdw4[it3][it1]);
+			    P4_im[it3][it1]+=mu4_mu3_mu2_mu1*sin(pdw4[it3][it1]);
+			  }
+			}//end order >=3 and it3
+		}//end for it1
+	    }//end if noncondon
+	    
 
         /*
          * 
@@ -855,10 +1157,10 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 	//dw=&dw_matrix[iproton][1+(isample-1)*nskip];
         for(it=1;it<=ntraject;it++)
 	  {
-	    dwint[it]=(dw[(it-1)*ntint+1]+dw[it*ntint+1])/2;
+	    dwint1[it]=(dw[(it-1)*ntint+1]+dw[it*ntint+1])/2;
 	    for(j=2;j<=ntint;j++)
-	      dwint[it]+=dw[(it-1)*ntint+j];
-	    dwint[it]*=dt/ntint;
+	      dwint1[it]+=dw[(it-1)*ntint+j];
+	    dwint1[it]*=dt/ntint;
 	  }
 	*/ 
         /*
@@ -877,13 +1179,13 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 	    {
           if (it1<nt)
           {
-            sdw[it1+1]=sdw[it1]+dwint[it1];
-            pdw1[1][it1+1]=pdw1[1][it1]+dwint[it1];
-            pdw2[1][it1+1]=pdw2[1][it1]-dwint[it1];
-            rdw1[1][1][it1+1]=rdw1[1][1][it1]-dwint[it1];
-            rdw2[1][1][it1+1]=rdw2[1][1][it1]+dwint[it1];
-            rdw3[1][1][it1+1]=rdw3[1][1][it1]-dwint[it1];
-            rdw4[1][1][it1+1]=rdw4[1][1][it1]+dwint[it1];
+            sdw[it1+1]=sdw[it1]+dwint1[it1];
+            pdw1[1][it1+1]=pdw1[1][it1]+dwint1[it1];
+            pdw2[1][it1+1]=pdw2[1][it1]-dwint1[it1];
+            rdw1[1][1][it1+1]=rdw1[1][1][it1]-dwint1[it1];
+            rdw2[1][1][it1+1]=rdw2[1][1][it1]+dwint1[it1];
+            rdw3[1][1][it1+1]=rdw3[1][1][it1]-dwint1[it1];
+            rdw4[1][1][it1+1]=rdw4[1][1][it1]+dwint1[it1];
           }
           S_re[it1]+=cos(sdw[it1]);
           S_im[it1]+=sin(sdw[it1]);
@@ -891,12 +1193,12 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
           {
             if (it3<nt)
             {
-              pdw1[it3+1][it1]=pdw1[it3][it1]-dwint[it3+nt2+it1];
-              pdw2[it3+1][it1]=pdw2[it3][it1]-dwint[it3+nt2+it1];
-              rdw1[1][it3+1][it1]=rdw1[1][it3][it1]-dwint[it3+nt2+it1];
-              rdw2[1][it3+1][it1]=rdw2[1][it3][it1]-dwint[it3+nt2+it1];
-              rdw3[1][it3+1][it1]=rdw3[1][it3][it1]+dwint[it3+nt2+it1];
-              rdw4[1][it3+1][it1]=rdw4[1][it3][it1]+dwint[it3+nt2+it1];
+              pdw1[it3+1][it1]=pdw1[it3][it1]-dwint1[it3+nt2+it1];
+              pdw2[it3+1][it1]=pdw2[it3][it1]-dwint1[it3+nt2+it1];
+              rdw1[1][it3+1][it1]=rdw1[1][it3][it1]-dwint1[it3+nt2+it1];
+              rdw2[1][it3+1][it1]=rdw2[1][it3][it1]-dwint1[it3+nt2+it1];
+              rdw3[1][it3+1][it1]=rdw3[1][it3][it1]+dwint1[it3+nt2+it1];
+              rdw4[1][it3+1][it1]=rdw4[1][it3][it1]+dwint1[it3+nt2+it1];
             }
             P1_re[it3][it1]+=cos(pdw1[it3][it1]);
             P1_im[it3][it1]+=sin(pdw1[it3][it1]);
@@ -906,10 +1208,10 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
             {
               if (it5<nt)
               {
-                rdw1[it5+1][it3][it1]=rdw1[it5][it3][it1]-dwint[it5+nt4+it3+nt2+it1];
-                rdw2[it5+1][it3][it1]=rdw2[it5][it3][it1]-dwint[it5+nt4+it3+nt2+it1];
-                rdw3[it5+1][it3][it1]=rdw3[it5][it3][it1]-dwint[it5+nt4+it3+nt2+it1];
-                rdw4[it5+1][it3][it1]=rdw4[it5][it3][it1]-dwint[it5+nt4+it3+nt2+it1];
+                rdw1[it5+1][it3][it1]=rdw1[it5][it3][it1]-dwint1[it5+nt4+it3+nt2+it1];
+                rdw2[it5+1][it3][it1]=rdw2[it5][it3][it1]-dwint1[it5+nt4+it3+nt2+it1];
+                rdw3[it5+1][it3][it1]=rdw3[it5][it3][it1]-dwint1[it5+nt4+it3+nt2+it1];
+                rdw4[it5+1][it3][it1]=rdw4[it5][it3][it1]-dwint1[it5+nt4+it3+nt2+it1];
               }
               R1_re[it5][it3][it1]+=cos(rdw1[it5][it3][it1]);
               R1_im[it5][it3][it1]+=sin(rdw1[it5][it3][it1]);
@@ -926,61 +1228,58 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 	if((isample+nsamples*(iproton-1))%20000==0)
             {
               /*write intermediate results*/
-              normalizeResults(nt,(isample+nsamples*(iproton-1)),
+              normalizeResults(nt,dt,(isample+nsamples*(iproton-1)),
+			       n_levels,flag_noncondon,mean_w,mean_mu,
                                S_re,S_im,
                                P1_re,P1_im,P2_re,P2_im,
-                               R1_re,R1_im,R2_re,R2_im,R3_re,R3_im,R4_re,R4_im,
+			       P3_re,P3_im,P4_re,P4_im,
+                               R1_re,R1_im,R2_re,R2_im,
+			       R3_re,R3_im,R4_re,R4_im,
                                Sf_re,Sf_im,
                                P1f_re,P1f_im,P2f_re,P2f_im,
+			       P3f_re,P3f_im,P4f_re,P4f_im,
+			       P1tot_re,P1tot_im,P2tot_re,P2tot_im,
                                R1f_re,R1f_im,R2f_re,R2f_im,R3f_re,R3f_im,R4f_re,R4f_im);
-	      writeResultsTime(base_name,nt,extension,
+	      writeResultsTime(base_name,nt,extension,n_levels,
 			       Sf_re,Sf_im,
 			       P1f_re,P1f_im,P2f_re,P2f_im,
+			       P3f_re,P3f_im,P4f_re,P4f_im,
+			       P1tot_re,P1tot_im,P2tot_re,P2tot_im,
 			       R1f_re,R1f_im,R2f_re,R2f_im,R3f_re,R3f_im,R4f_re,R4f_im); 
 
-              /*
-		fourierTransformResults(nt,
-                                      Sf_re,Sf_im,
-                                      P1f_re,P1f_im,P2f_re,P2f_im,
-                                      R1f_re,R1f_im,R2f_re,R2f_im,R3f_re,R3f_im,R4f_re,R4f_im);
-	      
-              writeResults(base_name,nt,extension,
-                           Sf_re,Sf_im,
-                           P1f_re,P1f_im,P2f_re,P2f_im,
-                           R1f_re,R1f_im,R2f_re,R2f_im,R3f_re,R3f_im,R4f_re,R4f_im); 
-	      */
             } //end if (isample+nsamples*(iproton-1)%2000==0 
 
 	    
-        } //end isample loop
+	  } //end isample loop
           
-          //final results
-          normalizeResults(nt,nsamples*nprotons,
-                           S_re,S_im,
-                           P1_re,P1_im,P2_re,P2_im,
-                           R1_re,R1_im,R2_re,R2_im,R3_re,R3_im,R4_re,R4_im,
-                           Sf_re,Sf_im,
-                           P1f_re,P1f_im,P2f_re,P2f_im,
-                           R1f_re,R1f_im,R2f_re,R2f_im,R3f_re,R3f_im,R4f_re,R4f_im);
-	  writeResultsTime(base_name,nt,extension,
-			   Sf_re,Sf_im,
-			   P1f_re,P1f_im,P2f_re,P2f_im,
-			   R1f_re,R1f_im,R2f_re,R2f_im,R3f_re,R3f_im,R4f_re,R4f_im); 
-	  
-          /* fourierTransformResults(nt,
-                                  Sf_re,Sf_im,
-                                  P1f_re,P1f_im,P2f_re,P2f_im,
-                                  R1f_re,R1f_im,R2f_re,R2f_im,R3f_re,R3f_im,R4f_re,R4f_im);
-	  
-
-          writeResults(base_name,nt,extension,
-                       Sf_re,Sf_im,
-                       P1f_re,P1f_im,P2f_re,P2f_im,
-                       R1f_re,R1f_im,R2f_re,R2f_im,R3f_re,R3f_im,R4f_re,R4f_im);
-	  */
-          //free dwint for the next t2,t4
-          free_vector(dwint,1,ntraject);
-          free_vector(muint,1,ntraject);
+      //final results
+      normalizeResults(nt,dt,nsamples*nprotons,
+		       n_levels,flag_noncondon,mean_w,mean_mu,
+		       S_re,S_im,
+		       P1_re,P1_im,P2_re,P2_im,
+		       P3_re,P3_im,P4_re,P4_im,
+		       R1_re,R1_im,R2_re,R2_im,
+		       R3_re,R3_im,R4_re,R4_im,
+		       Sf_re,Sf_im,
+		       P1f_re,P1f_im,P2f_re,P2f_im,
+		       P3f_re,P3f_im,P4f_re,P4f_im,
+		       P1tot_re,P1tot_im,P2tot_re,P2tot_im,
+		       R1f_re,R1f_im,R2f_re,R2f_im,
+		       R3f_re,R3f_im,R4f_re,R4f_im);
+      writeResultsTime(base_name,nt,extension,n_levels,
+		       Sf_re,Sf_im,
+		       P1f_re,P1f_im,P2f_re,P2f_im,
+		       P3f_re,P3f_im,P4f_re,P4f_im,
+		       P1tot_re,P1tot_im,P2tot_re,P2tot_im,
+		       R1f_re,R1f_im,R2f_re,R2f_im,R3f_re,R3f_im,R4f_re,R4f_im); 
+      
+          //free dwint1 for the next t2,t4
+          free_vector(dwint1,1,ntraject);
+          free_vector(dwint2,1,ntraject);
+          free_vector(dwint3,1,ntraject);
+          free_vector(muint1,1,ntraject);
+          free_vector(muint2,1,ntraject);
+          free_vector(muint3,1,ntraject);
 	  free(extension);
 
     }//end t2, t4 loop
@@ -1005,6 +1304,12 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
     printf("...response functions P2\n");
     free_matrix(P2_re,1,nt,1,nt);
     free_matrix(P2_im,1,nt,1,nt);
+    printf("...response functions P3\n");
+    free_matrix(P3_re,1,nt,1,nt);
+    free_matrix(P3_im,1,nt,1,nt);
+    printf("...response functions P4\n");
+    free_matrix(P4_re,1,nt,1,nt);
+    free_matrix(P4_im,1,nt,1,nt);
     printf("...response functions S\n");
     free_vector(S_re,1,nt);
     free_vector(S_im,1,nt);
@@ -1039,6 +1344,7 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
     
 
     }
+
 
 int main(int argc, char *argv[]) {
   int i;
@@ -1194,6 +1500,7 @@ int main(int argc, char *argv[]) {
 
   /* read frequency file */
   read_w_files(nprotons,proton_offset,nsteps,step_offset,w_matrices,mean_w);
+  //  if (globalArgs.flag_noncondon==1)
   read_x_files(nprotons,proton_offset,nsteps,step_offset,x_matrices,mean_x);
 
   // main calculation
@@ -1203,6 +1510,7 @@ int main(int argc, char *argv[]) {
   free_matrix(t2_t4_pairs,1,n_t2_t4_pairs,1,n_t2_t4_pairs);
   for (i=0;i<globalArgs.n_levels;i++)
     free_matrix(w_matrices[i],1,nprotons,1,nsteps);
+  //if (globalArgs.flag_noncondon==1)
   for (i=0;i<globalArgs.n_levels;i++)
     free_matrix(x_matrices[i],1,nprotons,1,nsteps);
   free(w_matrices);
@@ -1215,189 +1523,3 @@ int main(int argc, char *argv[]) {
   exit(EXIT_SUCCESS);
     
 }//end main()
-
-void writeResultsTime(const char base_name[],int nt,char extension[],
-                  float Sf_re[],float Sf_im[],
-                  float **P1f_re,float **P1f_im,float **P2f_re,float **P2f_im,
-                  float ***R1f_re,float ***R1f_im,float ***R2f_re,float ***R2f_im,
-                  float ***R3f_re,float ***R3f_im,float ***R4f_re,float ***R4f_im)
-/* This version is for outputting the data in the time domain with no flipping or FT or anything like that, just the data as it is calculated */
-{
-  char *name;
-  int it1,it3,it5;
-  FILE *out1D,*out2D,*out3D;
-  
-  /*write results*/
-  printf("Write Results\n");
-  /*  strcpy(name,base_name);
-  strcat(name,"_spec1D");
-  strcat(name,extension);
-  */
-  if (asprintf(&name,"%s_t_spec1D%s",base_name,extension) < 0) nrerror("failed to write string");
-
-  out1D=fopen(name,"wt");
-  for(it1=1;it1<=nt;it1++)
-  {
-    fprintf(out1D,"%8.5f %8.5f",Sf_re[it1],Sf_im[it1]);
-    fprintf(out1D,"\n");
-  }
-  fclose(out1D);
-  
-  /*  strcpy(name,base_name);
-  strcat(name,"_spec2D");
-  strcat(name,extension);*/
-  free(name);
-  if (asprintf(&name,"%s_t_spec2D%s",base_name,extension) < 0) nrerror("failed to write string");
-  out2D=fopen(name,"wt");
-  for(it1=1;it1<=nt;it1++)
-    for(it3=1;it3<=nt;it3++)
-    {
-      fprintf(out2D,"%8.5f %8.5f %8.5f %8.5f",
-	      P1f_re[it3][it1],P1f_im[it3][it1],
-	      P2f_re[it3][it1],P2f_im[it3][it1]);
-      fprintf(out2D,"\n");
-    }
-      fclose(out2D);
-  
-      /*  strcpy(name,base_name);
-  strcat(name,"_spec3D");
-  strcat(name,extension);
-  free(name);*/
-  if (asprintf(&name,"%s_t_spec3D%s",base_name,extension) < 0) nrerror("failed to write string");
-  out3D=fopen(name,"wt");
-  for(it1=1;it1<=nt;it1++)
-    for(it3=1;it3<=nt;it3++)
-      for(it5=1;it5<=nt;it5++)
-      {
-        fprintf(out3D,"%8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f",
-                R1f_re[it5][it3][it1],
-                R1f_im[it5][it3][it1],
-                R2f_re[it5][it3][it1],
-                R2f_im[it5][it3][it1],
-                R3f_re[it5][it3][it1],
-                R3f_im[it5][it3][it1],
-                R4f_re[it5][it3][it1],
-                R4f_im[it5][it3][it1]);
-        fprintf(out3D,"\n");
-      }
-        fclose(out3D);
-}
-void normalizeResults(int nt,unsigned long isample,
-                      float S_re[],float S_im[],
-                      float **P1_re,float **P1_im,float **P2_re,float **P2_im,
-                      float ***R1_re,float ***R1_im,float ***R2_re,float ***R2_im,
-                      float ***R3_re,float ***R3_im,float ***R4_re,float ***R4_im,
-                      float Sf_re[],float Sf_im[],
-                      float **P1f_re,float **P1f_im,float **P2f_re,float **P2f_im,
-                      float ***R1f_re,float ***R1f_im,float ***R2f_re,float ***R2f_im,
-                      float ***R3f_re,float ***R3f_im,float ***R4f_re,float ***R4f_im)
-{
-  int it1,it3,it5;
-  
-  for(it1=1;it1<=nt;it1++)
-  {
-    Sf_re[it1]=S_re[it1]/isample;
-    Sf_im[it1]=S_im[it1]/isample;
-    for(it3=1;it3<=nt;it3++)
-	{
-	  P1f_re[it3][it1]=P1_re[it3][it1]/isample;
-	  P1f_im[it3][it1]=P1_im[it3][it1]/isample;
-	  P2f_re[it3][it1]=P2_re[it3][it1]/isample;
-	  P2f_im[it3][it1]=P2_im[it3][it1]/isample;
-	  for(it5=1;it5<=nt;it5++)
-      {
-        R1f_re[it5][it3][it1]=R1_re[it5][it3][it1]/isample;
-        R1f_im[it5][it3][it1]=R1_im[it5][it3][it1]/isample;
-        R2f_re[it5][it3][it1]=R2_re[it5][it3][it1]/isample;
-        R2f_im[it5][it3][it1]=R2_im[it5][it3][it1]/isample;
-        R3f_re[it5][it3][it1]=R3_re[it5][it3][it1]/isample;
-        R3f_im[it5][it3][it1]=R3_im[it5][it3][it1]/isample;
-        R4f_re[it5][it3][it1]=R4_re[it5][it3][it1]/isample;
-        R4f_im[it5][it3][it1]=R4_im[it5][it3][it1]/isample;
-      }
-	}
-  }
-}
-
-
-void fourierTransformResults(int nt,
-                             float Sf_re[],float Sf_im[],
-                             float **P1f_re,float **P1f_im,float **P2f_re,float **P2f_im,
-                             float ***R1f_re,float ***R1f_im,float ***R2f_re,float ***R2f_im,
-                             float ***R3f_re,float ***R3f_im,float ***R4f_re,float ***R4f_im)
-{
-  /*Calculate 1D-Fouriertrafo*/
-  printf("Calculate 1D-Fouriertransform\n");
-  fft(Sf_re,Sf_im,nt);
-  /*Calculate 2D-Fouriertrafo*/
-  printf("Calculate 2D-Fouriertransform\n");
-  fft2D(P1f_re,P1f_im,nt);
-  fft2D(P2f_re,P2f_im,nt);
-  /*Calculate 3D-Fouriertrafo*/
-  printf("Calculate 3D-Fouriertransform\n");
-  fft3D(R1f_re,R1f_im,nt);
-  fft3D(R2f_re,R2f_im,nt);
-  fft3D(R3f_re,R3f_im,nt);
-  fft3D(R4f_re,R4f_im,nt);
-}
-
-void writeResults(char base_name[],int nt,char extension[],
-                  float Sf_re[],float Sf_im[],
-                  float **P1f_re,float **P1f_im,float **P2f_re,float **P2f_im,
-                  float ***R1f_re,float ***R1f_im,float ***R2f_re,float ***R2f_im,
-                  float ***R3f_re,float ***R3f_im,float ***R4f_re,float ***R4f_im)
-{
-  char name[100];
-  int it1,it3,it5;
-  FILE *out1D,*out2D,*out3D;
-  
-  /*write results*/
-  printf("Write Results\n");
-  strcpy(name,base_name);
-  strcat(name,"_spec1D");
-  strcat(name,extension);
-  out1D=fopen(name,"wt");
-  //	    for(it1=ncut*nt/8+2;it1<=(8-ncut)*nt/8;it1++)
-  for(it1=1;it1<=nt;it1++)
-  {
-    fprintf(out1D,"%8.5f ",Sf_re[it1]);
-    fprintf(out1D,"\n");
-  }
-  fclose(out1D);
-  
-  strcpy(name,base_name);
-  strcat(name,"_spec2D");
-  strcat(name,extension);
-  out2D=fopen(name,"wt");
-  //	    for(it1=ncut*nt/8+2;it1<=(8-ncut)*nt/8;it1++)
-  //	      for(it3=ncut*nt/8+2;it3<=(8-ncut)*nt/8;it3++)
-  for(it1=1;it1<=nt;it1++)
-    for(it3=1;it3<=nt;it3++)
-    {
-      //		  fprintf(out2D,"%8.5f %8.5f",P1f_re[it3][it1],P2f_re[it3][nt+2-it1]);
-      fprintf(out2D,"%8.5f %8.5f",P1f_re[it3][it1],P2f_re[it3][nt+1-it1]);
-      fprintf(out2D,"\n");
-    }
-      fclose(out2D);
-  
-  strcpy(name,base_name);
-  strcat(name,"_spec3D");
-  strcat(name,extension);
-  out3D=fopen(name,"wt");
-  //	    for(it1=ncut*nt/8+2;it1<=(8-ncut)*nt/8;it1++)
-  //	      for(it3=ncut*nt/8+2;it3<=(8-ncut)*nt/8;it3++)
-  //		for(it5=ncut*nt/8+2;it5<=(8-ncut)*nt/8;it5++)
-  for(it1=1;it1<=nt;it1++)
-    for(it3=1;it3<=nt;it3++)
-      for(it5=1;it5<=nt;it5++)
-      {
-        //		    fprintf(out3D,"%8.5f %8.5f %8.5f %8.5f",R1f_re[it5][it3][it1],			    R2f_re[it5][it3][nt+2-it1],R3f_re[it5][nt+2-it3][it1],R4f_re[it5][nt+2-it3][nt+2-it1]);
-        fprintf(out3D,"%8.5f %8.5f %8.5f %8.5f",
-                R1f_re[it5][it3][it1],
-                R2f_re[it5][it3][nt+1-it1],
-                R3f_re[it5][nt+1-it3][it1],
-                R4f_re[it5][nt+1-it3][nt+1-it1]);
-        fprintf(out3D,"\n");
-      }
-        fclose(out3D);
-}

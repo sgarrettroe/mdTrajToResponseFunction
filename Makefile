@@ -4,8 +4,9 @@ SRC_DIR = src/
 VPATH = $(SRC_DIR)
 CC = gcc
 CFLAGS = -Wall -Wextra -ggdb
+CFLAGS = -Wall -Wextra -O3 -ffast-math
 LDFLAGS = -lm
-CFLAGS_FAST=-Wall -Wextra -O3 -ffast-math -lm
+#CFLAGS_FAST=-Wall -Wextra -O3 -ffast-math
 
 H_FILES = globalArgs.h mymath.h
 O_FILES = globalArgs.o mymath.o
