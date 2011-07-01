@@ -322,7 +322,7 @@ if flag_twolevelsystem == false
        
        MU1_MU0 = zeros(nt,ntrajectories);
        for is = 1:ntrajectories
-           MU1_MU0(:,is) = mu_12(it0(is)) .* mu_12(it0(is):it0(is)+nt-1);
+           MU1_MU0(:,is) = mu_01(it0(is)) .* mu_01(it0(is):it0(is)+nt-1);
        end
        if flag_bsxfun == 0
            %MU1_MU0 = repmat(reshape(MU1_MU0,[nt 1 ntrajectories]),[1 nt 1]);
