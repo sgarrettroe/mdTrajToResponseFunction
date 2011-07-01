@@ -541,24 +541,46 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
   fclose(out3D);
   free(name);
 }
+
 void normalizeResults(int nt,float dt,unsigned long isample,
 		      int n_levels, int flag_noncondon,float *mean_w,float *mean_mu,
                       float S_re[],float S_im[],
                       float **P1_re,float **P1_im,float **P2_re,float **P2_im,
                       float **P3_re,float **P3_im,float **P4_re,float **P4_im,
-                      float ***R1_re,float ***R1_im,float ***R2_re,float ***R2_im,
-                      float ***R3_re,float ***R3_im,float ***R4_re,float ***R4_im,
+                      float ***R1_re, float ***R1_im, float ***R2_re, float ***R2_im,
+                      float ***R3_re, float ***R3_im, float ***R4_re, float ***R4_im,
+		      float ***R5_re, float ***R5_im, float ***R6_re, float ***R6_im,
+		      float ***R7_re, float ***R7_im, float ***R8_re, float ***R8_im,
+		      float ***R9_re, float ***R9_im, float ***R10_re,float ***R10_im,
+		      float ***R11_re,float ***R11_im,float ***R12_re,float ***R12_im,
+		      float ***R13_re,float ***R13_im,float ***R14_re,float ***R14_im,
+		      float ***R15_re,float ***R15_im,float ***R16_re,float ***R16_im,
+		      float ***R17_re,float ***R17_im,float ***R18_re,float ***R18_im,
+		      float ***R19_re,float ***R19_im,float ***R20_re,float ***R20_im,
                       float Sf_re[],float Sf_im[],
                       float **P1f_re,float **P1f_im,float **P2f_re,float **P2f_im,
                       float **P3f_re,float **P3f_im,float **P4f_re,float **P4f_im,
                       float **P1tot_re,float **P1tot_im,float **P2tot_re,float **P2tot_im,
-                      float ***R1f_re,float ***R1f_im,float ***R2f_re,float ***R2f_im,
-                      float ***R3f_re,float ***R3f_im,float ***R4f_re,float ***R4f_im)
+                      float ***R1f_re, float ***R1f_im, float ***R2f_re, float ***R2f_im,
+                      float ***R3f_re, float ***R3f_im, float ***R4f_re, float ***R4f_im,
+		      float ***R5f_re, float ***R5f_im, float ***R6f_re, float ***R6f_im,
+		      float ***R7f_re, float ***R7f_im, float ***R8f_re, float ***R8f_im,
+		      float ***R9f_re, float ***R9f_im, float ***R10f_re,float ***R10f_im,
+		      float ***R11f_re,float ***R11f_im,float ***R12f_re,float ***R12f_im,
+		      float ***R13f_re,float ***R13f_im,float ***R14f_re,float ***R14f_im,
+		      float ***R15f_re,float ***R15f_im,float ***R16f_re,float ***R16f_im,
+		      float ***R17f_re,float ***R17f_im,float ***R18f_re,float ***R18f_im,
+		      float ***R19f_re,float ***R19f_im,float ***R20f_re,float ***R20f_im,
+                      float ***R1tot_re,float ***R1tot_im,float ***R2tot_re,float ***R2tot_im,
+                      float ***R3tot_re,float ***R3tot_im,float ***R4tot_re,float ***R4tot_im)
+/* normalize for number of samples, frequency shifts from rotating
+   frame, amplitudes due to dipoles if condon, and number of
+   population pathways */
 {
   int it1,it3,it5;
   float mu_01_2,mu_12_2,mu_23_2;
-  float shift_w;
-  float a,b,phi;
+  float shift_w,shift_w_1_1,shift_w_1_2,shift_w_2_1,shift_w_2_2,shift_w_2_3;
+  float a,b,phi,phi1,phi2,phi3,phi4,phi5;
 
   mu_01_2 = 1;
   mu_12_2 = 1;
@@ -569,11 +591,18 @@ void normalizeResults(int nt,float dt,unsigned long isample,
     if (n_levels>=3) mu_23_2 = mean_mu[2]*mean_mu[2];
   }
   
+
   /* calculate shift frequency based on number of levels we've calculated */
   if (n_levels==1) shift_w = 0;
   if (n_levels==2) shift_w =(mean_w[0] - mean_w[1])/2; // 0;//  M_PI/(2*dt);// 
   if (n_levels==3){
-    shift_w = 0; /*this needs to be worked out*/
+    shift_w_1_1 = 0; /*this needs to be worked out*/
+    shift_w_1_2 = 0; /*this needs to be worked out*/
+    shift_w_2_1 = 0; /*this needs to be worked out*/
+    shift_w_2_2 = 0; /*this needs to be worked out*/
+    shift_w_2_3 = 0; /*this needs to be worked out*/
+    /* take the average of the frequencies and shift each by the difference of the frequency from the mean */
+    /* shift_w_1_1  = +Delta/2; shift_w_1_2 = -Delta/2; shift_w_2_1 = +Delta; shift_w_2_2 = 0; shift_w_2_3 = -Delta;*/
   }
 
   printf("shift_w = %f dt = %f\n",shift_w,dt);
@@ -599,13 +628,6 @@ void normalizeResults(int nt,float dt,unsigned long isample,
 	  P2f_re[it3][it1] = a * cos(phi) - b * sin(phi);
 	  P2f_im[it3][it1] = a * sin(phi) + b * cos(phi);
 
-	  /* old way
-	  P1f_re[it3][it1] = 2 * mu_01_2 * mu_01_2 * P1_re[it3][it1] / isample;
-	  P1f_im[it3][it1] = 2 * mu_01_2 * mu_01_2 * P1_im[it3][it1] / isample;
-	  P2f_re[it3][it1] = 2 * mu_01_2 * mu_01_2 * P2_re[it3][it1] / isample;
-	  P2f_im[it3][it1] = 2 * mu_01_2 * mu_01_2 * P2_im[it3][it1] / isample;
-	  */
-
 	  if (n_levels>=2){
 	    /* the -1 factor is because of an odd number of arrows on
 	       the left of the diagrams (ie it is excited state
@@ -618,12 +640,6 @@ void normalizeResults(int nt,float dt,unsigned long isample,
 	    b = -1 * mu_12_2 * mu_01_2 * P4_im[it3][it1] / isample;
 	    P4f_re[it3][it1] = a * cos(-phi) - b * sin(-phi);
 	    P4f_im[it3][it1] = a * sin(-phi) + b * cos(-phi);
-	    /* old way
-	    P3f_re[it3][it1] = -1 * mu_12_2 * mu_01_2 * P3_re[it3][it1] / isample;
-	    P3f_im[it3][it1] = -1 * mu_12_2 * mu_01_2 * P3_im[it3][it1] / isample;
-	    P4f_re[it3][it1] = -1 * mu_12_2 * mu_01_2 * P4_re[it3][it1] / isample;
-	    P4f_im[it3][it1] = -1 * mu_12_2 * mu_01_2 * P4_im[it3][it1] / isample;
-	    */
 
 	    P1tot_re[it3][it1] = P1f_re[it3][it1] + P3f_re[it3][it1];
 	    P1tot_im[it3][it1] = P1f_im[it3][it1] + P3f_im[it3][it1];
@@ -632,14 +648,140 @@ void normalizeResults(int nt,float dt,unsigned long isample,
 	  }
 	  for(it5=1;it5<=nt;it5++)
 	    {
-	      R1f_re[it5][it3][it1]=R1_re[it5][it3][it1]/isample;
-	      R1f_im[it5][it3][it1]=R1_im[it5][it3][it1]/isample;
-	      R2f_re[it5][it3][it1]=R2_re[it5][it3][it1]/isample;
-	      R2f_im[it5][it3][it1]=R2_im[it5][it3][it1]/isample;
-	      R3f_re[it5][it3][it1]=R3_re[it5][it3][it1]/isample;
-	      R3f_im[it5][it3][it1]=R3_im[it5][it3][it1]/isample;
-	      R4f_re[it5][it3][it1]=R4_re[it5][it3][it1]/isample;
-	      R4f_im[it5][it3][it1]=R4_im[it5][it3][it1]/isample;
+	      phi1 = -shift_w_1_1*dt*(it3-1) - shift_w_2_1*dt*(it5-1);
+	      a = 4 * mu_01_2 * mu_01_2 * mu_01_2 * R1_re[it5][it3][it1] / isample;
+	      b = 4 * mu_01_2 * mu_01_2 * mu_01_2 * R1_im[it5][it3][it1] / isample;
+	      R1f_re[it5][it3][it1]  = a * cos(phi1) - b * sin(phi1);
+	      R1f_im[it5][it3][it1]  = a * sin(phi1) - b * cos(phi1);
+	      a = 4 * mu_01_2 * mu_01_2 * mu_01_2 * R2_re[it5][it3][it1] / isample;
+	      b = 4 * mu_01_2 * mu_01_2 * mu_01_2 * R2_im[it5][it3][it1] / isample;
+	      R2f_re[it5][it3][it1]  =  a * cos(phi1) - b * sin(phi1);
+	      R2f_im[it5][it3][it1]  =  a * sin(phi1) - b * cos(phi1);
+	      a = 4 * mu_01_2 * mu_01_2 * mu_01_2 * R3_re[it5][it3][it1] / isample;
+	      b = 4 * mu_01_2 * mu_01_2 * mu_01_2 * R3_im[it5][it3][it1] / isample;
+	      R3f_re[it5][it3][it1]  = a * cos(phi1) - b * sin(phi1);
+	      R3f_im[it5][it3][it1]  = a * sin(phi1) - b * cos(phi1);
+	      a = 4 * mu_01_2 * mu_01_2 * mu_01_2 * R4_re[it5][it3][it1] / isample;
+	      b = 4 * mu_01_2 * mu_01_2 * mu_01_2 * R4_im[it5][it3][it1] / isample;
+	      R4f_re[it5][it3][it1]  =  a * cos(phi1) - b * sin(phi1);
+	      R4f_im[it5][it3][it1]  =  a * sin(phi1) - b * cos(phi1);
+
+	      if (n_levels>=2){
+		phi2 = -shift_w_1_1*dt*(it3-1) - shift_w_2_2*dt*(it5-1);
+		a = 2 * mu_12_2 * mu_01_2 * mu_01_2 * R5_re[it5][it3][it1] / isample;
+		b = 2 * mu_12_2 * mu_01_2 * mu_01_2 * R5_im[it5][it3][it1] / isample;
+		R5f_re[it5][it3][it1]  = a * cos(phi2) - b * sin(phi2);
+		R5f_im[it5][it3][it1]  = a * sin(phi2) - b * cos(phi2);
+		a = 2 * mu_12_2 * mu_01_2 * mu_01_2 * R6_re[it5][it3][it1] / isample;
+		b = 2 * mu_12_2 * mu_01_2 * mu_01_2 * R6_im[it5][it3][it1] / isample;
+		R6f_re[it5][it3][it1]  =  a * cos(phi2) - b * sin(phi2);
+		R6f_im[it5][it3][it1]  =  a * sin(phi2) - b * cos(phi2);
+		a = 2 * mu_12_2 * mu_01_2 * mu_01_2 * R7_re[it5][it3][it1] / isample;
+		b = 2 * mu_12_2 * mu_01_2 * mu_01_2 * R7_im[it5][it3][it1] / isample;
+		R7f_re[it5][it3][it1]  = a * cos(phi2) - b * sin(phi2);
+		R7f_im[it5][it3][it1]  = a * sin(phi2) - b * cos(phi2);
+		a = 2 * mu_12_2 * mu_01_2 * mu_01_2 * R8_re[it5][it3][it1] / isample;
+		b = 2 * mu_12_2 * mu_01_2 * mu_01_2 * R8_im[it5][it3][it1] / isample;
+		R8f_re[it5][it3][it1]  =  a * cos(phi2) - b * sin(phi2);
+		R8f_im[it5][it3][it1]  =  a * sin(phi2) - b * cos(phi2);
+
+		if (n_levels>=3){
+		  phi3 = -shift_w_1_2*dt*(it3-1) - shift_w_2_3*dt*(it5-1);
+		  a = 1 * mu_23_2 * mu_12_2 * mu_01_2 * R9_re[it5][it3][it1] / isample;
+		  b = 1 * mu_23_2 * mu_12_2 * mu_01_2 * R9_im[it5][it3][it1] / isample;
+		  R9f_re[it5][it3][it1]  = a * cos(phi3) - b * sin(phi3);
+		  R9f_im[it5][it3][it1]  = a * sin(phi3) - b * cos(phi3);
+		  a = 1 * mu_23_2 * mu_12_2 * mu_01_2 * R10_re[it5][it3][it1] / isample;
+		  b = 1 * mu_23_2 * mu_12_2 * mu_01_2 * R10_im[it5][it3][it1] / isample;
+		  R10f_re[it5][it3][it1]  =  a * cos(phi3) - b * sin(phi3);
+		  R10f_im[it5][it3][it1]  =  a * sin(phi3) - b * cos(phi3);
+		  a = 1 * mu_23_2 * mu_12_2 * mu_01_2 * R11_re[it5][it3][it1] / isample;
+		  b = 1 * mu_23_2 * mu_12_2 * mu_01_2 * R11_im[it5][it3][it1] / isample;
+		  R11f_re[it5][it3][it1]  = a * cos(phi3) - b * sin(phi3);
+		  R11f_im[it5][it3][it1]  = a * sin(phi3) - b * cos(phi3);
+		  a = 1 * mu_23_2 * mu_12_2 * mu_01_2 * R12_re[it5][it3][it1] / isample;
+		  b = 1 * mu_23_2 * mu_12_2 * mu_01_2 * R12_im[it5][it3][it1] / isample;
+		  R12f_re[it5][it3][it1]  =  a * cos(phi3) - b * sin(phi3);
+		  R12f_im[it5][it3][it1]  =  a * sin(phi3) - b * cos(phi3);
+		}
+
+	      phi4 = -shift_w_1_2*dt*(it3-1) - shift_w_2_2*dt*(it5-1);
+	      a = 2 * mu_12_2 * mu_12_2 * mu_01_2 * R13_re[it5][it3][it1] / isample;
+	      b = 2 * mu_12_2 * mu_12_2 * mu_01_2 * R13_im[it5][it3][it1] / isample;
+	      R13f_re[it5][it3][it1]  = a * cos(phi4) - b * sin(phi4);
+	      R13f_im[it5][it3][it1]  = a * sin(phi4) - b * cos(phi4);
+	      a = 2 * mu_12_2 * mu_12_2 * mu_01_2 * R14_re[it5][it3][it1] / isample;
+	      b = 2 * mu_12_2 * mu_12_2 * mu_01_2 * R14_im[it5][it3][it1] / isample;
+	      R14f_re[it5][it3][it1]  =  a * cos(phi4) - b * sin(phi4);
+	      R14f_im[it5][it3][it1]  =  a * sin(phi4) - b * cos(phi4);
+	      a = 2 * mu_12_2 * mu_12_2 * mu_01_2 * R15_re[it5][it3][it1] / isample;
+	      b = 2 * mu_12_2 * mu_12_2 * mu_01_2 * R15_im[it5][it3][it1] / isample;
+	      R15f_re[it5][it3][it1]  = a * cos(phi4) - b * sin(phi4);
+	      R15f_im[it5][it3][it1]  = a * sin(phi4) - b * cos(phi4);
+	      a = 2 * mu_12_2 * mu_12_2 * mu_01_2 * R16_re[it5][it3][it1] / isample;
+	      b = 2 * mu_12_2 * mu_12_2 * mu_01_2 * R16_im[it5][it3][it1] / isample;
+	      R16f_re[it5][it3][it1]  =  a * cos(phi4) - b * sin(phi4);
+	      R16f_im[it5][it3][it1]  =  a * sin(phi4) - b * cos(phi4);
+
+	      phi5 = -shift_w_1_2*dt*(it3-1) - shift_w_2_1*dt*(it5-1);
+	      a = 1 * mu_12_2 * mu_12_2 * mu_01_2 * R17_re[it5][it3][it1] / isample;
+	      b = 1 * mu_12_2 * mu_12_2 * mu_01_2 * R17_im[it5][it3][it1] / isample;
+	      R17f_re[it5][it3][it1]  = a * cos(phi5) - b * sin(phi5);
+	      R17f_im[it5][it3][it1]  = a * sin(phi5) - b * cos(phi5);
+	      a = 1 * mu_12_2 * mu_12_2 * mu_01_2 * R18_re[it5][it3][it1] / isample;
+	      b = 1 * mu_12_2 * mu_12_2 * mu_01_2 * R18_im[it5][it3][it1] / isample;
+	      R18f_re[it5][it3][it1]  =  a * cos(phi5) - b * sin(phi5);
+	      R18f_im[it5][it3][it1]  =  a * sin(phi5) - b * cos(phi5);
+	      a = 1 * mu_12_2 * mu_12_2 * mu_01_2 * R19_re[it5][it3][it1] / isample;
+	      b = 1 * mu_12_2 * mu_12_2 * mu_01_2 * R19_im[it5][it3][it1] / isample;
+	      R19f_re[it5][it3][it1]  = a * cos(phi5) - b * sin(phi5);
+	      R19f_im[it5][it3][it1]  = a * sin(phi5) - b * cos(phi5);
+	      a = 1 * mu_12_2 * mu_12_2 * mu_01_2 * R20_re[it5][it3][it1] / isample;
+	      b = 1 * mu_12_2 * mu_12_2 * mu_01_2 * R20_im[it5][it3][it1] / isample;
+	      R20f_re[it5][it3][it1]  =  a * cos(phi5) - b * sin(phi5);
+	      R20f_im[it5][it3][it1]  =  a * sin(phi5) - b * cos(phi5);
+	      }
+
+	      R1tot_re[it5][it3][it1] = R1f_re[it5][it3][it1] 
+		+ R5f_re[it5][it3][it1] 
+		+ R9f_re[it5][it3][it1] 
+		+ R13f_re[it5][it3][it1] 
+		+ R17f_re[it5][it3][it1];
+	      R1tot_im[it5][it3][it1] = R1f_im[it5][it3][it1] 
+		+ R5f_im[it5][it3][it1] 
+		+ R9f_im[it5][it3][it1] 
+		+ R13f_im[it5][it3][it1] 
+		+ R17f_im[it5][it3][it1];
+	      R2tot_re[it5][it3][it1] = R2f_re[it5][it3][it1] 
+		+ R6f_re[it5][it3][it1] 
+		+ R10f_re[it5][it3][it1] 
+		+ R14f_re[it5][it3][it1] 
+		+ R18f_re[it5][it3][it1];
+	      R2tot_im[it5][it3][it1] = R2f_im[it5][it3][it1] 
+		+ R6f_im[it5][it3][it1] 
+		+ R10f_im[it5][it3][it1] 
+		+ R14f_im[it5][it3][it1] 
+		+ R18f_im[it5][it3][it1];
+	      R3tot_re[it5][it3][it1] = R3f_re[it5][it3][it1] 
+		+ R7f_re[it5][it3][it1] 
+		+ R11f_re[it5][it3][it1] 
+		+ R15f_re[it5][it3][it1] 
+		+ R19f_re[it5][it3][it1];
+	      R3tot_im[it5][it3][it1] = R3f_im[it5][it3][it1] 
+		+ R7f_im[it5][it3][it1] 
+		+ R11f_im[it5][it3][it1] 
+		+ R15f_im[it5][it3][it1] 
+		+ R19f_im[it5][it3][it1];
+	      R4tot_re[it5][it3][it1] = R4f_re[it5][it3][it1] 
+		+ R8f_re[it5][it3][it1] 
+		+ R12f_re[it5][it3][it1] 
+		+ R16f_re[it5][it3][it1] 
+		+ R20f_re[it5][it3][it1];
+	      R4tot_im[it5][it3][it1] = R4f_im[it5][it3][it1] 
+		+ R8f_im[it5][it3][it1] 
+		+ R12f_im[it5][it3][it1] 
+		+ R16f_im[it5][it3][it1] 
+		+ R20f_im[it5][it3][it1];
 	    }
 	}
     }
@@ -676,8 +818,12 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
   //vars for response function calcultions
   float *sdw;
   float **pdw1,**pdw2,**pdw3,**pdw4;
-  float ***rdw1,***rdw2,***rdw3,***rdw4;
-  //  float ***R1_re,***R1_im,***R2_re,***R2_im,***R3_re,***R3_im,***R4_re,***R4_im;
+  float ***rdw1, ***rdw2, ***rdw3, ***rdw4;
+  float ***rdw5, ***rdw6, ***rdw7, ***rdw8;
+  float ***rdw9, ***rdw10,***rdw11,***rdw12;
+  float ***rdw13,***rdw14,***rdw15,***rdw16;
+  float ***rdw17,***rdw18,***rdw19,***rdw20;
+
   //3D response functions
   float ***R1_re, ***R1_im, ***R2_re, ***R2_im, ***R3_re, ***R3_im, ***R4_re, ***R4_im;
   float ***R5_re, ***R5_im, ***R6_re, ***R6_im, ***R7_re, ***R7_im, ***R8_re, ***R8_im;
@@ -698,6 +844,7 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
   float ***R9f_re, ***R9f_im, ***R10f_re,***R10f_im,***R11f_re,***R11f_im,***R12f_re,***R12f_im;
   float ***R13f_re,***R13f_im,***R14f_re,***R14f_im,***R15f_re,***R15f_im,***R16f_re,***R16f_im;
   float ***R17f_re,***R17f_im,***R18f_re,***R18f_im,***R19f_re,***R19f_im,***R20f_re,***R20f_im;
+  float ***R1tot_re,***R1tot_im,***R2tot_re,***R2tot_im,***R3tot_re,***R3tot_im,***R4tot_re,***R4tot_im;
 
   float t2,t4;
   
@@ -783,14 +930,57 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
   S_im=vector(1,nt);
   
   /* normalized results and final output */
-  R1f_re=f3tensor(1,nt,1,nt,1,nt);
-  R1f_im=f3tensor(1,nt,1,nt,1,nt);
-  R2f_re=f3tensor(1,nt,1,nt,1,nt);
-  R2f_im=f3tensor(1,nt,1,nt,1,nt);
-  R3f_re=f3tensor(1,nt,1,nt,1,nt);
-  R3f_im=f3tensor(1,nt,1,nt,1,nt);
-  R4f_re=f3tensor(1,nt,1,nt,1,nt);
-  R4f_im=f3tensor(1,nt,1,nt,1,nt);
+  /* 3D */
+  R1f_re  = f3tensor(1,nt,1,nt,1,nt);
+  R1f_im  = f3tensor(1,nt,1,nt,1,nt);
+  R2f_re  = f3tensor(1,nt,1,nt,1,nt);
+  R2f_im  = f3tensor(1,nt,1,nt,1,nt);
+  R3f_re  = f3tensor(1,nt,1,nt,1,nt);
+  R3f_im  = f3tensor(1,nt,1,nt,1,nt);
+  R4f_re  = f3tensor(1,nt,1,nt,1,nt);
+  R4f_im  = f3tensor(1,nt,1,nt,1,nt);
+  R5f_re  = f3tensor(1,nt,1,nt,1,nt);
+  R5f_im  = f3tensor(1,nt,1,nt,1,nt);
+  R6f_re  = f3tensor(1,nt,1,nt,1,nt);
+  R6f_im  = f3tensor(1,nt,1,nt,1,nt);
+  R7f_re  = f3tensor(1,nt,1,nt,1,nt);
+  R7f_im  = f3tensor(1,nt,1,nt,1,nt);
+  R8f_re  = f3tensor(1,nt,1,nt,1,nt);
+  R8f_im  = f3tensor(1,nt,1,nt,1,nt);
+  R9f_re  = f3tensor(1,nt,1,nt,1,nt);
+  R9f_im  = f3tensor(1,nt,1,nt,1,nt);
+  R10f_re = f3tensor(1,nt,1,nt,1,nt);
+  R10f_im = f3tensor(1,nt,1,nt,1,nt);
+  R11f_re = f3tensor(1,nt,1,nt,1,nt);
+  R11f_im = f3tensor(1,nt,1,nt,1,nt);
+  R12f_re = f3tensor(1,nt,1,nt,1,nt);
+  R12f_im = f3tensor(1,nt,1,nt,1,nt);
+  R13f_re = f3tensor(1,nt,1,nt,1,nt);
+  R13f_im = f3tensor(1,nt,1,nt,1,nt);
+  R14f_re = f3tensor(1,nt,1,nt,1,nt);
+  R14f_im = f3tensor(1,nt,1,nt,1,nt);
+  R15f_re = f3tensor(1,nt,1,nt,1,nt);
+  R15f_im = f3tensor(1,nt,1,nt,1,nt);
+  R16f_re = f3tensor(1,nt,1,nt,1,nt);
+  R16f_im = f3tensor(1,nt,1,nt,1,nt);
+  R17f_re = f3tensor(1,nt,1,nt,1,nt);
+  R17f_im = f3tensor(1,nt,1,nt,1,nt);
+  R18f_re = f3tensor(1,nt,1,nt,1,nt);
+  R18f_im = f3tensor(1,nt,1,nt,1,nt);
+  R19f_re = f3tensor(1,nt,1,nt,1,nt);
+  R19f_im = f3tensor(1,nt,1,nt,1,nt);
+  R20f_re = f3tensor(1,nt,1,nt,1,nt);
+  R20f_im = f3tensor(1,nt,1,nt,1,nt);
+  R1tot_re  = f3tensor(1,nt,1,nt,1,nt);
+  R1tot_im  = f3tensor(1,nt,1,nt,1,nt);
+  R2tot_re  = f3tensor(1,nt,1,nt,1,nt);
+  R2tot_im  = f3tensor(1,nt,1,nt,1,nt);
+  R3tot_re  = f3tensor(1,nt,1,nt,1,nt);
+  R3tot_im  = f3tensor(1,nt,1,nt,1,nt);
+  R4tot_re  = f3tensor(1,nt,1,nt,1,nt);
+  R4tot_im  = f3tensor(1,nt,1,nt,1,nt);
+
+
   /* 2D gb + se */
   P1f_re=matrix(1,nt,1,nt);
   P1f_im=matrix(1,nt,1,nt);
@@ -809,17 +999,33 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
   /* 1D */
   Sf_re=vector(1,nt);
   Sf_im=vector(1,nt);
-  
+ 
   /* the time integrals to evaluate inside the exponent */
-  sdw=vector(1,nt);
-  pdw1=matrix(1,nt,1,nt);
-  pdw2=matrix(1,nt,1,nt);
-  pdw3=matrix(1,nt,1,nt);
-  pdw4=matrix(1,nt,1,nt);
-  rdw1=f3tensor(1,nt,1,nt,1,nt);
-  rdw2=f3tensor(1,nt,1,nt,1,nt);
-  rdw3=f3tensor(1,nt,1,nt,1,nt);
-  rdw4=f3tensor(1,nt,1,nt,1,nt);
+  sdw = vector(1,nt);
+  pdw1 = matrix(1,nt,1,nt);
+  pdw2 = matrix(1,nt,1,nt);
+  pdw3 = matrix(1,nt,1,nt);
+  pdw4 = matrix(1,nt,1,nt);
+  rdw1  = f3tensor(1,nt,1,nt,1,nt);
+  rdw2  = f3tensor(1,nt,1,nt,1,nt);
+  rdw3  = f3tensor(1,nt,1,nt,1,nt);
+  rdw4  = f3tensor(1,nt,1,nt,1,nt);
+  rdw5  = f3tensor(1,nt,1,nt,1,nt);
+  rdw6  = f3tensor(1,nt,1,nt,1,nt);
+  rdw7  = f3tensor(1,nt,1,nt,1,nt);
+  rdw8  = f3tensor(1,nt,1,nt,1,nt);
+  rdw9  = f3tensor(1,nt,1,nt,1,nt);
+  rdw10 = f3tensor(1,nt,1,nt,1,nt);
+  rdw11 = f3tensor(1,nt,1,nt,1,nt);
+  rdw12 = f3tensor(1,nt,1,nt,1,nt);
+  rdw13 = f3tensor(1,nt,1,nt,1,nt);
+  rdw14 = f3tensor(1,nt,1,nt,1,nt);
+  rdw15 = f3tensor(1,nt,1,nt,1,nt);
+  rdw16 = f3tensor(1,nt,1,nt,1,nt);
+  rdw17 = f3tensor(1,nt,1,nt,1,nt);
+  rdw18 = f3tensor(1,nt,1,nt,1,nt);
+  rdw19 = f3tensor(1,nt,1,nt,1,nt);
+  rdw20 = f3tensor(1,nt,1,nt,1,nt);
   
   /*
    *
@@ -923,19 +1129,18 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
       nt4=round(t4/ntint);
       nt2=round(t2/ntint);
      
-      ntraject=3*nt+nt2+nt4; // number of points in the coarse-grained trajectory
-      dwint1=vector(1,ntraject); // that selection averaged over ntint
-                                // points (for H20 about 6)
-      dwint2=vector(1,ntraject); // that selection averaged over ntint
-                                // points (for H20 about 6)
-      dwint3=vector(1,ntraject); // that selection averaged over ntint
-                                // points (for H20 about 6)
-      muint1=vector(1,ntraject); // dipole selection averaged over ntint
-                                // points (for H20 about 6)
-      muint2=vector(1,ntraject); // dipole selection averaged over ntint
-                                // points (for H20 about 6)
-      muint3=vector(1,ntraject); // dipole selection averaged over ntint
-                                // points (for H20 about 6)
+      /* number of points in the coarse-grained trajectory */
+      ntraject = nt; /* default for 1D */
+      if (order==3) ntraject = 2*nt+nt2; 
+      if (order==5) ntraject = 3*nt+nt2+nt4; 
+
+      /* frequency trajectories averaged over ntint for each level */
+      dwint1=vector(1,ntraject);
+      dwint2=vector(1,ntraject);
+      dwint3=vector(1,ntraject);
+      muint1=vector(1,ntraject);
+      muint2=vector(1,ntraject);
+      muint3=vector(1,ntraject);
       
       /* calculate the maximum number of dw trajectories in the total
        * time evolution as <nsamples> */
@@ -979,15 +1184,15 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 	    if((isample+nsamples*(iproton-1))%5000==0) 
 	      printf("trajectory #%d\n",(isample+nsamples*(iproton-1)));
         
-	    // point dw at the appropriate row of dw_matrix
-	    // offset by an amount (nskip) to make this an independent,
-	    // uncorrlated trajectory
+	    /* point dw at the appropriate row of dw_matrix
+	     * offset by an amount (nskip) to make this an independent,
+	     * uncorrelated trajectory */
 
 	      i_level = 0; /* 01 transition */
 	      dw=&w_matrices[i_level][iproton][1+(isample-1)*nskip];
 	      mu=&x_matrices[i_level][iproton][1+(isample-1)*nskip];
 	      
-	      //preintegrate the frequency and convert units
+	      /* preintegrate the frequency and convert units */
 	      for(it=1;it<=ntraject;it++)
 		{
 		  dwint1[it]=(dw[(it-1)*ntint+1]+dw[it*ntint+1])/2;
@@ -1001,7 +1206,7 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 		   */
 		  dwint1[it]*=dt/ntint;
 		}
-	      //preintegrate the dipole
+	      /* preintegrate the dipole */
 	      for(it=1;it<=ntraject;it++)
 		{
 		  muint1[it]=(mu[(it-1)*ntint+1]+mu[it*ntint+1])/2;
@@ -1025,7 +1230,7 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 		dw=&w_matrices[i_level][iproton][1+(isample-1)*nskip];
 		mu=&x_matrices[i_level][iproton][1+(isample-1)*nskip];
 		
-		//preintegrate the frequency and convert units
+		/* preintegrate the frequency and convert units */
 		for(it=1;it<=ntraject;it++)
 		  {
 		    dwint2[it]=(dw[(it-1)*ntint+1]+dw[it*ntint+1])/2;
@@ -1048,6 +1253,35 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 		    muint2[it]/=(ntint);
 		  }
 	      } //end if (n_levels>=2) 
+	      /* do the same preintegration for the higher states */
+	      if (n_levels>=3){
+		i_level = 2; /* the 23 transition */
+		dw=&w_matrices[i_level][iproton][1+(isample-1)*nskip];
+		mu=&x_matrices[i_level][iproton][1+(isample-1)*nskip];
+		
+		/* preintegrate the frequency and convert units */
+		for(it=1;it<=ntraject;it++)
+		  {
+		    dwint3[it]=(dw[(it-1)*ntint+1]+dw[it*ntint+1])/2;
+		    for(j=2;j<=ntint;j++)
+		      dwint3[it]+=dw[(it-1)*ntint+j];
+		    
+		    /* the code above has an effective length of
+		     * ntint+1 (where matlab trapz() has a length of
+		     * ntint-1!  but hte denom has to be ntint in the
+		     * denom to get agreement with matlab???
+		     */
+		    dwint3[it]*=dt/ntint;
+		  }
+		
+		for(it=1;it<=ntraject;it++)
+		  {
+		    muint3[it]=(mu[(it-1)*ntint+1]+mu[it*ntint+1])/2;
+		    for(j=2;j<=ntint;j++)
+		      muint3[it]+=mu[(it-1)*ntint+j];
+		    muint3[it]/=(ntint);
+		  }
+	      } //end if (n_levels>=3) 
 		
 	    if (flag_noncondon==0){
 	      
@@ -1061,6 +1295,26 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 	      pdw2[1][1]=0;
 	      pdw3[1][1]=0;
 	      pdw4[1][1]=0;
+	      rdw1[1][1][1]  = 0;
+	      rdw2[1][1][1]  = 0;
+	      rdw3[1][1][1]  = 0;
+	      rdw4[1][1][1]  = 0;
+	      rdw5[1][1][1]  = 0;
+	      rdw6[1][1][1]  = 0;
+	      rdw7[1][1][1]  = 0;
+	      rdw8[1][1][1]  = 0;
+	      rdw9[1][1][1]  = 0;
+	      rdw10[1][1][1] = 0;
+	      rdw11[1][1][1] = 0;
+	      rdw12[1][1][1] = 0;
+	      rdw13[1][1][1] = 0;
+	      rdw14[1][1][1] = 0;
+	      rdw15[1][1][1] = 0;
+	      rdw16[1][1][1] = 0;
+	      rdw17[1][1][1] = 0;
+	      rdw18[1][1][1] = 0;
+	      rdw19[1][1][1] = 0;
+	      rdw20[1][1][1] = 0;
 	      for(it1=1;it1<=nt;it1++)
 		{
 		  if (it1<nt)
@@ -1070,6 +1324,31 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 		      pdw2[1][it1+1]=pdw2[1][it1]-dwint1[it1];
 		      pdw3[1][it1+1]=pdw3[1][it1]+dwint1[it1];
 		      pdw4[1][it1+1]=pdw4[1][it1]-dwint1[it1];
+		      /* peak 1 */
+		      rdw1[1][1][it1+1]  = rdw1[1][1][it1]  - dwint1[it1];
+		      rdw2[1][1][it1+1]  = rdw2[1][1][it1]  + dwint1[it1];
+		      rdw3[1][1][it1+1]  = rdw3[1][1][it1]  - dwint1[it1];
+		      rdw4[1][1][it1+1]  = rdw4[1][1][it1]  + dwint1[it1];
+		      /* peak 2 */
+		      rdw5[1][1][it1+1]  = rdw5[1][1][it1]  - dwint1[it1];
+		      rdw6[1][1][it1+1]  = rdw6[1][1][it1]  + dwint1[it1];
+		      rdw7[1][1][it1+1]  = rdw7[1][1][it1]  - dwint1[it1];
+		      rdw8[1][1][it1+1]  = rdw8[1][1][it1]  + dwint1[it1];
+		      /* peak 3 */
+		      rdw9[1][1][it1+1]  = rdw9[1][1][it1]  - dwint1[it1];
+		      rdw10[1][1][it1+1] = rdw10[1][1][it1] + dwint1[it1];
+		      rdw11[1][1][it1+1] = rdw11[1][1][it1] - dwint1[it1];
+		      rdw12[1][1][it1+1] = rdw12[1][1][it1] + dwint1[it1];
+		      /* peak 4 */
+		      rdw13[1][1][it1+1] = rdw13[1][1][it1] - dwint1[it1];
+		      rdw14[1][1][it1+1] = rdw14[1][1][it1] + dwint1[it1];
+		      rdw15[1][1][it1+1] = rdw15[1][1][it1] - dwint1[it1];
+		      rdw16[1][1][it1+1] = rdw16[1][1][it1] + dwint1[it1];
+		      /* peak 5 */
+		      rdw17[1][1][it1+1] = rdw17[1][1][it1] - dwint1[it1];
+		      rdw18[1][1][it1+1] = rdw18[1][1][it1] + dwint1[it1];
+		      rdw19[1][1][it1+1] = rdw19[1][1][it1] - dwint1[it1];
+		      rdw20[1][1][it1+1] = rdw20[1][1][it1] + dwint1[it1];
 		    }
 		  S_re[it1]+=cos(sdw[it1]);
 		  S_im[it1]+=sin(sdw[it1]);
@@ -1078,13 +1357,40 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 		      {
 			if (it3<nt)
 			  {
-			    pdw1[it3+1][it1]=pdw1[it3][it1]-dwint1[it3+nt2+it1-1];
-			    pdw2[it3+1][it1]=pdw2[it3][it1]-dwint1[it3+nt2+it1-1];
+			    pdw1[it3+1][it1] = pdw1[it3][it1] - dwint1[it3+nt2+it1-1];
+			    pdw2[it3+1][it1] = pdw2[it3][it1] - dwint1[it3+nt2+it1-1];
+			    /* peak 1 */
+			    rdw1[1][it3+1][it1]  = rdw1[1][it3][it1]  - dwint1[it3+nt2+it1-1];
+			    rdw2[1][it3+1][it1]  = rdw2[1][it3][it1]  - dwint1[it3+nt2+it1-1];
+			    rdw3[1][it3+1][it1]  = rdw3[1][it3][it1]  + dwint1[it3+nt2+it1-1];
+			    rdw4[1][it3+1][it1]  = rdw4[1][it3][it1]  + dwint1[it3+nt2+it1-1];
 			    if (n_levels>=2){
-			      pdw3[it3+1][it1]=pdw3[it3][it1]-dwint2[it3+nt2+it1-1];
-			      pdw4[it3+1][it1]=pdw4[it3][it1]-dwint2[it3+nt2+it1-1];
-			    }
-			  }
+			      pdw3[it3+1][it1]=pdw3[it3][it1] - dwint2[it3+nt2+it1-1];
+			      pdw4[it3+1][it1]=pdw4[it3][it1] - dwint2[it3+nt2+it1-1];
+			      /* peak 2 */
+			      rdw5[1][it3+1][it1]  = rdw1[1][it3][it1]  - dwint1[it3+nt2+it1-1];
+			      rdw6[1][it3+1][it1]  = rdw2[1][it3][it1]  - dwint1[it3+nt2+it1-1];
+			      rdw7[1][it3+1][it1]  = rdw3[1][it3][it1]  + dwint1[it3+nt2+it1-1];
+			      rdw8[1][it3+1][it1]  = rdw4[1][it3][it1]  + dwint1[it3+nt2+it1-1];
+			      /* peak 4 */
+			      rdw13[1][it3+1][it1] = rdw13[1][it3][it1] - dwint2[it3+nt2+it1-1];
+			      rdw14[1][it3+1][it1] = rdw14[1][it3][it1] - dwint2[it3+nt2+it1-1];
+			      rdw15[1][it3+1][it1] = rdw15[1][it3][it1] + dwint2[it3+nt2+it1-1];
+			      rdw16[1][it3+1][it1] = rdw16[1][it3][it1] + dwint2[it3+nt2+it1-1];
+			      /* peak 5 */
+			      rdw17[1][it3+1][it1] = rdw17[1][it3][it1] - dwint2[it3+nt2+it1-1];
+			      rdw18[1][it3+1][it1] = rdw18[1][it3][it1] - dwint2[it3+nt2+it1-1];
+			      rdw19[1][it3+1][it1] = rdw19[1][it3][it1] + dwint2[it3+nt2+it1-1];
+			      rdw20[1][it3+1][it1] = rdw20[1][it3][it1] + dwint2[it3+nt2+it1-1];
+			    } /* end n_levels<=2 */
+			    if (n_levels>=3){
+			      /* peak 3 */
+			      rdw9[1][it3+1][it1]  = rdw9[1][it3][it1]  - dwint2[it3+nt2+it1-1];
+			      rdw10[1][it3+1][it1] = rdw10[1][it3][it1] - dwint2[it3+nt2+it1-1];
+			      rdw11[1][it3+1][it1] = rdw11[1][it3][it1] + dwint2[it3+nt2+it1-1];
+			      rdw12[1][it3+1][it1] = rdw12[1][it3][it1] + dwint2[it3+nt2+it1-1];
+			    } /* end n_levels<=3 */
+			  } /* end it<nt */
 			P1_re[it3][it1]+=cos(pdw1[it3][it1]);
 			P1_im[it3][it1]+=sin(pdw1[it3][it1]);
 			P2_re[it3][it1]+=cos(pdw2[it3][it1]);
@@ -1095,9 +1401,93 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 			  P4_re[it3][it1]+=cos(pdw4[it3][it1]);
 			  P4_im[it3][it1]+=sin(pdw4[it3][it1]);
 			}
-		      }//end order >=3 and it3
-		}//end for it1
-	    }//end if condon
+			if (order>=5)
+			  for(it5=1;it5<=nt;it5++)
+			    {
+			      if (it5<nt)
+				{
+				  /* peak 1 */
+				  rdw1[it5+1][it3][it1]  = rdw1[it5][it3][it1] - dwint1[it5+nt4+it3+nt2+it1-2];
+				  rdw2[it5+1][it3][it1]  = rdw2[it5][it3][it1] - dwint1[it5+nt4+it3+nt2+it1-2];
+				  rdw3[it5+1][it3][it1]  = rdw3[it5][it3][it1] - dwint1[it5+nt4+it3+nt2+it1-2];
+				  rdw4[it5+1][it3][it1]  = rdw4[it5][it3][it1] - dwint1[it5+nt4+it3+nt2+it1-2];
+				  if (n_levels>=2){
+				    /* peak 2 */
+				    rdw5[1][it3+1][it1]  = rdw1[1][it3][it1]  - dwint2[it5+nt4+it3+nt2+it1-2];
+				    rdw6[1][it3+1][it1]  = rdw2[1][it3][it1]  - dwint2[it5+nt4+it3+nt2+it1-2];
+				    rdw7[1][it3+1][it1]  = rdw3[1][it3][it1]  - dwint2[it5+nt4+it3+nt2+it1-2];
+				    rdw8[1][it3+1][it1]  = rdw4[1][it3][it1]  - dwint2[it5+nt4+it3+nt2+it1-2];
+				    /* peak 4 */
+				    rdw13[1][it3+1][it1] = rdw13[1][it3][it1] - dwint2[it5+nt4+it3+nt2+it1-2];
+				    rdw14[1][it3+1][it1] = rdw14[1][it3][it1] - dwint2[it5+nt4+it3+nt2+it1-2];
+				    rdw15[1][it3+1][it1] = rdw15[1][it3][it1] - dwint2[it5+nt4+it3+nt2+it1-2];
+				    rdw16[1][it3+1][it1] = rdw16[1][it3][it1] - dwint2[it5+nt4+it3+nt2+it1-2];
+				    /* peak 5 */
+				    rdw17[1][it3+1][it1] = rdw17[1][it3][it1] - dwint1[it5+nt4+it3+nt2+it1-2];
+				    rdw18[1][it3+1][it1] = rdw18[1][it3][it1] - dwint1[it5+nt4+it3+nt2+it1-2];
+				    rdw19[1][it3+1][it1] = rdw19[1][it3][it1] - dwint1[it5+nt4+it3+nt2+it1-2];
+				    rdw20[1][it3+1][it1] = rdw20[1][it3][it1] - dwint1[it5+nt4+it3+nt2+it1-2];
+				  } /* end n_levels<=2 */
+				  if (n_levels>=3){
+				    /* peak 3 */
+				    rdw9[1][it3+1][it1]  = rdw9[1][it3][it1]  - dwint3[it5+nt4+it3+nt2+it1-2];
+				    rdw10[1][it3+1][it1] = rdw10[1][it3][it1] - dwint3[it5+nt4+it3+nt2+it1-2];
+				    rdw11[1][it3+1][it1] = rdw11[1][it3][it1] + dwint3[it5+nt4+it3+nt2+it1-2];
+				    rdw12[1][it3+1][it1] = rdw12[1][it3][it1] + dwint3[it5+nt4+it3+nt2+it1-2];
+				  } /* end n_levels<=3 */
+				} /* end it5<nt */
+			      /* peak 1 */
+			      R1_re[it5][it3][it1]  += cos(rdw1[it5][it3][it1]);
+			      R1_im[it5][it3][it1]  += sin(rdw1[it5][it3][it1]);
+			      R2_re[it5][it3][it1]  += cos(rdw2[it5][it3][it1]);
+			      R2_im[it5][it3][it1]  += sin(rdw2[it5][it3][it1]);
+			      R3_re[it5][it3][it1]  += cos(rdw3[it5][it3][it1]);
+			      R3_im[it5][it3][it1]  += sin(rdw3[it5][it3][it1]);
+			      R4_re[it5][it3][it1]  += cos(rdw4[it5][it3][it1]);
+			      R4_im[it5][it3][it1]  += sin(rdw4[it5][it3][it1]);
+			      if (n_levels>=2){
+				/* peak 2 */
+				R5_re[it5][it3][it1]  += cos(rdw5[it5][it3][it1]);
+				R5_im[it5][it3][it1]  += sin(rdw5[it5][it3][it1]);
+				R6_re[it5][it3][it1]  += cos(rdw6[it5][it3][it1]);
+				R6_im[it5][it3][it1]  += sin(rdw6[it5][it3][it1]);
+				R7_re[it5][it3][it1]  += cos(rdw7[it5][it3][it1]);
+				R7_im[it5][it3][it1]  += sin(rdw7[it5][it3][it1]);
+				R8_re[it5][it3][it1]  += cos(rdw8[it5][it3][it1]);
+				R8_im[it5][it3][it1]  += sin(rdw8[it5][it3][it1]);
+				/* peak 4 */
+				R13_re[it5][it3][it1] += cos(rdw13[it5][it3][it1]);
+				R13_im[it5][it3][it1] += sin(rdw13[it5][it3][it1]);
+				R14_re[it5][it3][it1] += cos(rdw14[it5][it3][it1]);
+				R14_im[it5][it3][it1] += sin(rdw14[it5][it3][it1]);
+				R15_re[it5][it3][it1] += cos(rdw15[it5][it3][it1]);
+				R15_im[it5][it3][it1] += sin(rdw15[it5][it3][it1]);
+				R16_re[it5][it3][it1] += cos(rdw16[it5][it3][it1]);
+				R16_im[it5][it3][it1] += sin(rdw16[it5][it3][it1]);
+				/* peak 5 */
+				R17_re[it5][it3][it1] += cos(rdw17[it5][it3][it1]);
+				R17_im[it5][it3][it1] += sin(rdw17[it5][it3][it1]);
+				R18_re[it5][it3][it1] += cos(rdw18[it5][it3][it1]);
+				R18_im[it5][it3][it1] += sin(rdw18[it5][it3][it1]);
+				R19_re[it5][it3][it1] += cos(rdw19[it5][it3][it1]);
+				R19_im[it5][it3][it1] += sin(rdw19[it5][it3][it1]);
+				R20_re[it5][it3][it1] += cos(rdw20[it5][it3][it1]);
+				R20_im[it5][it3][it1] += sin(rdw20[it5][it3][it1]);
+			      } /* end n_levels >= 2 */
+			      if (n_levels>=3){
+				R9_re[it5][it3][it1]  += cos(rdw9[it5][it3][it1]);
+				R9_im[it5][it3][it1]  += sin(rdw9[it5][it3][it1]);
+				R10_re[it5][it3][it1] += cos(rdw10[it5][it3][it1]);
+				R10_im[it5][it3][it1] += sin(rdw10[it5][it3][it1]);
+				R11_re[it5][it3][it1] += cos(rdw11[it5][it3][it1]);
+				R11_im[it5][it3][it1] += sin(rdw11[it5][it3][it1]);
+				R12_re[it5][it3][it1] += cos(rdw12[it5][it3][it1]);
+				R12_im[it5][it3][it1] += sin(rdw12[it5][it3][it1]);
+			      } /* end n_levels >= 3 */
+			    } /* end order >= 5 and it5 */
+		      } /* end order >=3 and it3 */
+		} /* end for it1 */
+	    }/* end if condon */
 	    
 	    if (flag_noncondon==1){
 	      // non condon code goes here
@@ -1237,11 +1627,29 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 			       P3_re,P3_im,P4_re,P4_im,
                                R1_re,R1_im,R2_re,R2_im,
 			       R3_re,R3_im,R4_re,R4_im,
+                               R5_re,R5_im,R6_re,R6_im,
+			       R7_re,R7_im,R8_re,R8_im,
+                               R9_re,R9_im,R10_re,R10_im,
+			       R11_re,R11_im,R12_re,R12_im,
+                               R13_re,R13_im,R14_re,R14_im,
+			       R15_re,R15_im,R16_re,R16_im,
+                               R17_re,R17_im,R18_re,R18_im,
+			       R19_re,R19_im,R20_re,R20_im,
                                Sf_re,Sf_im,
                                P1f_re,P1f_im,P2f_re,P2f_im,
 			       P3f_re,P3f_im,P4f_re,P4f_im,
 			       P1tot_re,P1tot_im,P2tot_re,P2tot_im,
-                               R1f_re,R1f_im,R2f_re,R2f_im,R3f_re,R3f_im,R4f_re,R4f_im);
+                               R1f_re,R1f_im,R2f_re,R2f_im,
+			       R3f_re,R3f_im,R4f_re,R4f_im,
+                               R5f_re,R5f_im,R6f_re,R6f_im,
+			       R7f_re,R7f_im,R8f_re,R8f_im,
+                               R9f_re,R9f_im,R10f_re,R10f_im,
+			       R11f_re,R11f_im,R12f_re,R12f_im,
+                               R13f_re,R13f_im,R14f_re,R14f_im,
+			       R15f_re,R15f_im,R16f_re,R16f_im,
+                               R17f_re,R17f_im,R18f_re,R18f_im,
+			       R19f_re,R19f_im,R20f_re,R20f_im,
+                               R1tot_re,R1tot_im,R2tot_re,R2tot_im,R3tot_re,R3tot_im,R4tot_re,R4tot_im);
 	      writeResultsTime(base_name,nt,extension,n_levels,
 			       Sf_re,Sf_im,
 			       P1f_re,P1f_im,P2f_re,P2f_im,
@@ -1262,12 +1670,29 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 		       P3_re,P3_im,P4_re,P4_im,
 		       R1_re,R1_im,R2_re,R2_im,
 		       R3_re,R3_im,R4_re,R4_im,
+		       R5_re,R5_im,R6_re,R6_im,
+		       R7_re,R7_im,R8_re,R8_im,
+		       R9_re,R9_im,R10_re,R10_im,
+		       R11_re,R11_im,R12_re,R12_im,
+		       R13_re,R13_im,R14_re,R14_im,
+		       R15_re,R15_im,R16_re,R16_im,
+		       R17_re,R17_im,R18_re,R18_im,
+		       R19_re,R19_im,R20_re,R20_im,
 		       Sf_re,Sf_im,
 		       P1f_re,P1f_im,P2f_re,P2f_im,
 		       P3f_re,P3f_im,P4f_re,P4f_im,
 		       P1tot_re,P1tot_im,P2tot_re,P2tot_im,
 		       R1f_re,R1f_im,R2f_re,R2f_im,
-		       R3f_re,R3f_im,R4f_re,R4f_im);
+		       R3f_re,R3f_im,R4f_re,R4f_im,
+		       R5f_re,R5f_im,R6f_re,R6f_im,
+		       R7f_re,R7f_im,R8f_re,R8f_im,
+		       R9f_re,R9f_im,R10f_re,R10f_im,
+		       R11f_re,R11f_im,R12f_re,R12f_im,
+		       R13f_re,R13f_im,R14f_re,R14f_im,
+		       R15f_re,R15f_im,R16f_re,R16f_im,
+		       R17f_re,R17f_im,R18f_re,R18f_im,
+		       R19f_re,R19f_im,R20f_re,R20f_im,
+		       R1tot_re,R1tot_im,R2tot_re,R2tot_im,R3tot_re,R3tot_im,R4tot_re,R4tot_im);
       writeResultsTime(base_name,nt,extension,n_levels,
 		       Sf_re,Sf_im,
 		       P1f_re,P1f_im,P2f_re,P2f_im,
@@ -1336,10 +1761,26 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
     free_vector(sdw,1,nt);
     free_matrix(    pdw1,1,nt,1,nt);
     free_matrix(    pdw2,1,nt,1,nt);
-    free_f3tensor(    rdw1,1,nt,1,nt,1,nt);
-    free_f3tensor(    rdw2,1,nt,1,nt,1,nt);
-    free_f3tensor(    rdw3,1,nt,1,nt,1,nt);
-    free_f3tensor(    rdw4,1,nt,1,nt,1,nt);
+    free_f3tensor(    rdw1, 1,nt,1,nt,1,nt);
+    free_f3tensor(    rdw2, 1,nt,1,nt,1,nt);
+    free_f3tensor(    rdw3, 1,nt,1,nt,1,nt);
+    free_f3tensor(    rdw4, 1,nt,1,nt,1,nt);
+    free_f3tensor(    rdw5, 1,nt,1,nt,1,nt);
+    free_f3tensor(    rdw6, 1,nt,1,nt,1,nt);
+    free_f3tensor(    rdw7, 1,nt,1,nt,1,nt);
+    free_f3tensor(    rdw8, 1,nt,1,nt,1,nt);
+    free_f3tensor(    rdw9, 1,nt,1,nt,1,nt);
+    free_f3tensor(    rdw10,1,nt,1,nt,1,nt);
+    free_f3tensor(    rdw11,1,nt,1,nt,1,nt);
+    free_f3tensor(    rdw12,1,nt,1,nt,1,nt);
+    free_f3tensor(    rdw13,1,nt,1,nt,1,nt);
+    free_f3tensor(    rdw14,1,nt,1,nt,1,nt);
+    free_f3tensor(    rdw15,1,nt,1,nt,1,nt);
+    free_f3tensor(    rdw16,1,nt,1,nt,1,nt);
+    free_f3tensor(    rdw17,1,nt,1,nt,1,nt);
+    free_f3tensor(    rdw18,1,nt,1,nt,1,nt);
+    free_f3tensor(    rdw19,1,nt,1,nt,1,nt);
+    free_f3tensor(    rdw20,1,nt,1,nt,1,nt);
     
     //    printf("...dw_matrix\n");
     //    free_matrix(dw_matrix,1,nprotons,1,nsteps);
