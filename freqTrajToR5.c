@@ -517,7 +517,7 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
     free(name);
 
     /* 2D total spectrum */
-    if (asprintf(&name,"%s_t_spec2D_%s",base_name,extension) < 0) nrerror("failed to write string");
+    if (asprintf(&name,"%s_t_spec2D%s",base_name,extension) < 0) nrerror("failed to write string");
     out2D=fopen(name,"wt");
     for(it1=1;it1<=nt;it1++)
       for(it3=1;it3<=nt;it3++)
@@ -628,7 +628,7 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
   fclose(out3D);
   free(name);
 
-  if (asprintf(&name,"%s_t_spec3D_%s",base_name,extension) < 0) nrerror("failed to write string");
+  if (asprintf(&name,"%s_t_spec3D%s",base_name,extension) < 0) nrerror("failed to write string");
   out3D=fopen(name,"wt");
   for(it1=1;it1<=nt;it1++)
     for(it3=1;it3<=nt;it3++)
@@ -1571,8 +1571,8 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 				    /* peak 3 */
 				    rdw9[1][it3+1][it1]  = rdw9[1][it3][it1]  - dwint3[it5+nt4+it3+nt2+it1-2];
 				    rdw10[1][it3+1][it1] = rdw10[1][it3][it1] - dwint3[it5+nt4+it3+nt2+it1-2];
-				    rdw11[1][it3+1][it1] = rdw11[1][it3][it1] + dwint3[it5+nt4+it3+nt2+it1-2];
-				    rdw12[1][it3+1][it1] = rdw12[1][it3][it1] + dwint3[it5+nt4+it3+nt2+it1-2];
+				    rdw11[1][it3+1][it1] = rdw11[1][it3][it1] - dwint3[it5+nt4+it3+nt2+it1-2];
+				    rdw12[1][it3+1][it1] = rdw12[1][it3][it1] - dwint3[it5+nt4+it3+nt2+it1-2];
 				  } /* end n_levels<=3 */
 				} /* end it5<nt */
 			      /* peak 1 */
