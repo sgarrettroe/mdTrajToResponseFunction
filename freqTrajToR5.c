@@ -453,7 +453,17 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
 		      float **P3f_re,float **P3f_im,float **P4f_re,float **P4f_im,
 		      float **P1tot_re,float **P1tot_im,float **P2tot_re,float **P2tot_im,
 		      float ***R1f_re,float ***R1f_im,float ***R2f_re,float ***R2f_im,
-		      float ***R3f_re,float ***R3f_im,float ***R4f_re,float ***R4f_im)
+		      float ***R3f_re,float ***R3f_im,float ***R4f_re,float ***R4f_im,
+		      float ***R5f_re, float ***R5f_im, float ***R6f_re, float ***R6f_im,
+		      float ***R7f_re, float ***R7f_im, float ***R8f_re, float ***R8f_im,
+		      float ***R9f_re, float ***R9f_im, float ***R10f_re,float ***R10f_im,
+		      float ***R11f_re,float ***R11f_im,float ***R12f_re,float ***R12f_im,
+		      float ***R13f_re,float ***R13f_im,float ***R14f_re,float ***R14f_im,
+		      float ***R15f_re,float ***R15f_im,float ***R16f_re,float ***R16f_im,
+		      float ***R17f_re,float ***R17f_im,float ***R18f_re,float ***R18f_im,
+		      float ***R19f_re,float ***R19f_im,float ***R20f_re,float ***R20f_im,
+                      float ***R1tot_re,float ***R1tot_im,float ***R2tot_re,float ***R2tot_im,
+                      float ***R3tot_re,float ***R3tot_im,float ***R4tot_re,float ***R4tot_im)
 /* This version is for outputting the data in the time domain with no
  * flipping or FT or anything like that, just the data as it is
  * calculated with the highest time argument as the fastest changing
@@ -477,7 +487,7 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
   free(name);
 
   /* 2D gsb + se (which are always calculated) */
-  if (asprintf(&name,"%s_t_spec2D%s",base_name,extension) < 0) nrerror("failed to write string");
+  if (asprintf(&name,"%s_t_spec2D_peak1%s",base_name,extension) < 0) nrerror("failed to write string");
   out2D=fopen(name,"wt");
   for(it1=1;it1<=nt;it1++)
     for(it3=1;it3<=nt;it3++)
@@ -493,7 +503,7 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
   /* if we calculated higher states print them out, too */
   if (n_levels>=2){
     /* 2D esa */
-    if (asprintf(&name,"%s_t_spec2D_esa%s",base_name,extension) < 0) nrerror("failed to write string");
+    if (asprintf(&name,"%s_t_spec2D_peak2%s",base_name,extension) < 0) nrerror("failed to write string");
     out2D=fopen(name,"wt");
     for(it1=1;it1<=nt;it1++)
       for(it3=1;it3<=nt;it3++)
@@ -507,7 +517,7 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
     free(name);
 
     /* 2D total spectrum */
-    if (asprintf(&name,"%s_t_spec2D_tot%s",base_name,extension) < 0) nrerror("failed to write string");
+    if (asprintf(&name,"%s_t_spec2D_%s",base_name,extension) < 0) nrerror("failed to write string");
     out2D=fopen(name,"wt");
     for(it1=1;it1<=nt;it1++)
       for(it3=1;it3<=nt;it3++)
@@ -521,7 +531,7 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
     free(name);
   } /* end if n_levels>=2 */
 
-  if (asprintf(&name,"%s_t_spec3D%s",base_name,extension) < 0) nrerror("failed to write string");
+  if (asprintf(&name,"%s_t_spec3D_peak1%s",base_name,extension) < 0) nrerror("failed to write string");
   out3D=fopen(name,"wt");
   for(it1=1;it1<=nt;it1++)
     for(it3=1;it3<=nt;it3++)
@@ -540,6 +550,104 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
       }
   fclose(out3D);
   free(name);
+
+  if (asprintf(&name,"%s_t_spec3D_peak2%s",base_name,extension) < 0) nrerror("failed to write string");
+  out3D=fopen(name,"wt");
+  for(it1=1;it1<=nt;it1++)
+    for(it3=1;it3<=nt;it3++)
+      for(it5=1;it5<=nt;it5++)
+      {
+        fprintf(out3D,"%10.5g %10.5g %10.5g %10.5g %10.5g %10.5g %10.5g %10.5g",
+                R5f_re[it5][it3][it1],
+                R5f_im[it5][it3][it1],
+                R6f_re[it5][it3][it1],
+                R6f_im[it5][it3][it1],
+                R7f_re[it5][it3][it1],
+                R7f_im[it5][it3][it1],
+                R8f_re[it5][it3][it1],
+                R8f_im[it5][it3][it1]);
+        fprintf(out3D,"\n");
+      }
+  fclose(out3D);
+  free(name);
+  if (asprintf(&name,"%s_t_spec3D_peak3%s",base_name,extension) < 0) nrerror("failed to write string");
+  out3D=fopen(name,"wt");
+  for(it1=1;it1<=nt;it1++)
+    for(it3=1;it3<=nt;it3++)
+      for(it5=1;it5<=nt;it5++)
+      {
+        fprintf(out3D,"%10.5g %10.5g %10.5g %10.5g %10.5g %10.5g %10.5g %10.5g",
+                R9f_re[it5][it3][it1],
+                R9f_im[it5][it3][it1],
+                R10f_re[it5][it3][it1],
+                R10f_im[it5][it3][it1],
+                R11f_re[it5][it3][it1],
+                R11f_im[it5][it3][it1],
+                R12f_re[it5][it3][it1],
+                R12f_im[it5][it3][it1]);
+        fprintf(out3D,"\n");
+      }
+  fclose(out3D);
+  free(name);
+  if (asprintf(&name,"%s_t_spec3D_peak4%s",base_name,extension) < 0) nrerror("failed to write string");
+  out3D=fopen(name,"wt");
+  for(it1=1;it1<=nt;it1++)
+    for(it3=1;it3<=nt;it3++)
+      for(it5=1;it5<=nt;it5++)
+      {
+        fprintf(out3D,"%10.5g %10.5g %10.5g %10.5g %10.5g %10.5g %10.5g %10.5g",
+                R13f_re[it5][it3][it1],
+                R13f_im[it5][it3][it1],
+                R14f_re[it5][it3][it1],
+                R14f_im[it5][it3][it1],
+                R15f_re[it5][it3][it1],
+                R15f_im[it5][it3][it1],
+                R16f_re[it5][it3][it1],
+                R16f_im[it5][it3][it1]);
+        fprintf(out3D,"\n");
+      }
+  fclose(out3D);
+  free(name);
+  if (asprintf(&name,"%s_t_spec3D_peak5%s",base_name,extension) < 0) nrerror("failed to write string");
+  out3D=fopen(name,"wt");
+  for(it1=1;it1<=nt;it1++)
+    for(it3=1;it3<=nt;it3++)
+      for(it5=1;it5<=nt;it5++)
+      {
+        fprintf(out3D,"%10.5g %10.5g %10.5g %10.5g %10.5g %10.5g %10.5g %10.5g",
+                R17f_re[it5][it3][it1],
+                R17f_im[it5][it3][it1],
+                R18f_re[it5][it3][it1],
+                R18f_im[it5][it3][it1],
+                R19f_re[it5][it3][it1],
+                R19f_im[it5][it3][it1],
+                R20f_re[it5][it3][it1],
+                R20f_im[it5][it3][it1]);
+        fprintf(out3D,"\n");
+      }
+  fclose(out3D);
+  free(name);
+
+  if (asprintf(&name,"%s_t_spec3D_%s",base_name,extension) < 0) nrerror("failed to write string");
+  out3D=fopen(name,"wt");
+  for(it1=1;it1<=nt;it1++)
+    for(it3=1;it3<=nt;it3++)
+      for(it5=1;it5<=nt;it5++)
+      {
+        fprintf(out3D,"%10.5g %10.5g %10.5g %10.5g %10.5g %10.5g %10.5g %10.5g",
+                R1tot_re[it5][it3][it1],
+                R1tot_im[it5][it3][it1],
+                R2tot_re[it5][it3][it1],
+                R2tot_im[it5][it3][it1],
+                R3tot_re[it5][it3][it1],
+                R3tot_im[it5][it3][it1],
+                R4tot_re[it5][it3][it1],
+                R4tot_im[it5][it3][it1]);
+        fprintf(out3D,"\n");
+      }
+  fclose(out3D);
+  free(name);
+
 }
 
 void normalizeResults(int nt,float dt,unsigned long isample,
@@ -581,6 +689,7 @@ void normalizeResults(int nt,float dt,unsigned long isample,
   float mu_01_2,mu_12_2,mu_23_2;
   float shift_w,shift_w_1_1,shift_w_1_2,shift_w_2_1,shift_w_2_2,shift_w_2_3;
   float a,b,phi,phi1,phi2,phi3,phi4,phi5;
+  float mw;
 
   mu_01_2 = 1;
   mu_12_2 = 1;
@@ -592,15 +701,45 @@ void normalizeResults(int nt,float dt,unsigned long isample,
   }
   
 
+  /* defaults */
+  shift_w = 0;
+  shift_w_1_1 = 0;
+  shift_w_1_2 = 0;
+  shift_w_2_1 = 0;
+  shift_w_2_2 = 0;
+  shift_w_2_3 = 0;
   /* calculate shift frequency based on number of levels we've calculated */
-  if (n_levels==1) shift_w = 0;
-  if (n_levels==2) shift_w =(mean_w[0] - mean_w[1])/2; // 0;//  M_PI/(2*dt);// 
+  if (n_levels==1){
+    /* for 2D spectra */
+    shift_w = 0;
+    /* for 3D spectra */
+    shift_w_1_1 = 0;
+    shift_w_1_2 = 0;
+    shift_w_2_1 = 0;
+    shift_w_2_2 = 0;
+    shift_w_2_3 = 0;
+  }
+  if (n_levels==2){
+    /* for 2D spectra */
+    shift_w =(mean_w[0] - mean_w[1])/2; // 0;//  M_PI/(2*dt);// 
+    /* for 3D spectra */
+    shift_w_1_1 = shift_w;
+    shift_w_1_2 = -shift_w;
+    shift_w_2_1 = shift_w;
+    shift_w_2_2 = -shift_w;
+    shift_w_2_3 = 0;
+  }
   if (n_levels==3){
-    shift_w_1_1 = 0; /*this needs to be worked out*/
-    shift_w_1_2 = 0; /*this needs to be worked out*/
-    shift_w_2_1 = 0; /*this needs to be worked out*/
-    shift_w_2_2 = 0; /*this needs to be worked out*/
-    shift_w_2_3 = 0; /*this needs to be worked out*/
+    /* for 2D spectra */
+    shift_w =(mean_w[0] - mean_w[1])/2; // 0;//  M_PI/(2*dt);// 
+
+    /* for 3D spectra */
+    mw = (mean_w[0] + mean_w[1] + mean_w[2])/3;
+    shift_w_1_1 = shift_w; /*this needs to be worked out*/
+    shift_w_1_2 = -shift_w; /*this needs to be worked out*/
+    shift_w_2_1 = mean_w[0] - mw; /*this needs to be worked out*/
+    shift_w_2_2 = mean_w[1] - mw; /*this needs to be worked out*/
+    shift_w_2_3 = mean_w[2] - mw; /*this needs to be worked out*/
     /* take the average of the frequencies and shift each by the difference of the frequency from the mean */
     /* shift_w_1_1  = +Delta/2; shift_w_1_2 = -Delta/2; shift_w_2_1 = +Delta; shift_w_2_2 = 0; shift_w_2_3 = -Delta;*/
   }
@@ -1655,7 +1794,17 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 			       P1f_re,P1f_im,P2f_re,P2f_im,
 			       P3f_re,P3f_im,P4f_re,P4f_im,
 			       P1tot_re,P1tot_im,P2tot_re,P2tot_im,
-			       R1f_re,R1f_im,R2f_re,R2f_im,R3f_re,R3f_im,R4f_re,R4f_im); 
+                               R1f_re,R1f_im,R2f_re,R2f_im,
+			       R3f_re,R3f_im,R4f_re,R4f_im,
+                               R5f_re,R5f_im,R6f_re,R6f_im,
+			       R7f_re,R7f_im,R8f_re,R8f_im,
+                               R9f_re,R9f_im,R10f_re,R10f_im,
+			       R11f_re,R11f_im,R12f_re,R12f_im,
+                               R13f_re,R13f_im,R14f_re,R14f_im,
+			       R15f_re,R15f_im,R16f_re,R16f_im,
+                               R17f_re,R17f_im,R18f_re,R18f_im,
+			       R19f_re,R19f_im,R20f_re,R20f_im,
+                               R1tot_re,R1tot_im,R2tot_re,R2tot_im,R3tot_re,R3tot_im,R4tot_re,R4tot_im); 
 
             } //end if (isample+nsamples*(iproton-1)%2000==0 
 
@@ -1698,7 +1847,17 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 		       P1f_re,P1f_im,P2f_re,P2f_im,
 		       P3f_re,P3f_im,P4f_re,P4f_im,
 		       P1tot_re,P1tot_im,P2tot_re,P2tot_im,
-		       R1f_re,R1f_im,R2f_re,R2f_im,R3f_re,R3f_im,R4f_re,R4f_im); 
+		       R1f_re,R1f_im,R2f_re,R2f_im,
+		       R3f_re,R3f_im,R4f_re,R4f_im,
+		       R5f_re,R5f_im,R6f_re,R6f_im,
+		       R7f_re,R7f_im,R8f_re,R8f_im,
+		       R9f_re,R9f_im,R10f_re,R10f_im,
+		       R11f_re,R11f_im,R12f_re,R12f_im,
+		       R13f_re,R13f_im,R14f_re,R14f_im,
+		       R15f_re,R15f_im,R16f_re,R16f_im,
+		       R17f_re,R17f_im,R18f_re,R18f_im,
+		       R19f_re,R19f_im,R20f_re,R20f_im,
+		       R1tot_re,R1tot_im,R2tot_re,R2tot_im,R3tot_re,R3tot_im,R4tot_re,R4tot_im); 
       
           //free dwint1 for the next t2,t4
           free_vector(dwint1,1,ntraject);
@@ -1725,6 +1884,38 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
     printf("...response functions R4\n");
     free_f3tensor(R4_re,1,nt,1,nt,1,nt);
     free_f3tensor(R4_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R5_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R5_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R6_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R6_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R7_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R7_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R8_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R8_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R9_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R9_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R10_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R10_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R11_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R11_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R12_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R12_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R13_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R13_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R14_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R14_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R15_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R15_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R16_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R16_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R17_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R17_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R18_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R18_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R19_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R19_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R20_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R20_im,1,nt,1,nt,1,nt);
     printf("...response functions P1\n");
     free_matrix(P1_re,1,nt,1,nt);
     free_matrix(P1_im,1,nt,1,nt);
@@ -1750,10 +1941,56 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
     free_f3tensor(R3f_im,1,nt,1,nt,1,nt);
     free_f3tensor(R4f_re,1,nt,1,nt,1,nt);
     free_f3tensor(R4f_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R5f_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R5f_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R6f_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R6f_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R7f_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R7f_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R8f_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R8f_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R9f_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R9f_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R10f_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R10f_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R11f_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R11f_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R12f_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R12f_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R13f_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R13f_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R14f_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R14f_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R15f_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R15f_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R16f_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R16f_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R17f_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R17f_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R18f_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R18f_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R19f_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R19f_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R20f_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R20f_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R1tot_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R1tot_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R2tot_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R2tot_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R3tot_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R3tot_im,1,nt,1,nt,1,nt);
+    free_f3tensor(R4tot_re,1,nt,1,nt,1,nt);
+    free_f3tensor(R4tot_im,1,nt,1,nt,1,nt);
     free_matrix(P1f_re,1,nt,1,nt);
     free_matrix(P1f_im,1,nt,1,nt);
     free_matrix(P2f_re,1,nt,1,nt);
     free_matrix(P2f_im,1,nt,1,nt);
+    free_matrix(P3f_re,1,nt,1,nt);
+    free_matrix(P3f_im,1,nt,1,nt);
+    free_matrix(P4f_re,1,nt,1,nt);
+    free_matrix(P4f_im,1,nt,1,nt);
+    free_matrix(P1tot_re,1,nt,1,nt);
+    free_matrix(P1tot_im,1,nt,1,nt);
     free_vector(Sf_re,1,nt);
     free_vector(Sf_im,1,nt);
     
@@ -1843,7 +2080,7 @@ int main(int argc, char *argv[]) {
   }
 
   // error if parameter_file_name is still empty
-  if (fnmatch(parameter_file_name,"",FNM_CASEFOLD) == 0) nrerror("please supply a base name with the -o flag!");
+  if (fnmatch(parameter_file_name,"",FNM_CASEFOLD) == 0) nrerror("please supply a parameter file name with the -p flag!");
   initialize_globalArgs(parameter_file_name);
 
 
