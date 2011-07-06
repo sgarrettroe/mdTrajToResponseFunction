@@ -807,20 +807,20 @@ void normalizeResults(int nt,float dt,unsigned long isample,
 
 	      if (n_levels>=2){
 		phi2 = -shift_w_1_1*dt*(it3-1) - shift_w_2_2*dt*(it5-1);
-		a = 2 * mu_12_2 * mu_01_2 * mu_01_2 * R5_re[it5][it3][it1] / isample;
-		b = 2 * mu_12_2 * mu_01_2 * mu_01_2 * R5_im[it5][it3][it1] / isample;
+		a = -2 * mu_12_2 * mu_01_2 * mu_01_2 * R5_re[it5][it3][it1] / isample;
+		b = -2 * mu_12_2 * mu_01_2 * mu_01_2 * R5_im[it5][it3][it1] / isample;
 		R5f_re[it5][it3][it1]  = a * cos(phi2) - b * sin(phi2);
 		R5f_im[it5][it3][it1]  = a * sin(phi2) - b * cos(phi2);
-		a = 2 * mu_12_2 * mu_01_2 * mu_01_2 * R6_re[it5][it3][it1] / isample;
-		b = 2 * mu_12_2 * mu_01_2 * mu_01_2 * R6_im[it5][it3][it1] / isample;
+		a = -2 * mu_12_2 * mu_01_2 * mu_01_2 * R6_re[it5][it3][it1] / isample;
+		b = -2 * mu_12_2 * mu_01_2 * mu_01_2 * R6_im[it5][it3][it1] / isample;
 		R6f_re[it5][it3][it1]  =  a * cos(phi2) - b * sin(phi2);
 		R6f_im[it5][it3][it1]  =  a * sin(phi2) - b * cos(phi2);
-		a = 2 * mu_12_2 * mu_01_2 * mu_01_2 * R7_re[it5][it3][it1] / isample;
-		b = 2 * mu_12_2 * mu_01_2 * mu_01_2 * R7_im[it5][it3][it1] / isample;
+		a = -2 * mu_12_2 * mu_01_2 * mu_01_2 * R7_re[it5][it3][it1] / isample;
+		b = -2 * mu_12_2 * mu_01_2 * mu_01_2 * R7_im[it5][it3][it1] / isample;
 		R7f_re[it5][it3][it1]  = a * cos(phi2) - b * sin(phi2);
 		R7f_im[it5][it3][it1]  = a * sin(phi2) - b * cos(phi2);
-		a = 2 * mu_12_2 * mu_01_2 * mu_01_2 * R8_re[it5][it3][it1] / isample;
-		b = 2 * mu_12_2 * mu_01_2 * mu_01_2 * R8_im[it5][it3][it1] / isample;
+		a = -2 * mu_12_2 * mu_01_2 * mu_01_2 * R8_re[it5][it3][it1] / isample;
+		b = -2 * mu_12_2 * mu_01_2 * mu_01_2 * R8_im[it5][it3][it1] / isample;
 		R8f_re[it5][it3][it1]  =  a * cos(phi2) - b * sin(phi2);
 		R8f_im[it5][it3][it1]  =  a * sin(phi2) - b * cos(phi2);
 
@@ -845,20 +845,20 @@ void normalizeResults(int nt,float dt,unsigned long isample,
 		}
 
 	      phi4 = -shift_w_1_2*dt*(it3-1) - shift_w_2_2*dt*(it5-1);
-	      a = 2 * mu_12_2 * mu_12_2 * mu_01_2 * R13_re[it5][it3][it1] / isample;
-	      b = 2 * mu_12_2 * mu_12_2 * mu_01_2 * R13_im[it5][it3][it1] / isample;
+	      a = -2 * mu_12_2 * mu_12_2 * mu_01_2 * R13_re[it5][it3][it1] / isample;
+	      b = -2 * mu_12_2 * mu_12_2 * mu_01_2 * R13_im[it5][it3][it1] / isample;
 	      R13f_re[it5][it3][it1]  = a * cos(phi4) - b * sin(phi4);
 	      R13f_im[it5][it3][it1]  = a * sin(phi4) - b * cos(phi4);
-	      a = 2 * mu_12_2 * mu_12_2 * mu_01_2 * R14_re[it5][it3][it1] / isample;
-	      b = 2 * mu_12_2 * mu_12_2 * mu_01_2 * R14_im[it5][it3][it1] / isample;
+	      a = -2 * mu_12_2 * mu_12_2 * mu_01_2 * R14_re[it5][it3][it1] / isample;
+	      b = -2 * mu_12_2 * mu_12_2 * mu_01_2 * R14_im[it5][it3][it1] / isample;
 	      R14f_re[it5][it3][it1]  =  a * cos(phi4) - b * sin(phi4);
 	      R14f_im[it5][it3][it1]  =  a * sin(phi4) - b * cos(phi4);
-	      a = 2 * mu_12_2 * mu_12_2 * mu_01_2 * R15_re[it5][it3][it1] / isample;
-	      b = 2 * mu_12_2 * mu_12_2 * mu_01_2 * R15_im[it5][it3][it1] / isample;
+	      a = -2 * mu_12_2 * mu_12_2 * mu_01_2 * R15_re[it5][it3][it1] / isample;
+	      b = -2 * mu_12_2 * mu_12_2 * mu_01_2 * R15_im[it5][it3][it1] / isample;
 	      R15f_re[it5][it3][it1]  = a * cos(phi4) - b * sin(phi4);
 	      R15f_im[it5][it3][it1]  = a * sin(phi4) - b * cos(phi4);
-	      a = 2 * mu_12_2 * mu_12_2 * mu_01_2 * R16_re[it5][it3][it1] / isample;
-	      b = 2 * mu_12_2 * mu_12_2 * mu_01_2 * R16_im[it5][it3][it1] / isample;
+	      a = -2 * mu_12_2 * mu_12_2 * mu_01_2 * R16_re[it5][it3][it1] / isample;
+	      b = -2 * mu_12_2 * mu_12_2 * mu_01_2 * R16_im[it5][it3][it1] / isample;
 	      R16f_re[it5][it3][it1]  =  a * cos(phi4) - b * sin(phi4);
 	      R16f_im[it5][it3][it1]  =  a * sin(phi4) - b * cos(phi4);
 
@@ -1507,10 +1507,17 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 			      pdw3[it3+1][it1]=pdw3[it3][it1] - dwint2[it3+nt2+it1-1];
 			      pdw4[it3+1][it1]=pdw4[it3][it1] - dwint2[it3+nt2+it1-1];
 			      /* peak 2 */
-			      rdw5[1][it3+1][it1]  = rdw1[1][it3][it1]  - dwint1[it3+nt2+it1-1];
-			      rdw6[1][it3+1][it1]  = rdw2[1][it3][it1]  - dwint1[it3+nt2+it1-1];
-			      rdw7[1][it3+1][it1]  = rdw3[1][it3][it1]  + dwint1[it3+nt2+it1-1];
-			      rdw8[1][it3+1][it1]  = rdw4[1][it3][it1]  + dwint1[it3+nt2+it1-1];
+			      rdw5[1][it3+1][it1]  = rdw5[1][it3][it1]  - dwint1[it3+nt2+it1-1];
+			      rdw6[1][it3+1][it1]  = rdw6[1][it3][it1]  - dwint1[it3+nt2+it1-1];
+			      rdw7[1][it3+1][it1]  = rdw7[1][it3][it1]  + dwint1[it3+nt2+it1-1];
+			      rdw8[1][it3+1][it1]  = rdw8[1][it3][it1]  + dwint1[it3+nt2+it1-1];
+			      if (n_levels>=3){
+				/* peak 3 */
+				rdw9[1][it3+1][it1]  = rdw9[1][it3][it1]  - dwint2[it3+nt2+it1-1];
+				rdw10[1][it3+1][it1] = rdw10[1][it3][it1] - dwint2[it3+nt2+it1-1];
+				rdw11[1][it3+1][it1] = rdw11[1][it3][it1] + dwint2[it3+nt2+it1-1];
+				rdw12[1][it3+1][it1] = rdw12[1][it3][it1] + dwint2[it3+nt2+it1-1];
+			      } /* end n_levels<=3 */
 			      /* peak 4 */
 			      rdw13[1][it3+1][it1] = rdw13[1][it3][it1] - dwint2[it3+nt2+it1-1];
 			      rdw14[1][it3+1][it1] = rdw14[1][it3][it1] - dwint2[it3+nt2+it1-1];
@@ -1522,13 +1529,6 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 			      rdw19[1][it3+1][it1] = rdw19[1][it3][it1] + dwint2[it3+nt2+it1-1];
 			      rdw20[1][it3+1][it1] = rdw20[1][it3][it1] + dwint2[it3+nt2+it1-1];
 			    } /* end n_levels<=2 */
-			    if (n_levels>=3){
-			      /* peak 3 */
-			      rdw9[1][it3+1][it1]  = rdw9[1][it3][it1]  - dwint2[it3+nt2+it1-1];
-			      rdw10[1][it3+1][it1] = rdw10[1][it3][it1] - dwint2[it3+nt2+it1-1];
-			      rdw11[1][it3+1][it1] = rdw11[1][it3][it1] + dwint2[it3+nt2+it1-1];
-			      rdw12[1][it3+1][it1] = rdw12[1][it3][it1] + dwint2[it3+nt2+it1-1];
-			    } /* end n_levels<=3 */
 			  } /* end it<nt */
 			P1_re[it3][it1]+=cos(pdw1[it3][it1]);
 			P1_im[it3][it1]+=sin(pdw1[it3][it1]);
@@ -1552,28 +1552,29 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 				  rdw4[it5+1][it3][it1]  = rdw4[it5][it3][it1] - dwint1[it5+nt4+it3+nt2+it1-2];
 				  if (n_levels>=2){
 				    /* peak 2 */
-				    rdw5[1][it3+1][it1]  = rdw1[1][it3][it1]  - dwint2[it5+nt4+it3+nt2+it1-2];
-				    rdw6[1][it3+1][it1]  = rdw2[1][it3][it1]  - dwint2[it5+nt4+it3+nt2+it1-2];
-				    rdw7[1][it3+1][it1]  = rdw3[1][it3][it1]  - dwint2[it5+nt4+it3+nt2+it1-2];
-				    rdw8[1][it3+1][it1]  = rdw4[1][it3][it1]  - dwint2[it5+nt4+it3+nt2+it1-2];
+				    rdw5[it5+1][it3][it1]  = rdw5[it5][it3][it1]  - dwint2[it5+nt4+it3+nt2+it1-2];
+				    rdw6[it5+1][it3][it1]  = rdw6[it5][it3][it1]  - dwint2[it5+nt4+it3+nt2+it1-2];
+				    rdw7[it5+1][it3][it1]  = rdw7[it5][it3][it1]  - dwint2[it5+nt4+it3+nt2+it1-2];
+				    rdw8[it5+1][it3][it1]  = rdw8[it5][it3][it1]  - dwint2[it5+nt4+it3+nt2+it1-2];
+				    if (n_levels>=3){
+				      /* peak 3 */
+				      rdw9[it5+1][it3][it1]  = rdw9[it5][it3][it1]  - dwint3[it5+nt4+it3+nt2+it1-2];
+				      rdw10[it5+1][it3][it1] = rdw10[it5][it3][it1] - dwint3[it5+nt4+it3+nt2+it1-2];
+				      rdw11[it5+1][it3][it1] = rdw11[it5][it3][it1] - dwint3[it5+nt4+it3+nt2+it1-2];
+				      rdw12[it5+1][it3][it1] = rdw12[it5][it3][it1] - dwint3[it5+nt4+it3+nt2+it1-2];
+				    } /* end n_levels<=3 */
+
 				    /* peak 4 */
-				    rdw13[1][it3+1][it1] = rdw13[1][it3][it1] - dwint2[it5+nt4+it3+nt2+it1-2];
-				    rdw14[1][it3+1][it1] = rdw14[1][it3][it1] - dwint2[it5+nt4+it3+nt2+it1-2];
-				    rdw15[1][it3+1][it1] = rdw15[1][it3][it1] - dwint2[it5+nt4+it3+nt2+it1-2];
-				    rdw16[1][it3+1][it1] = rdw16[1][it3][it1] - dwint2[it5+nt4+it3+nt2+it1-2];
+				    rdw13[it5+1][it3][it1] = rdw13[it5][it3][it1] - dwint2[it5+nt4+it3+nt2+it1-2];
+				    rdw14[it5+1][it3][it1] = rdw14[it5][it3][it1] - dwint2[it5+nt4+it3+nt2+it1-2];
+				    rdw15[it5+1][it3][it1] = rdw15[it5][it3][it1] - dwint2[it5+nt4+it3+nt2+it1-2];
+				    rdw16[it5+1][it3][it1] = rdw16[it5][it3][it1] - dwint2[it5+nt4+it3+nt2+it1-2];
 				    /* peak 5 */
-				    rdw17[1][it3+1][it1] = rdw17[1][it3][it1] - dwint1[it5+nt4+it3+nt2+it1-2];
-				    rdw18[1][it3+1][it1] = rdw18[1][it3][it1] - dwint1[it5+nt4+it3+nt2+it1-2];
-				    rdw19[1][it3+1][it1] = rdw19[1][it3][it1] - dwint1[it5+nt4+it3+nt2+it1-2];
-				    rdw20[1][it3+1][it1] = rdw20[1][it3][it1] - dwint1[it5+nt4+it3+nt2+it1-2];
+				    rdw17[it5+1][it3][it1] = rdw17[it5][it3][it1] - dwint1[it5+nt4+it3+nt2+it1-2];
+				    rdw18[it5+1][it3][it1] = rdw18[it5][it3][it1] - dwint1[it5+nt4+it3+nt2+it1-2];
+				    rdw19[it5+1][it3][it1] = rdw19[it5][it3][it1] - dwint1[it5+nt4+it3+nt2+it1-2];
+				    rdw20[it5+1][it3][it1] = rdw20[it5][it3][it1] - dwint1[it5+nt4+it3+nt2+it1-2];
 				  } /* end n_levels<=2 */
-				  if (n_levels>=3){
-				    /* peak 3 */
-				    rdw9[1][it3+1][it1]  = rdw9[1][it3][it1]  - dwint3[it5+nt4+it3+nt2+it1-2];
-				    rdw10[1][it3+1][it1] = rdw10[1][it3][it1] - dwint3[it5+nt4+it3+nt2+it1-2];
-				    rdw11[1][it3+1][it1] = rdw11[1][it3][it1] - dwint3[it5+nt4+it3+nt2+it1-2];
-				    rdw12[1][it3+1][it1] = rdw12[1][it3][it1] - dwint3[it5+nt4+it3+nt2+it1-2];
-				  } /* end n_levels<=3 */
 				} /* end it5<nt */
 			      /* peak 1 */
 			      R1_re[it5][it3][it1]  += cos(rdw1[it5][it3][it1]);
@@ -2029,6 +2030,7 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 int main(int argc, char *argv[]) {
   int i;
   time_t my_time=time(0); // time process started
+  time_t end_time; // time process ended
   
   char *base_name,*parameter_file_name,*time_file_name;
   float **t2_t4_pairs;
@@ -2036,6 +2038,7 @@ int main(int argc, char *argv[]) {
   float ***w_matrices;
   float ***x_matrices;
   float *mean_x,*mean_w;
+  float elapsed;
 
   int opt = 0, longIndex=0; //for getopt_long
   int nprotons;
@@ -2199,7 +2202,12 @@ int main(int argc, char *argv[]) {
   free_vector(mean_x,0,globalArgs.n_levels);
 
   // we're done
-  printf("done\n");
+  end_time = time(0);
+  printf("done: %s\n",ctime(&end_time));
+  elapsed = difftime(end_time , my_time);
+  printf("elapsed: %f s\n",elapsed);
+  printf("\n"); 
+
   exit(EXIT_SUCCESS);
     
 }//end main()
