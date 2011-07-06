@@ -1004,6 +1004,7 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 
   float mu2_mu1;
   float mu4_mu3_mu2_mu1;
+  float mu6_mu5_mu4_mu3_mu2_mu1;
   double sum,sum2;
 
   /*allocate arrays*/
@@ -1528,7 +1529,7 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 			      rdw18[1][it3+1][it1] = rdw18[1][it3][it1] - dwint2[it3+nt2+it1-1];
 			      rdw19[1][it3+1][it1] = rdw19[1][it3][it1] + dwint2[it3+nt2+it1-1];
 			      rdw20[1][it3+1][it1] = rdw20[1][it3][it1] + dwint2[it3+nt2+it1-1];
-			    } /* end n_levels<=2 */
+			    } /* end n_levels>=2 */
 			  } /* end it<nt */
 			P1_re[it3][it1]+=cos(pdw1[it3][it1]);
 			P1_im[it3][it1]+=sin(pdw1[it3][it1]);
@@ -1645,6 +1646,31 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 			pdw2[1][it1+1]=pdw2[1][it1]-dwint1[it1];
 			pdw3[1][it1+1]=pdw3[1][it1]+dwint1[it1];
 			pdw4[1][it1+1]=pdw4[1][it1]-dwint1[it1];
+		      /* peak 1 */
+		      rdw1[1][1][it1+1]  = rdw1[1][1][it1]  - dwint1[it1];
+		      rdw2[1][1][it1+1]  = rdw2[1][1][it1]  + dwint1[it1];
+		      rdw3[1][1][it1+1]  = rdw3[1][1][it1]  - dwint1[it1];
+		      rdw4[1][1][it1+1]  = rdw4[1][1][it1]  + dwint1[it1];
+		      /* peak 2 */
+		      rdw5[1][1][it1+1]  = rdw5[1][1][it1]  - dwint1[it1];
+		      rdw6[1][1][it1+1]  = rdw6[1][1][it1]  + dwint1[it1];
+		      rdw7[1][1][it1+1]  = rdw7[1][1][it1]  - dwint1[it1];
+		      rdw8[1][1][it1+1]  = rdw8[1][1][it1]  + dwint1[it1];
+		      /* peak 3 */
+		      rdw9[1][1][it1+1]  = rdw9[1][1][it1]  - dwint1[it1];
+		      rdw10[1][1][it1+1] = rdw10[1][1][it1] + dwint1[it1];
+		      rdw11[1][1][it1+1] = rdw11[1][1][it1] - dwint1[it1];
+		      rdw12[1][1][it1+1] = rdw12[1][1][it1] + dwint1[it1];
+		      /* peak 4 */
+		      rdw13[1][1][it1+1] = rdw13[1][1][it1] - dwint1[it1];
+		      rdw14[1][1][it1+1] = rdw14[1][1][it1] + dwint1[it1];
+		      rdw15[1][1][it1+1] = rdw15[1][1][it1] - dwint1[it1];
+		      rdw16[1][1][it1+1] = rdw16[1][1][it1] + dwint1[it1];
+		      /* peak 5 */
+		      rdw17[1][1][it1+1] = rdw17[1][1][it1] - dwint1[it1];
+		      rdw18[1][1][it1+1] = rdw18[1][1][it1] + dwint1[it1];
+		      rdw19[1][1][it1+1] = rdw19[1][1][it1] - dwint1[it1];
+		      rdw20[1][1][it1+1] = rdw20[1][1][it1] + dwint1[it1];
 		      }
 		    mu2_mu1 = muint1[it1]*muint1[1];
 		    S_re[it1]+=mu2_mu1*cos(sdw[it1]);
@@ -1656,10 +1682,37 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 			    {
 			      pdw1[it3+1][it1]=pdw1[it3][it1]-dwint1[it3+nt2+it1-1]; //should this be it3+nt+it1-1???
 			      pdw2[it3+1][it1]=pdw2[it3][it1]-dwint1[it3+nt2+it1-1];
+			      /* peak 1 */
+			      rdw1[1][it3+1][it1]  = rdw1[1][it3][it1]  - dwint1[it3+nt2+it1-1];
+			      rdw2[1][it3+1][it1]  = rdw2[1][it3][it1]  - dwint1[it3+nt2+it1-1];
+			      rdw3[1][it3+1][it1]  = rdw3[1][it3][it1]  + dwint1[it3+nt2+it1-1];
+			      rdw4[1][it3+1][it1]  = rdw4[1][it3][it1]  + dwint1[it3+nt2+it1-1];
 			      if (n_levels>=2){
 				pdw3[it3+1][it1]=pdw3[it3][it1]-dwint2[it3+nt2+it1-1];
 				pdw4[it3+1][it1]=pdw4[it3][it1]-dwint2[it3+nt2+it1-1];
-			      }
+			      /* peak 2 */
+			      rdw5[1][it3+1][it1]  = rdw5[1][it3][it1]  - dwint1[it3+nt2+it1-1];
+			      rdw6[1][it3+1][it1]  = rdw6[1][it3][it1]  - dwint1[it3+nt2+it1-1];
+			      rdw7[1][it3+1][it1]  = rdw7[1][it3][it1]  + dwint1[it3+nt2+it1-1];
+			      rdw8[1][it3+1][it1]  = rdw8[1][it3][it1]  + dwint1[it3+nt2+it1-1];
+			      if (n_levels>=3){
+				/* peak 3 */
+				rdw9[1][it3+1][it1]  = rdw9[1][it3][it1]  - dwint2[it3+nt2+it1-1];
+				rdw10[1][it3+1][it1] = rdw10[1][it3][it1] - dwint2[it3+nt2+it1-1];
+				rdw11[1][it3+1][it1] = rdw11[1][it3][it1] + dwint2[it3+nt2+it1-1];
+				rdw12[1][it3+1][it1] = rdw12[1][it3][it1] + dwint2[it3+nt2+it1-1];
+			      } /* end n_levels>=3 */
+			      /* peak 4 */
+			      rdw13[1][it3+1][it1] = rdw13[1][it3][it1] - dwint2[it3+nt2+it1-1];
+			      rdw14[1][it3+1][it1] = rdw14[1][it3][it1] - dwint2[it3+nt2+it1-1];
+			      rdw15[1][it3+1][it1] = rdw15[1][it3][it1] + dwint2[it3+nt2+it1-1];
+			      rdw16[1][it3+1][it1] = rdw16[1][it3][it1] + dwint2[it3+nt2+it1-1];
+			      /* peak 5 */
+			      rdw17[1][it3+1][it1] = rdw17[1][it3][it1] - dwint2[it3+nt2+it1-1];
+			      rdw18[1][it3+1][it1] = rdw18[1][it3][it1] - dwint2[it3+nt2+it1-1];
+			      rdw19[1][it3+1][it1] = rdw19[1][it3][it1] + dwint2[it3+nt2+it1-1];
+			      rdw20[1][it3+1][it1] = rdw20[1][it3][it1] + dwint2[it3+nt2+it1-1];
+			      } /* end n_levels>=2 */
 			    }
 			  
 			  mu4_mu3_mu2_mu1 = muint1[it1+nt2+it3-1]*muint1[it1+nt2]*mu2_mu1;
@@ -1675,6 +1728,97 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 			    P4_re[it3][it1]+=mu4_mu3_mu2_mu1*cos(pdw4[it3][it1]);
 			    P4_im[it3][it1]+=mu4_mu3_mu2_mu1*sin(pdw4[it3][it1]);
 			  }
+			  if (order>=5)
+			  for(it5=1;it5<=nt;it5++)
+			    {
+			      if (it5<nt)
+				{
+				  /* peak 1 */
+				  rdw1[it5+1][it3][it1]  = rdw1[it5][it3][it1] - dwint1[it5+nt4+it3+nt2+it1-2];
+				  rdw2[it5+1][it3][it1]  = rdw2[it5][it3][it1] - dwint1[it5+nt4+it3+nt2+it1-2];
+				  rdw3[it5+1][it3][it1]  = rdw3[it5][it3][it1] - dwint1[it5+nt4+it3+nt2+it1-2];
+				  rdw4[it5+1][it3][it1]  = rdw4[it5][it3][it1] - dwint1[it5+nt4+it3+nt2+it1-2];
+				  if (n_levels>=2){
+				    /* peak 2 */
+				    rdw5[it5+1][it3][it1]  = rdw5[it5][it3][it1]  - dwint2[it5+nt4+it3+nt2+it1-2];
+				    rdw6[it5+1][it3][it1]  = rdw6[it5][it3][it1]  - dwint2[it5+nt4+it3+nt2+it1-2];
+				    rdw7[it5+1][it3][it1]  = rdw7[it5][it3][it1]  - dwint2[it5+nt4+it3+nt2+it1-2];
+				    rdw8[it5+1][it3][it1]  = rdw8[it5][it3][it1]  - dwint2[it5+nt4+it3+nt2+it1-2];
+				    if (n_levels>=3){
+				      /* peak 3 */
+				      rdw9[it5+1][it3][it1]  = rdw9[it5][it3][it1]  - dwint3[it5+nt4+it3+nt2+it1-2];
+				      rdw10[it5+1][it3][it1] = rdw10[it5][it3][it1] - dwint3[it5+nt4+it3+nt2+it1-2];
+				      rdw11[it5+1][it3][it1] = rdw11[it5][it3][it1] - dwint3[it5+nt4+it3+nt2+it1-2];
+				      rdw12[it5+1][it3][it1] = rdw12[it5][it3][it1] - dwint3[it5+nt4+it3+nt2+it1-2];
+				    } /* end n_levels<=3 */
+
+				    /* peak 4 */
+				    rdw13[it5+1][it3][it1] = rdw13[it5][it3][it1] - dwint2[it5+nt4+it3+nt2+it1-2];
+				    rdw14[it5+1][it3][it1] = rdw14[it5][it3][it1] - dwint2[it5+nt4+it3+nt2+it1-2];
+				    rdw15[it5+1][it3][it1] = rdw15[it5][it3][it1] - dwint2[it5+nt4+it3+nt2+it1-2];
+				    rdw16[it5+1][it3][it1] = rdw16[it5][it3][it1] - dwint2[it5+nt4+it3+nt2+it1-2];
+				    /* peak 5 */
+				    rdw17[it5+1][it3][it1] = rdw17[it5][it3][it1] - dwint1[it5+nt4+it3+nt2+it1-2];
+				    rdw18[it5+1][it3][it1] = rdw18[it5][it3][it1] - dwint1[it5+nt4+it3+nt2+it1-2];
+				    rdw19[it5+1][it3][it1] = rdw19[it5][it3][it1] - dwint1[it5+nt4+it3+nt2+it1-2];
+				    rdw20[it5+1][it3][it1] = rdw20[it5][it3][it1] - dwint1[it5+nt4+it3+nt2+it1-2];
+				  } /* end n_levels<=2 */
+				} /* end it5<nt */
+
+			      mu6_mu5_mu4_mu3_mu2_mu1 = muint1[it1+nt2+it3+nt4+it5-2]*muint1[it1+nt2+it3+nt4-1]*muint1[it1+nt2+it3-1]*muint1[it1+nt2]*mu2_mu1;
+			      /* peak 1 */
+			      R1_re[it5][it3][it1]  += mu6_mu5_mu4_mu3_mu2_mu1 * cos(rdw1[it5][it3][it1]);
+			      R1_im[it5][it3][it1]  += mu6_mu5_mu4_mu3_mu2_mu1 * sin(rdw1[it5][it3][it1]);
+			      R2_re[it5][it3][it1]  += mu6_mu5_mu4_mu3_mu2_mu1 * cos(rdw2[it5][it3][it1]);
+			      R2_im[it5][it3][it1]  += mu6_mu5_mu4_mu3_mu2_mu1 * sin(rdw2[it5][it3][it1]);
+			      R3_re[it5][it3][it1]  += mu6_mu5_mu4_mu3_mu2_mu1 * cos(rdw3[it5][it3][it1]);
+			      R3_im[it5][it3][it1]  += mu6_mu5_mu4_mu3_mu2_mu1 * sin(rdw3[it5][it3][it1]);
+			      R4_re[it5][it3][it1]  += mu6_mu5_mu4_mu3_mu2_mu1 * cos(rdw4[it5][it3][it1]);
+			      R4_im[it5][it3][it1]  += mu6_mu5_mu4_mu3_mu2_mu1 * sin(rdw4[it5][it3][it1]);
+			      if (n_levels>=2){
+				/* peak 2 */
+				mu6_mu5_mu4_mu3_mu2_mu1 = muint2[it1+nt2+it3+nt4+it5-2]*muint2[it1+nt2+it3+nt4-1]*muint1[it1+nt2+it3-1]*muint1[it1+nt2]*mu2_mu1;
+				R5_re[it5][it3][it1]  += mu6_mu5_mu4_mu3_mu2_mu1 * cos(rdw5[it5][it3][it1]);
+				R5_im[it5][it3][it1]  += mu6_mu5_mu4_mu3_mu2_mu1 * sin(rdw5[it5][it3][it1]);
+				R6_re[it5][it3][it1]  += mu6_mu5_mu4_mu3_mu2_mu1 * cos(rdw6[it5][it3][it1]);
+				R6_im[it5][it3][it1]  += mu6_mu5_mu4_mu3_mu2_mu1 * sin(rdw6[it5][it3][it1]);
+				R7_re[it5][it3][it1]  += mu6_mu5_mu4_mu3_mu2_mu1 * cos(rdw7[it5][it3][it1]);
+				R7_im[it5][it3][it1]  += mu6_mu5_mu4_mu3_mu2_mu1 * sin(rdw7[it5][it3][it1]);
+				R8_re[it5][it3][it1]  += mu6_mu5_mu4_mu3_mu2_mu1 * cos(rdw8[it5][it3][it1]);
+				R8_im[it5][it3][it1]  += mu6_mu5_mu4_mu3_mu2_mu1 * sin(rdw8[it5][it3][it1]);
+				if (n_levels>=3){
+				  mu6_mu5_mu4_mu3_mu2_mu1 = muint3[it1+nt2+it3+nt4+it5-2]*muint3[it1+nt2+it3+nt4-1]*muint2[it1+nt2+it3-1]*muint2[it1+nt2]*mu2_mu1;
+				  R9_re[it5][it3][it1]  += mu6_mu5_mu4_mu3_mu2_mu1 * cos(rdw9[it5][it3][it1]);
+				  R9_im[it5][it3][it1]  += mu6_mu5_mu4_mu3_mu2_mu1 * sin(rdw9[it5][it3][it1]);
+				  R10_re[it5][it3][it1] += mu6_mu5_mu4_mu3_mu2_mu1 * cos(rdw10[it5][it3][it1]);
+				  R10_im[it5][it3][it1] += mu6_mu5_mu4_mu3_mu2_mu1 * sin(rdw10[it5][it3][it1]);
+				  R11_re[it5][it3][it1] += mu6_mu5_mu4_mu3_mu2_mu1 * cos(rdw11[it5][it3][it1]);
+				  R11_im[it5][it3][it1] += mu6_mu5_mu4_mu3_mu2_mu1 * sin(rdw11[it5][it3][it1]);
+				  R12_re[it5][it3][it1] += mu6_mu5_mu4_mu3_mu2_mu1 * cos(rdw12[it5][it3][it1]);
+				  R12_im[it5][it3][it1] += mu6_mu5_mu4_mu3_mu2_mu1 * sin(rdw12[it5][it3][it1]);
+				} /* end n_levels >= 3 */
+				/* peak 4 */
+				mu6_mu5_mu4_mu3_mu2_mu1 = muint2[it1+nt2+it3+nt4+it5-2]*muint2[it1+nt2+it3+nt4-1]*muint2[it1+nt2+it3-1]*muint2[it1+nt2]*mu2_mu1;
+				R13_re[it5][it3][it1] += mu6_mu5_mu4_mu3_mu2_mu1 * cos(rdw13[it5][it3][it1]);
+				R13_im[it5][it3][it1] += mu6_mu5_mu4_mu3_mu2_mu1 * sin(rdw13[it5][it3][it1]);
+				R14_re[it5][it3][it1] += mu6_mu5_mu4_mu3_mu2_mu1 * cos(rdw14[it5][it3][it1]);
+				R14_im[it5][it3][it1] += mu6_mu5_mu4_mu3_mu2_mu1 * sin(rdw14[it5][it3][it1]);
+				R15_re[it5][it3][it1] += mu6_mu5_mu4_mu3_mu2_mu1 * cos(rdw15[it5][it3][it1]);
+				R15_im[it5][it3][it1] += mu6_mu5_mu4_mu3_mu2_mu1 * sin(rdw15[it5][it3][it1]);
+				R16_re[it5][it3][it1] += mu6_mu5_mu4_mu3_mu2_mu1 * cos(rdw16[it5][it3][it1]);
+				R16_im[it5][it3][it1] += mu6_mu5_mu4_mu3_mu2_mu1 * sin(rdw16[it5][it3][it1]);
+				/* peak 5 */
+				mu6_mu5_mu4_mu3_mu2_mu1 = muint1[it1+nt2+it3+nt4+it5-2]*muint1[it1+nt2+it3+nt4-1]*muint2[it1+nt2+it3-1]*muint2[it1+nt2]*mu2_mu1;
+				R17_re[it5][it3][it1] += mu6_mu5_mu4_mu3_mu2_mu1 * cos(rdw17[it5][it3][it1]);
+				R17_im[it5][it3][it1] += mu6_mu5_mu4_mu3_mu2_mu1 * sin(rdw17[it5][it3][it1]);
+				R18_re[it5][it3][it1] += mu6_mu5_mu4_mu3_mu2_mu1 * cos(rdw18[it5][it3][it1]);
+				R18_im[it5][it3][it1] += mu6_mu5_mu4_mu3_mu2_mu1 * sin(rdw18[it5][it3][it1]);
+				R19_re[it5][it3][it1] += mu6_mu5_mu4_mu3_mu2_mu1 * cos(rdw19[it5][it3][it1]);
+				R19_im[it5][it3][it1] += mu6_mu5_mu4_mu3_mu2_mu1 * sin(rdw19[it5][it3][it1]);
+				R20_re[it5][it3][it1] += mu6_mu5_mu4_mu3_mu2_mu1 * cos(rdw20[it5][it3][it1]);
+				R20_im[it5][it3][it1] += mu6_mu5_mu4_mu3_mu2_mu1 * sin(rdw20[it5][it3][it1]);
+			      } /* end n_levels >= 2 */
+			    } /* end order >= 5 and it5 */
 			}//end order >=3 and it3
 		}//end for it1
 	    }//end if noncondon
