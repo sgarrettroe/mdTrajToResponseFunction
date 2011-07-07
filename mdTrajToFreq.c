@@ -375,7 +375,7 @@ void mdTrajToFreq(const char* parameter_file_name, const char* coord_file_name, 
 	nrerror("failed to write string");
 
       //build the pipe
-      if (asprintf(&pname,"gzip > %s",fname,(int)i_level) < 0)
+      if (asprintf(&pname,"gzip > %s",fname) < 0)
 	nrerror("failed to write string");
    
       if (DEBUG_LEVEL>=1) printf("Opening: %s\n",pname);
@@ -417,7 +417,7 @@ void mdTrajToFreq(const char* parameter_file_name, const char* coord_file_name, 
       }        
 
       //build pipe name
-      if (asprintf(&pname,"gzip > %s",fname,(int)i_level) < 0)
+      if (asprintf(&pname,"gzip > %s",fname) < 0)
 	nrerror("failed to write string");
 
       if (DEBUG_LEVEL>=1) printf("Opening: %s\n",pname);
