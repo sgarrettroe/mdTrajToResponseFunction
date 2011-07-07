@@ -417,6 +417,12 @@ void read_w_files(int nprotons, int proton_offset, int nsteps, int step_offset,f
       for(j=1;j<=nsteps;j++)
         dw_matrix[i][j] = dw_matrix[i][j] - mean;
     printf("The mean frequency of the trajectory, counting all protons is %f cm-1\n",mean);
+
+    /* output the mean freq shift to the param file */
+    if (asprintf(&string,"mean_w_%i",i_level) < 0) nrerror("failed to write string");
+    gaWriteFloat(parameter_file_name,string,mean);
+    free(string);
+
     
     //calculate the standard deviation for diagonstic purposes
     sum = 0;
