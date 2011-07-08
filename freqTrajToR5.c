@@ -417,12 +417,6 @@ void read_w_files(int nprotons, int proton_offset, int nsteps, int step_offset,f
       for(j=1;j<=nsteps;j++)
         dw_matrix[i][j] = dw_matrix[i][j] - mean;
     printf("The mean frequency of the trajectory, counting all protons is %f cm-1\n",mean);
-
-    /* output the mean freq shift to the param file */
-    if (asprintf(&string,"mean_w_%i",i_level) < 0) nrerror("failed to write string");
-    gaWriteFloat(parameter_file_name,string,mean);
-    free(string);
-
     
     //calculate the standard deviation for diagonstic purposes
     sum = 0;
@@ -1014,7 +1008,7 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
   double sum,sum2;
 
   /* DEBUG NONCONDON CALCS!!! */
-  float mu_01_2,mu_12_2,mu_23_2;
+  float mu_01_2=1,mu_12_2=1,mu_23_2=1;
   if (flag_noncondon==1){
     if (n_levels>=1) mu_01_2 = mean_mu[0]*mean_mu[0];
     if (n_levels>=2) mu_12_2 = mean_mu[1]*mean_mu[1];
@@ -2138,7 +2132,7 @@ int main(int argc, char *argv[]) {
   time_t my_time=time(0); // time process started
   time_t end_time; // time process ended
   
-  char *base_name,*parameter_file_name,*time_file_name;
+  char *base_name,*parameter_file_name,*time_file_name,*string;
   float **t2_t4_pairs;
   int n_t2_t4_pairs;
   float ***w_matrices;
@@ -2289,8 +2283,14 @@ int main(int argc, char *argv[]) {
 
   /* read frequency file */
   read_w_files(nprotons,proton_offset,nsteps,step_offset,w_matrices,mean_w);
-  //  if (globalArgs.flag_noncondon==1)
   read_x_files(nprotons,proton_offset,nsteps,step_offset,x_matrices,mean_x);
+
+  /* output the mean freq shift to the param file */
+  for (i=0;i<globalArgs.n_levels;i++){
+    if (asprintf(&string,"mean_w_%i",i) < 0) nrerror("failed to write string");
+    gaWriteFloat(parameter_file_name,string,mean_w[i]);
+    free(string);
+  }
 
   // main calculation
   freqTrajToR5(base_name,t2_t4_pairs,n_t2_t4_pairs,nsteps,nprotons,w_matrices,x_matrices,mean_w,mean_x);
