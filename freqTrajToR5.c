@@ -1432,7 +1432,9 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 	      } //end if (n_levels>=3) 
 		
 	    if (flag_noncondon==0){
-	      
+
+	      printf("Condon calculation\n");
+
 	      /*
 	       * Calculate nonlinear polarisation
 	       *
@@ -1640,7 +1642,9 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 	    
 	    if (flag_noncondon==1){
 	      // non condon code goes here
-	      
+
+	      printf("Non-condon calculation\n");
+
 	      sdw[1]=0;
 	      pdw1[1][1]=0;
 	      pdw2[1][1]=0;
@@ -1795,7 +1799,7 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 				} /* end it5<nt */
 
 			      mu6_mu5_mu4_mu3_mu2_mu1 = muint1[it1+nt2+it3+nt4+it5-2]*muint1[it1+nt2+it3+nt4-1]*muint1[it1+nt2+it3-1]*muint1[it1+nt2]*mu2_mu1;
-			      mu6_mu5_mu4_mu3_mu2_mu1 = mu_01_2 * mu_01_2 * mu_01_2;
+			      //mu6_mu5_mu4_mu3_mu2_mu1 = mu_01_2 * mu_01_2 * mu_01_2;
 			      /* peak 1 */
 			      R1_re[it5][it3][it1]  += mu6_mu5_mu4_mu3_mu2_mu1 * cos(rdw1[it5][it3][it1]);
 			      R1_im[it5][it3][it1]  += mu6_mu5_mu4_mu3_mu2_mu1 * sin(rdw1[it5][it3][it1]);
@@ -1808,7 +1812,7 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 			      if (n_levels>=2){
 				/* peak 2 */
 				mu6_mu5_mu4_mu3_mu2_mu1 = muint2[it1+nt2+it3+nt4+it5-2]*muint2[it1+nt2+it3+nt4-1]*muint1[it1+nt2+it3-1]*muint1[it1+nt2]*mu2_mu1;
-				mu6_mu5_mu4_mu3_mu2_mu1 = mu_12_2 * mu_01_2 * mu_01_2;
+				//mu6_mu5_mu4_mu3_mu2_mu1 = mu_12_2 * mu_01_2 * mu_01_2;
 				R5_re[it5][it3][it1]  += mu6_mu5_mu4_mu3_mu2_mu1 * cos(rdw5[it5][it3][it1]);
 				R5_im[it5][it3][it1]  += mu6_mu5_mu4_mu3_mu2_mu1 * sin(rdw5[it5][it3][it1]);
 				R6_re[it5][it3][it1]  += mu6_mu5_mu4_mu3_mu2_mu1 * cos(rdw6[it5][it3][it1]);
@@ -1819,7 +1823,7 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 				R8_im[it5][it3][it1]  += mu6_mu5_mu4_mu3_mu2_mu1 * sin(rdw8[it5][it3][it1]);
 				if (n_levels>=3){
 				  mu6_mu5_mu4_mu3_mu2_mu1 = muint3[it1+nt2+it3+nt4+it5-2]*muint3[it1+nt2+it3+nt4-1]*muint2[it1+nt2+it3-1]*muint2[it1+nt2]*mu2_mu1;
-				  mu6_mu5_mu4_mu3_mu2_mu1 = mu_23_2 * mu_12_2 * mu_01_2;
+				  //mu6_mu5_mu4_mu3_mu2_mu1 = mu_23_2 * mu_12_2 * mu_01_2;
 				  R9_re[it5][it3][it1]  += mu6_mu5_mu4_mu3_mu2_mu1 * cos(rdw9[it5][it3][it1]);
 				  R9_im[it5][it3][it1]  += mu6_mu5_mu4_mu3_mu2_mu1 * sin(rdw9[it5][it3][it1]);
 				  R10_re[it5][it3][it1] += mu6_mu5_mu4_mu3_mu2_mu1 * cos(rdw10[it5][it3][it1]);
@@ -1831,7 +1835,7 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 				} /* end n_levels >= 3 */
 				/* peak 4 */
 				mu6_mu5_mu4_mu3_mu2_mu1 = muint2[it1+nt2+it3+nt4+it5-2]*muint2[it1+nt2+it3+nt4-1]*muint2[it1+nt2+it3-1]*muint2[it1+nt2]*mu2_mu1;
-				mu6_mu5_mu4_mu3_mu2_mu1 = mu_12_2 * mu_12_2 * mu_01_2;
+				//mu6_mu5_mu4_mu3_mu2_mu1 = mu_12_2 * mu_12_2 * mu_01_2;
 				R13_re[it5][it3][it1] += mu6_mu5_mu4_mu3_mu2_mu1 * cos(rdw13[it5][it3][it1]);
 				R13_im[it5][it3][it1] += mu6_mu5_mu4_mu3_mu2_mu1 * sin(rdw13[it5][it3][it1]);
 				R14_re[it5][it3][it1] += mu6_mu5_mu4_mu3_mu2_mu1 * cos(rdw14[it5][it3][it1]);
@@ -1842,7 +1846,7 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 				R16_im[it5][it3][it1] += mu6_mu5_mu4_mu3_mu2_mu1 * sin(rdw16[it5][it3][it1]);
 				/* peak 5 */
 				mu6_mu5_mu4_mu3_mu2_mu1 = muint1[it1+nt2+it3+nt4+it5-2]*muint1[it1+nt2+it3+nt4-1]*muint2[it1+nt2+it3-1]*muint2[it1+nt2]*mu2_mu1;
-				mu6_mu5_mu4_mu3_mu2_mu1 = mu_01_2 * mu_12_2 * mu_01_2;
+				//mu6_mu5_mu4_mu3_mu2_mu1 = mu_01_2 * mu_12_2 * mu_01_2;
 				R17_re[it5][it3][it1] += mu6_mu5_mu4_mu3_mu2_mu1 * cos(rdw17[it5][it3][it1]);
 				R17_im[it5][it3][it1] += mu6_mu5_mu4_mu3_mu2_mu1 * sin(rdw17[it5][it3][it1]);
 				R18_re[it5][it3][it1] += mu6_mu5_mu4_mu3_mu2_mu1 * cos(rdw18[it5][it3][it1]);
