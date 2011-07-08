@@ -1433,7 +1433,7 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 		
 	    if (flag_noncondon==0){
 
-	      printf("Condon calculation\n");
+	      //	      printf("Condon calculation\n");
 
 	      /*
 	       * Calculate nonlinear polarisation
@@ -1643,7 +1643,7 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 	    if (flag_noncondon==1){
 	      // non condon code goes here
 
-	      printf("Non-condon calculation\n");
+	      //	      printf("Non-condon calculation\n");
 
 	      sdw[1]=0;
 	      pdw1[1][1]=0;
