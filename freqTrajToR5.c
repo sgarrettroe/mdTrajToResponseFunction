@@ -741,9 +741,10 @@ void normalizeResults(int nt,float dt,unsigned long isample,
     mw = (mean_w[0] + mean_w[1] + mean_w[2])/3;
     shift_w_1_1 = shift_w; /*this needs to be worked out*/
     shift_w_1_2 = -shift_w; /*this needs to be worked out*/
-    shift_w_2_1 = -1*(mean_w[0] - mw); /*this needs to be worked out*/
-    shift_w_2_2 = -1*(mean_w[1] - mw); /*this needs to be worked out*/
-    shift_w_2_3 = -1*(mean_w[2] - mw); /*this needs to be worked out*/
+    shift_w_2_1 = (mean_w[0] - mw); /*this needs to be worked out*/
+    shift_w_2_2 = (mean_w[1] - mw); /*this needs to be worked out*/
+    shift_w_2_3 = (mean_w[2] - mw); /*this needs to be worked out*/
+    
     /* take the average of the frequencies and shift each by the difference of the frequency from the mean */
     /* shift_w_1_1  = +Delta/2; shift_w_1_2 = -Delta/2; shift_w_2_1 = +Delta; shift_w_2_2 = 0; shift_w_2_3 = -Delta;*/
   }
