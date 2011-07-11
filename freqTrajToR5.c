@@ -744,11 +744,6 @@ void normalizeResults(int nt,float dt,unsigned long isample,
     shift_w_2_1 = -1*(mean_w[0] - mw); /*this needs to be worked out*/
     shift_w_2_2 = -1*(mean_w[1] - mw); /*this needs to be worked out*/
     shift_w_2_3 = -1*(mean_w[2] - mw); /*this needs to be worked out*/
-    shift_w_1_1 = 0; /*this needs to be worked out*/
-    shift_w_1_2 = 0; /*this needs to be worked out*/
-    shift_w_2_1 = 0; /*this needs to be worked out*/
-    shift_w_2_2 = 0; /*this needs to be worked out*/
-    shift_w_2_3 = 0; /*this needs to be worked out*/
     /* take the average of the frequencies and shift each by the difference of the frequency from the mean */
     /* shift_w_1_1  = +Delta/2; shift_w_1_2 = -Delta/2; shift_w_2_1 = +Delta; shift_w_2_2 = 0; shift_w_2_3 = -Delta;*/
   }
@@ -805,6 +800,8 @@ void normalizeResults(int nt,float dt,unsigned long isample,
 	      b = 4 * mu_01_2 * mu_01_2 * mu_01_2 * R2_im[it5][it3][it1] / isample;
 	      R2f_re[it5][it3][it1]  =  a * cos(phi1) - b * sin(phi1);
 	      R2f_im[it5][it3][it1]  =  a * sin(phi1) - b * cos(phi1);
+
+	      phi1 = shift_w_1_1*dt*(it3-1) - shift_w_2_1*dt*(it5-1);
 	      a = 4 * mu_01_2 * mu_01_2 * mu_01_2 * R3_re[it5][it3][it1] / isample;
 	      b = 4 * mu_01_2 * mu_01_2 * mu_01_2 * R3_im[it5][it3][it1] / isample;
 	      R3f_re[it5][it3][it1]  = a * cos(phi1) - b * sin(phi1);
@@ -824,6 +821,8 @@ void normalizeResults(int nt,float dt,unsigned long isample,
 		b = -2 * mu_12_2 * mu_01_2 * mu_01_2 * R6_im[it5][it3][it1] / isample;
 		R6f_re[it5][it3][it1]  =  a * cos(phi2) - b * sin(phi2);
 		R6f_im[it5][it3][it1]  =  a * sin(phi2) - b * cos(phi2);
+
+		phi2 = shift_w_1_1*dt*(it3-1) - shift_w_2_2*dt*(it5-1);
 		a = -2 * mu_12_2 * mu_01_2 * mu_01_2 * R7_re[it5][it3][it1] / isample;
 		b = -2 * mu_12_2 * mu_01_2 * mu_01_2 * R7_im[it5][it3][it1] / isample;
 		R7f_re[it5][it3][it1]  = a * cos(phi2) - b * sin(phi2);
@@ -843,6 +842,8 @@ void normalizeResults(int nt,float dt,unsigned long isample,
 		  b = 1 * mu_23_2 * mu_12_2 * mu_01_2 * R10_im[it5][it3][it1] / isample;
 		  R10f_re[it5][it3][it1]  =  a * cos(phi3) - b * sin(phi3);
 		  R10f_im[it5][it3][it1]  =  a * sin(phi3) - b * cos(phi3);
+
+		  phi3 = shift_w_1_2*dt*(it3-1) - shift_w_2_3*dt*(it5-1);
 		  a = 1 * mu_23_2 * mu_12_2 * mu_01_2 * R11_re[it5][it3][it1] / isample;
 		  b = 1 * mu_23_2 * mu_12_2 * mu_01_2 * R11_im[it5][it3][it1] / isample;
 		  R11f_re[it5][it3][it1]  = a * cos(phi3) - b * sin(phi3);
@@ -862,6 +863,8 @@ void normalizeResults(int nt,float dt,unsigned long isample,
 	      b = -2 * mu_12_2 * mu_12_2 * mu_01_2 * R14_im[it5][it3][it1] / isample;
 	      R14f_re[it5][it3][it1]  =  a * cos(phi4) - b * sin(phi4);
 	      R14f_im[it5][it3][it1]  =  a * sin(phi4) - b * cos(phi4);
+
+	      phi4 = shift_w_1_2*dt*(it3-1) - shift_w_2_2*dt*(it5-1);
 	      a = -2 * mu_12_2 * mu_12_2 * mu_01_2 * R15_re[it5][it3][it1] / isample;
 	      b = -2 * mu_12_2 * mu_12_2 * mu_01_2 * R15_im[it5][it3][it1] / isample;
 	      R15f_re[it5][it3][it1]  = a * cos(phi4) - b * sin(phi4);
@@ -872,20 +875,22 @@ void normalizeResults(int nt,float dt,unsigned long isample,
 	      R16f_im[it5][it3][it1]  =  a * sin(phi4) - b * cos(phi4);
 
 	      phi5 = -shift_w_1_2*dt*(it3-1) - shift_w_2_1*dt*(it5-1);
-	      a = 1 * mu_12_2 * mu_12_2 * mu_01_2 * R17_re[it5][it3][it1] / isample;
-	      b = 1 * mu_12_2 * mu_12_2 * mu_01_2 * R17_im[it5][it3][it1] / isample;
+	      a = 1 * mu_01_2 * mu_12_2 * mu_01_2 * R17_re[it5][it3][it1] / isample;
+	      b = 1 * mu_01_2 * mu_12_2 * mu_01_2 * R17_im[it5][it3][it1] / isample;
 	      R17f_re[it5][it3][it1]  = a * cos(phi5) - b * sin(phi5);
 	      R17f_im[it5][it3][it1]  = a * sin(phi5) - b * cos(phi5);
-	      a = 1 * mu_12_2 * mu_12_2 * mu_01_2 * R18_re[it5][it3][it1] / isample;
+	      a = 1 * mu_01_2 * mu_12_2 * mu_01_2 * R18_re[it5][it3][it1] / isample;
 	      b = 1 * mu_12_2 * mu_12_2 * mu_01_2 * R18_im[it5][it3][it1] / isample;
 	      R18f_re[it5][it3][it1]  =  a * cos(phi5) - b * sin(phi5);
 	      R18f_im[it5][it3][it1]  =  a * sin(phi5) - b * cos(phi5);
-	      a = 1 * mu_12_2 * mu_12_2 * mu_01_2 * R19_re[it5][it3][it1] / isample;
-	      b = 1 * mu_12_2 * mu_12_2 * mu_01_2 * R19_im[it5][it3][it1] / isample;
+
+	      phi5 = shift_w_1_2*dt*(it3-1) - shift_w_2_1*dt*(it5-1);
+	      a = 1 * mu_01_2 * mu_12_2 * mu_01_2 * R19_re[it5][it3][it1] / isample;
+	      b = 1 * mu_01_2 * mu_12_2 * mu_01_2 * R19_im[it5][it3][it1] / isample;
 	      R19f_re[it5][it3][it1]  = a * cos(phi5) - b * sin(phi5);
 	      R19f_im[it5][it3][it1]  = a * sin(phi5) - b * cos(phi5);
-	      a = 1 * mu_12_2 * mu_12_2 * mu_01_2 * R20_re[it5][it3][it1] / isample;
-	      b = 1 * mu_12_2 * mu_12_2 * mu_01_2 * R20_im[it5][it3][it1] / isample;
+	      a = 1 * mu_01_2 * mu_12_2 * mu_01_2 * R20_re[it5][it3][it1] / isample;
+	      b = 1 * mu_01_2 * mu_12_2 * mu_01_2 * R20_im[it5][it3][it1] / isample;
 	      R20f_re[it5][it3][it1]  =  a * cos(phi5) - b * sin(phi5);
 	      R20f_im[it5][it3][it1]  =  a * sin(phi5) - b * cos(phi5);
 	      }
