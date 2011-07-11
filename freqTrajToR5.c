@@ -529,7 +529,6 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
 	}
     fclose(out2D);
     free(name);
-  } /* end if n_levels>=2 */
 
   if (asprintf(&name,"%s_t_spec3D_peak1%s",base_name,extension) < 0) nrerror("failed to write string");
   out3D=fopen(name,"wt");
@@ -570,25 +569,29 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
       }
   fclose(out3D);
   free(name);
-  if (asprintf(&name,"%s_t_spec3D_peak3%s",base_name,extension) < 0) nrerror("failed to write string");
-  out3D=fopen(name,"wt");
-  for(it1=1;it1<=nt;it1++)
-    for(it3=1;it3<=nt;it3++)
-      for(it5=1;it5<=nt;it5++)
-      {
-        fprintf(out3D,"%10.5g %10.5g %10.5g %10.5g %10.5g %10.5g %10.5g %10.5g",
-                R9f_re[it5][it3][it1],
-                R9f_im[it5][it3][it1],
-                R10f_re[it5][it3][it1],
-                R10f_im[it5][it3][it1],
-                R11f_re[it5][it3][it1],
-                R11f_im[it5][it3][it1],
-                R12f_re[it5][it3][it1],
-                R12f_im[it5][it3][it1]);
-        fprintf(out3D,"\n");
-      }
-  fclose(out3D);
-  free(name);
+
+  if (n_levels>=3){
+    if (asprintf(&name,"%s_t_spec3D_peak3%s",base_name,extension) < 0) nrerror("failed to write string");
+    out3D=fopen(name,"wt");
+    for(it1=1;it1<=nt;it1++)
+      for(it3=1;it3<=nt;it3++)
+	for(it5=1;it5<=nt;it5++)
+	  {
+	    fprintf(out3D,"%10.5g %10.5g %10.5g %10.5g %10.5g %10.5g %10.5g %10.5g",
+		    R9f_re[it5][it3][it1],
+		    R9f_im[it5][it3][it1],
+		    R10f_re[it5][it3][it1],
+		    R10f_im[it5][it3][it1],
+		    R11f_re[it5][it3][it1],
+		    R11f_im[it5][it3][it1],
+		    R12f_re[it5][it3][it1],
+		    R12f_im[it5][it3][it1]);
+	    fprintf(out3D,"\n");
+	  }
+    fclose(out3D);
+    free(name);
+  } /* end n_levels>=3 */
+
   if (asprintf(&name,"%s_t_spec3D_peak4%s",base_name,extension) < 0) nrerror("failed to write string");
   out3D=fopen(name,"wt");
   for(it1=1;it1<=nt;it1++)
@@ -627,6 +630,7 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
       }
   fclose(out3D);
   free(name);
+  } /* end if n_levels>=2 */
 
   if (asprintf(&name,"%s_t_spec3D%s",base_name,extension) < 0) nrerror("failed to write string");
   out3D=fopen(name,"wt");
@@ -740,6 +744,11 @@ void normalizeResults(int nt,float dt,unsigned long isample,
     shift_w_2_1 = -1*(mean_w[0] - mw); /*this needs to be worked out*/
     shift_w_2_2 = -1*(mean_w[1] - mw); /*this needs to be worked out*/
     shift_w_2_3 = -1*(mean_w[2] - mw); /*this needs to be worked out*/
+    shift_w_1_1 = 0; /*this needs to be worked out*/
+    shift_w_1_2 = 0; /*this needs to be worked out*/
+    shift_w_2_1 = 0; /*this needs to be worked out*/
+    shift_w_2_2 = 0; /*this needs to be worked out*/
+    shift_w_2_3 = 0; /*this needs to be worked out*/
     /* take the average of the frequencies and shift each by the difference of the frequency from the mean */
     /* shift_w_1_1  = +Delta/2; shift_w_1_2 = -Delta/2; shift_w_2_1 = +Delta; shift_w_2_2 = 0; shift_w_2_3 = -Delta;*/
   }
