@@ -858,7 +858,7 @@ void normalizeResults(int nt,float dt,unsigned long isample,
 	      a = -2 * mu_12_2 * mu_12_2 * mu_01_2 * R13_re[it5][it3][it1] / isample;
 	      b = -2 * mu_12_2 * mu_12_2 * mu_01_2 * R13_im[it5][it3][it1] / isample;
 	      R13f_re[it5][it3][it1]  = a * cos(phi4) - b * sin(phi4);
-	      R13f_im[it5][it3][it1]  = a * sin(phi4) - b * cos(phi4);
+	      R13f_im[it5][it3][it1]  = a * sin(phi4) + b * cos(phi4);
 	      a = -2 * mu_12_2 * mu_12_2 * mu_01_2 * R14_re[it5][it3][it1] / isample;
 	      b = -2 * mu_12_2 * mu_12_2 * mu_01_2 * R14_im[it5][it3][it1] / isample;
 	      R14f_re[it5][it3][it1]  =  a * cos(phi4) - b * sin(phi4);
@@ -868,7 +868,7 @@ void normalizeResults(int nt,float dt,unsigned long isample,
 	      a = -2 * mu_12_2 * mu_12_2 * mu_01_2 * R15_re[it5][it3][it1] / isample;
 	      b = -2 * mu_12_2 * mu_12_2 * mu_01_2 * R15_im[it5][it3][it1] / isample;
 	      R15f_re[it5][it3][it1]  = a * cos(phi4) - b * sin(phi4);
-	      R15f_im[it5][it3][it1]  = a * sin(phi4) - b * cos(phi4);
+	      R15f_im[it5][it3][it1]  = a * sin(phi4) + b * cos(phi4);
 	      a = -2 * mu_12_2 * mu_12_2 * mu_01_2 * R16_re[it5][it3][it1] / isample;
 	      b = -2 * mu_12_2 * mu_12_2 * mu_01_2 * R16_im[it5][it3][it1] / isample;
 	      R16f_re[it5][it3][it1]  =  a * cos(phi4) - b * sin(phi4);
