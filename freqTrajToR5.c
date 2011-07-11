@@ -795,63 +795,63 @@ void normalizeResults(int nt,float dt,unsigned long isample,
 	      a = 4 * mu_01_2 * mu_01_2 * mu_01_2 * R1_re[it5][it3][it1] / isample;
 	      b = 4 * mu_01_2 * mu_01_2 * mu_01_2 * R1_im[it5][it3][it1] / isample;
 	      R1f_re[it5][it3][it1]  = a * cos(phi1) - b * sin(phi1);
-	      R1f_im[it5][it3][it1]  = a * sin(phi1) - b * cos(phi1);
+	      R1f_im[it5][it3][it1]  = a * sin(phi1) + b * cos(phi1);
 	      a = 4 * mu_01_2 * mu_01_2 * mu_01_2 * R2_re[it5][it3][it1] / isample;
 	      b = 4 * mu_01_2 * mu_01_2 * mu_01_2 * R2_im[it5][it3][it1] / isample;
 	      R2f_re[it5][it3][it1]  =  a * cos(phi1) - b * sin(phi1);
-	      R2f_im[it5][it3][it1]  =  a * sin(phi1) - b * cos(phi1);
+	      R2f_im[it5][it3][it1]  =  a * sin(phi1) + b * cos(phi1);
 
 	      phi1 = shift_w_1_1*dt*(it3-1) - shift_w_2_1*dt*(it5-1);
 	      a = 4 * mu_01_2 * mu_01_2 * mu_01_2 * R3_re[it5][it3][it1] / isample;
 	      b = 4 * mu_01_2 * mu_01_2 * mu_01_2 * R3_im[it5][it3][it1] / isample;
 	      R3f_re[it5][it3][it1]  = a * cos(phi1) - b * sin(phi1);
-	      R3f_im[it5][it3][it1]  = a * sin(phi1) - b * cos(phi1);
+	      R3f_im[it5][it3][it1]  = a * sin(phi1) + b * cos(phi1);
 	      a = 4 * mu_01_2 * mu_01_2 * mu_01_2 * R4_re[it5][it3][it1] / isample;
 	      b = 4 * mu_01_2 * mu_01_2 * mu_01_2 * R4_im[it5][it3][it1] / isample;
 	      R4f_re[it5][it3][it1]  =  a * cos(phi1) - b * sin(phi1);
-	      R4f_im[it5][it3][it1]  =  a * sin(phi1) - b * cos(phi1);
+	      R4f_im[it5][it3][it1]  =  a * sin(phi1) + b * cos(phi1);
 
 	      if (n_levels>=2){
 		phi2 = -shift_w_1_1*dt*(it3-1) - shift_w_2_2*dt*(it5-1);
 		a = -2 * mu_12_2 * mu_01_2 * mu_01_2 * R5_re[it5][it3][it1] / isample;
 		b = -2 * mu_12_2 * mu_01_2 * mu_01_2 * R5_im[it5][it3][it1] / isample;
 		R5f_re[it5][it3][it1]  = a * cos(phi2) - b * sin(phi2);
-		R5f_im[it5][it3][it1]  = a * sin(phi2) - b * cos(phi2);
+		R5f_im[it5][it3][it1]  = a * sin(phi2) + b * cos(phi2);
 		a = -2 * mu_12_2 * mu_01_2 * mu_01_2 * R6_re[it5][it3][it1] / isample;
 		b = -2 * mu_12_2 * mu_01_2 * mu_01_2 * R6_im[it5][it3][it1] / isample;
 		R6f_re[it5][it3][it1]  =  a * cos(phi2) - b * sin(phi2);
-		R6f_im[it5][it3][it1]  =  a * sin(phi2) - b * cos(phi2);
+		R6f_im[it5][it3][it1]  =  a * sin(phi2) + b * cos(phi2);
 
 		phi2 = shift_w_1_1*dt*(it3-1) - shift_w_2_2*dt*(it5-1);
 		a = -2 * mu_12_2 * mu_01_2 * mu_01_2 * R7_re[it5][it3][it1] / isample;
 		b = -2 * mu_12_2 * mu_01_2 * mu_01_2 * R7_im[it5][it3][it1] / isample;
 		R7f_re[it5][it3][it1]  = a * cos(phi2) - b * sin(phi2);
-		R7f_im[it5][it3][it1]  = a * sin(phi2) - b * cos(phi2);
+		R7f_im[it5][it3][it1]  = a * sin(phi2) + b * cos(phi2);
 		a = -2 * mu_12_2 * mu_01_2 * mu_01_2 * R8_re[it5][it3][it1] / isample;
 		b = -2 * mu_12_2 * mu_01_2 * mu_01_2 * R8_im[it5][it3][it1] / isample;
 		R8f_re[it5][it3][it1]  =  a * cos(phi2) - b * sin(phi2);
-		R8f_im[it5][it3][it1]  =  a * sin(phi2) - b * cos(phi2);
+		R8f_im[it5][it3][it1]  =  a * sin(phi2) + b * cos(phi2);
 
 		if (n_levels>=3){
 		  phi3 = -shift_w_1_2*dt*(it3-1) - shift_w_2_3*dt*(it5-1);
 		  a = 1 * mu_23_2 * mu_12_2 * mu_01_2 * R9_re[it5][it3][it1] / isample;
 		  b = 1 * mu_23_2 * mu_12_2 * mu_01_2 * R9_im[it5][it3][it1] / isample;
 		  R9f_re[it5][it3][it1]  = a * cos(phi3) - b * sin(phi3);
-		  R9f_im[it5][it3][it1]  = a * sin(phi3) - b * cos(phi3);
+		  R9f_im[it5][it3][it1]  = a * sin(phi3) + b * cos(phi3);
 		  a = 1 * mu_23_2 * mu_12_2 * mu_01_2 * R10_re[it5][it3][it1] / isample;
 		  b = 1 * mu_23_2 * mu_12_2 * mu_01_2 * R10_im[it5][it3][it1] / isample;
 		  R10f_re[it5][it3][it1]  =  a * cos(phi3) - b * sin(phi3);
-		  R10f_im[it5][it3][it1]  =  a * sin(phi3) - b * cos(phi3);
+		  R10f_im[it5][it3][it1]  =  a * sin(phi3) + b * cos(phi3);
 
 		  phi3 = shift_w_1_2*dt*(it3-1) - shift_w_2_3*dt*(it5-1);
 		  a = 1 * mu_23_2 * mu_12_2 * mu_01_2 * R11_re[it5][it3][it1] / isample;
 		  b = 1 * mu_23_2 * mu_12_2 * mu_01_2 * R11_im[it5][it3][it1] / isample;
 		  R11f_re[it5][it3][it1]  = a * cos(phi3) - b * sin(phi3);
-		  R11f_im[it5][it3][it1]  = a * sin(phi3) - b * cos(phi3);
+		  R11f_im[it5][it3][it1]  = a * sin(phi3) + b * cos(phi3);
 		  a = 1 * mu_23_2 * mu_12_2 * mu_01_2 * R12_re[it5][it3][it1] / isample;
 		  b = 1 * mu_23_2 * mu_12_2 * mu_01_2 * R12_im[it5][it3][it1] / isample;
 		  R12f_re[it5][it3][it1]  =  a * cos(phi3) - b * sin(phi3);
-		  R12f_im[it5][it3][it1]  =  a * sin(phi3) - b * cos(phi3);
+		  R12f_im[it5][it3][it1]  =  a * sin(phi3) + b * cos(phi3);
 		}
 
 	      phi4 = -shift_w_1_2*dt*(it3-1) - shift_w_2_2*dt*(it5-1);
@@ -862,7 +862,7 @@ void normalizeResults(int nt,float dt,unsigned long isample,
 	      a = -2 * mu_12_2 * mu_12_2 * mu_01_2 * R14_re[it5][it3][it1] / isample;
 	      b = -2 * mu_12_2 * mu_12_2 * mu_01_2 * R14_im[it5][it3][it1] / isample;
 	      R14f_re[it5][it3][it1]  =  a * cos(phi4) - b * sin(phi4);
-	      R14f_im[it5][it3][it1]  =  a * sin(phi4) - b * cos(phi4);
+	      R14f_im[it5][it3][it1]  =  a * sin(phi4) + b * cos(phi4);
 
 	      phi4 = shift_w_1_2*dt*(it3-1) - shift_w_2_2*dt*(it5-1);
 	      a = -2 * mu_12_2 * mu_12_2 * mu_01_2 * R15_re[it5][it3][it1] / isample;
@@ -872,27 +872,27 @@ void normalizeResults(int nt,float dt,unsigned long isample,
 	      a = -2 * mu_12_2 * mu_12_2 * mu_01_2 * R16_re[it5][it3][it1] / isample;
 	      b = -2 * mu_12_2 * mu_12_2 * mu_01_2 * R16_im[it5][it3][it1] / isample;
 	      R16f_re[it5][it3][it1]  =  a * cos(phi4) - b * sin(phi4);
-	      R16f_im[it5][it3][it1]  =  a * sin(phi4) - b * cos(phi4);
+	      R16f_im[it5][it3][it1]  =  a * sin(phi4) + b * cos(phi4);
 
 	      phi5 = -shift_w_1_2*dt*(it3-1) - shift_w_2_1*dt*(it5-1);
 	      a = 1 * mu_01_2 * mu_12_2 * mu_01_2 * R17_re[it5][it3][it1] / isample;
 	      b = 1 * mu_01_2 * mu_12_2 * mu_01_2 * R17_im[it5][it3][it1] / isample;
 	      R17f_re[it5][it3][it1]  = a * cos(phi5) - b * sin(phi5);
-	      R17f_im[it5][it3][it1]  = a * sin(phi5) - b * cos(phi5);
+	      R17f_im[it5][it3][it1]  = a * sin(phi5) + b * cos(phi5);
 	      a = 1 * mu_01_2 * mu_12_2 * mu_01_2 * R18_re[it5][it3][it1] / isample;
 	      b = 1 * mu_12_2 * mu_12_2 * mu_01_2 * R18_im[it5][it3][it1] / isample;
 	      R18f_re[it5][it3][it1]  =  a * cos(phi5) - b * sin(phi5);
-	      R18f_im[it5][it3][it1]  =  a * sin(phi5) - b * cos(phi5);
+	      R18f_im[it5][it3][it1]  =  a * sin(phi5) + b * cos(phi5);
 
 	      phi5 = shift_w_1_2*dt*(it3-1) - shift_w_2_1*dt*(it5-1);
 	      a = 1 * mu_01_2 * mu_12_2 * mu_01_2 * R19_re[it5][it3][it1] / isample;
 	      b = 1 * mu_01_2 * mu_12_2 * mu_01_2 * R19_im[it5][it3][it1] / isample;
 	      R19f_re[it5][it3][it1]  = a * cos(phi5) - b * sin(phi5);
-	      R19f_im[it5][it3][it1]  = a * sin(phi5) - b * cos(phi5);
+	      R19f_im[it5][it3][it1]  = a * sin(phi5) + b * cos(phi5);
 	      a = 1 * mu_01_2 * mu_12_2 * mu_01_2 * R20_re[it5][it3][it1] / isample;
 	      b = 1 * mu_01_2 * mu_12_2 * mu_01_2 * R20_im[it5][it3][it1] / isample;
 	      R20f_re[it5][it3][it1]  =  a * cos(phi5) - b * sin(phi5);
-	      R20f_im[it5][it3][it1]  =  a * sin(phi5) - b * cos(phi5);
+	      R20f_im[it5][it3][it1]  =  a * sin(phi5) + b * cos(phi5);
 	      }
 
 	      R1tot_re[it5][it3][it1] = R1f_re[it5][it3][it1] 
