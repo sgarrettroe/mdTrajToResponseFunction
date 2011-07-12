@@ -481,7 +481,7 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
     out1D=fopen(name,"wt");
   } else {
     if (asprintf(&name,"gzip > %s_t_spec1D%s.gz",base_name,extension) < 0) nrerror("failed to write string");
-    out1D=popen(name,"wt");
+    out1D=popen(name,"w");
   }
   for(it1=1;it1<=nt;it1++)
   {
@@ -499,8 +499,8 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
     if (asprintf(&name,"%s_t_spec2D_peak1%s",base_name,extension) < 0) nrerror("failed to write string");
     out2D=fopen(name,"wt");
   } else {
-    if (asprintf(&name,"%gzip > s_t_spec2D_peak1%s.gz",base_name,extension) < 0) nrerror("failed to write string");
-    out2D=popen(name,"wt");
+    if (asprintf(&name,"gzip > %s_t_spec2D_peak1%s.gz",base_name,extension) < 0) nrerror("failed to write string");
+    out2D=popen(name,"w");
   }
   for(it1=1;it1<=nt;it1++)
     for(it3=1;it3<=nt;it3++)
@@ -523,8 +523,8 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
       if (asprintf(&name,"%s_t_spec2D_peak2%s",base_name,extension) < 0) nrerror("failed to write string");
       out2D=fopen(name,"wt");
     } else {
-      if (asprintf(&name,"%gzip > s_t_spec2D_peak2%s.gz",base_name,extension) < 0) nrerror("failed to write string");
-      out2D=popen(name,"wt");
+      if (asprintf(&name,"gzip > %s_t_spec2D_peak2%s.gz",base_name,extension) < 0) nrerror("failed to write string");
+      out2D=popen(name,"w");
     }
     for(it1=1;it1<=nt;it1++)
       for(it3=1;it3<=nt;it3++)
@@ -545,8 +545,8 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
       if (asprintf(&name,"%s_t_spec2D%s",base_name,extension) < 0) nrerror("failed to write string");
       out2D=fopen(name,"wt");
     } else {
-      if (asprintf(&name,"%gzip > s_t_spec2D%s.gz",base_name,extension) < 0) nrerror("failed to write string");
-      out2D=popen(name,"wt");
+      if (asprintf(&name,"gzip > %s_t_spec2D%s.gz",base_name,extension) < 0) nrerror("failed to write string");
+      out2D=popen(name,"w");
     }
     for(it1=1;it1<=nt;it1++)
       for(it3=1;it3<=nt;it3++)
@@ -567,7 +567,7 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
       out3D=fopen(name,"wt");
     } else {
       if (asprintf(&name,"gzip > %s_t_spec3D_peak1%s.gz",base_name,extension) < 0) nrerror("failed to write string");
-      out3D=popen(name,"wt");
+      out3D=popen(name,"w");
     }
     for(it1=1;it1<=nt;it1++)
       for(it3=1;it3<=nt;it3++)
@@ -595,7 +595,7 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
       out3D=fopen(name,"wt");
     } else {
       if (asprintf(&name,"gzip > %s_t_spec3D_peak2%s.gz",base_name,extension) < 0) nrerror("failed to write string");
-      out3D=popen(name,"wt");
+      out3D=popen(name,"w");
     }
     for(it1=1;it1<=nt;it1++)
       for(it3=1;it3<=nt;it3++)
@@ -625,9 +625,8 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
       out3D=fopen(name,"wt");
     } else {
       if (asprintf(&name,"gzip > %s_t_spec3D_peak3%s.gz",base_name,extension) < 0) nrerror("failed to write string");
-      out3D=popen(name,"wt");
+      out3D=popen(name,"w");
     }
-    out3D=fopen(name,"wt");
     for(it1=1;it1<=nt;it1++)
       for(it3=1;it3<=nt;it3++)
 	for(it5=1;it5<=nt;it5++)
@@ -655,7 +654,7 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
     out3D=fopen(name,"wt");
   } else {
     if (asprintf(&name,"gzip > %s_t_spec3D_peak4%s.gz",base_name,extension) < 0) nrerror("failed to write string");
-    out3D=popen(name,"wt");
+    out3D=popen(name,"w");
   }
   for(it1=1;it1<=nt;it1++)
     for(it3=1;it3<=nt;it3++)
@@ -683,9 +682,8 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
     out3D=fopen(name,"wt");
   } else {
     if (asprintf(&name,"gzip > %s_t_spec3D_peak5%s.gz",base_name,extension) < 0) nrerror("failed to write string");
-    out3D=popen(name,"wt");
+    out3D=popen(name,"w");
   }
-  out3D=fopen(name,"wt");
   for(it1=1;it1<=nt;it1++)
     for(it3=1;it3<=nt;it3++)
       for(it5=1;it5<=nt;it5++)
@@ -713,9 +711,8 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
     out3D=fopen(name,"wt");
   } else {
     if (asprintf(&name,"gzip > %s_t_spec3D%s.gz",base_name,extension) < 0) nrerror("failed to write string");
-    out3D=popen(name,"wt");
+    out3D=popen(name,"w");
   }
-  out3D=fopen(name,"wt");
   for(it1=1;it1<=nt;it1++)
     for(it3=1;it3<=nt;it3++)
       for(it5=1;it5<=nt;it5++)
