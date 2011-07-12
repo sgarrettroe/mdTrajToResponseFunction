@@ -941,7 +941,7 @@ void normalizeResults(int nt,float dt,unsigned long isample,
     }
 }
 
-void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4_pairs,const int nsteps,const int nprotons,float ***w_matrices, float ***x_matrices,float *mean_w,float *mean_mu ){
+void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4_pairs,const int nsteps,const int nprotons,const int proton_offset,float ***w_matrices, float ***x_matrices,float *mean_w,float *mean_mu ){
   
   //vars for force trajectory
   // unsigned long nsteps=-1, natoms, nmols, nprotons=-1;
@@ -1305,6 +1305,9 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
       muint2=vector(1,ntraject);
       muint3=vector(1,ntraject);
       
+      /* display number of protons proton offset and nsteps we will calculate */
+      printf("nprotons = %i proton_offset = %i nsteps = %i\n",nprotons,proton_offset,nsteps);
+
       /* calculate the maximum number of dw trajectories in the total
        * time evolution as <nsamples> */
       if (nsteps<ntraject*ntint)
@@ -2164,7 +2167,7 @@ int main(int argc, char *argv[]) {
   int nsteps;
   int nprotons_in_file;
   int nsteps_in_file;
-  int proton_offset = 0; //TEST TEST
+  int proton_offset = 0; 
   int step_offset = 0; //TEST TEST
 
   printf("This is %s called as\n",argv[0]);
@@ -2293,6 +2296,13 @@ int main(int argc, char *argv[]) {
   //make sure options are okay
   display_options();
 
+  // display local options
+  printf("Other parameters\n\n"
+	 "nsteps = %i\n"
+	 "step_offset = %i\n"
+	 "nprotons = %i\n"
+	 "proton_offset = %i\n",nsteps,step_offset,nprotons,proton_offset);
+
   // read time file 
   read_time_file(time_file_name,&t2_t4_pairs,&n_t2_t4_pairs);
 
@@ -2318,7 +2328,7 @@ int main(int argc, char *argv[]) {
   }
 
   // main calculation
-  freqTrajToR5(base_name,t2_t4_pairs,n_t2_t4_pairs,nsteps,nprotons,w_matrices,x_matrices,mean_w,mean_x);
+  freqTrajToR5(base_name,t2_t4_pairs,n_t2_t4_pairs,nsteps,nprotons,proton_offset,w_matrices,x_matrices,mean_w,mean_x);
 
   // clean up
   free_matrix(t2_t4_pairs,1,n_t2_t4_pairs,1,n_t2_t4_pairs);
