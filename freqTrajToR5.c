@@ -472,23 +472,36 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
   char *name;
   int it1,it3,it5;
   FILE *out1D,*out2D,*out3D;
-  
-  printf("Write Results\n");
-  if (asprintf(&name,"%s_t_spec1D%s",base_name,extension) < 0) nrerror("failed to write string");
+  const int flag_compressoutput = globalArgs.flag_compressoutput;
 
+  printf("Write Results\n");
   /* 1D */
-  out1D=fopen(name,"wt");
+  if (flag_compressoutput==0){
+    if (asprintf(&name,"%s_t_spec1D%s",base_name,extension) < 0) nrerror("failed to write string");
+    out1D=fopen(name,"wt");
+  } else {
+    if (asprintf(&name,"gzip > %s_t_spec1D%s.gz",base_name,extension) < 0) nrerror("failed to write string");
+    out1D=popen(name,"wt");
+  }
   for(it1=1;it1<=nt;it1++)
   {
     fprintf(out1D,"%10.5g %10.5g",Sf_re[it1],Sf_im[it1]);
     fprintf(out1D,"\n");
   }
-  fclose(out1D);
+  if (flag_compressoutput==0)
+    fclose(out1D);
+  else
+    pclose(out1D);
   free(name);
 
   /* 2D gsb + se (which are always calculated) */
-  if (asprintf(&name,"%s_t_spec2D_peak1%s",base_name,extension) < 0) nrerror("failed to write string");
-  out2D=fopen(name,"wt");
+  if (flag_compressoutput==0){
+    if (asprintf(&name,"%s_t_spec2D_peak1%s",base_name,extension) < 0) nrerror("failed to write string");
+    out2D=fopen(name,"wt");
+  } else {
+    if (asprintf(&name,"%gzip > s_t_spec2D_peak1%s.gz",base_name,extension) < 0) nrerror("failed to write string");
+    out2D=popen(name,"wt");
+  }
   for(it1=1;it1<=nt;it1++)
     for(it3=1;it3<=nt;it3++)
     {
@@ -497,14 +510,22 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
 	      P2f_re[it3][it1],P2f_im[it3][it1]);
       fprintf(out2D,"\n");
     }
-  fclose(out2D);
+  if (flag_compressoutput==0)
+    fclose(out2D);
+  else
+    pclose(out2D);
   free(name);
 
   /* if we calculated higher states print them out, too */
   if (n_levels>=2){
     /* 2D esa */
-    if (asprintf(&name,"%s_t_spec2D_peak2%s",base_name,extension) < 0) nrerror("failed to write string");
-    out2D=fopen(name,"wt");
+    if (flag_compressoutput==0){
+      if (asprintf(&name,"%s_t_spec2D_peak2%s",base_name,extension) < 0) nrerror("failed to write string");
+      out2D=fopen(name,"wt");
+    } else {
+      if (asprintf(&name,"%gzip > s_t_spec2D_peak2%s.gz",base_name,extension) < 0) nrerror("failed to write string");
+      out2D=popen(name,"wt");
+    }
     for(it1=1;it1<=nt;it1++)
       for(it3=1;it3<=nt;it3++)
 	{
@@ -513,12 +534,20 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
 		  P4f_re[it3][it1],P4f_im[it3][it1]);
 	  fprintf(out2D,"\n");
 	}
-    fclose(out2D);
+    if (flag_compressoutput==0)
+      fclose(out2D);
+    else
+      pclose(out2D);
     free(name);
 
     /* 2D total spectrum */
-    if (asprintf(&name,"%s_t_spec2D%s",base_name,extension) < 0) nrerror("failed to write string");
-    out2D=fopen(name,"wt");
+    if (flag_compressoutput==0){
+      if (asprintf(&name,"%s_t_spec2D%s",base_name,extension) < 0) nrerror("failed to write string");
+      out2D=fopen(name,"wt");
+    } else {
+      if (asprintf(&name,"%gzip > s_t_spec2D%s.gz",base_name,extension) < 0) nrerror("failed to write string");
+      out2D=popen(name,"wt");
+    }
     for(it1=1;it1<=nt;it1++)
       for(it3=1;it3<=nt;it3++)
 	{
@@ -527,51 +556,77 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
 		  P2tot_re[it3][it1],P2tot_im[it3][it1]);
 	  fprintf(out2D,"\n");
 	}
-    fclose(out2D);
+    if (flag_compressoutput==0)
+      fclose(out2D);
+    else
+      pclose(out2D);
     free(name);
 
-  if (asprintf(&name,"%s_t_spec3D_peak1%s",base_name,extension) < 0) nrerror("failed to write string");
-  out3D=fopen(name,"wt");
-  for(it1=1;it1<=nt;it1++)
-    for(it3=1;it3<=nt;it3++)
-      for(it5=1;it5<=nt;it5++)
-      {
-        fprintf(out3D,"%10.5g %10.5g %10.5g %10.5g %10.5g %10.5g %10.5g %10.5g",
-                R1f_re[it5][it3][it1],
-                R1f_im[it5][it3][it1],
-                R2f_re[it5][it3][it1],
-                R2f_im[it5][it3][it1],
-                R3f_re[it5][it3][it1],
-                R3f_im[it5][it3][it1],
-                R4f_re[it5][it3][it1],
-                R4f_im[it5][it3][it1]);
-        fprintf(out3D,"\n");
-      }
-  fclose(out3D);
-  free(name);
+    if (flag_compressoutput==0){
+      if (asprintf(&name,"%s_t_spec3D_peak1%s",base_name,extension) < 0) nrerror("failed to write string");
+      out3D=fopen(name,"wt");
+    } else {
+      if (asprintf(&name,"gzip > %s_t_spec3D_peak1%s.gz",base_name,extension) < 0) nrerror("failed to write string");
+      out3D=popen(name,"wt");
+    }
+    for(it1=1;it1<=nt;it1++)
+      for(it3=1;it3<=nt;it3++)
+	for(it5=1;it5<=nt;it5++)
+	  {
+	    fprintf(out3D,"%10.5g %10.5g %10.5g %10.5g %10.5g %10.5g %10.5g %10.5g",
+		    R1f_re[it5][it3][it1],
+		    R1f_im[it5][it3][it1],
+		    R2f_re[it5][it3][it1],
+		    R2f_im[it5][it3][it1],
+		    R3f_re[it5][it3][it1],
+		    R3f_im[it5][it3][it1],
+		    R4f_re[it5][it3][it1],
+		    R4f_im[it5][it3][it1]);
+	    fprintf(out3D,"\n");
+	  }
+    if (flag_compressoutput==0)
+      fclose(out3D);
+    else
+      pclose(out3D);
+    free(name);
 
-  if (asprintf(&name,"%s_t_spec3D_peak2%s",base_name,extension) < 0) nrerror("failed to write string");
-  out3D=fopen(name,"wt");
-  for(it1=1;it1<=nt;it1++)
-    for(it3=1;it3<=nt;it3++)
-      for(it5=1;it5<=nt;it5++)
-      {
-        fprintf(out3D,"%10.5g %10.5g %10.5g %10.5g %10.5g %10.5g %10.5g %10.5g",
-                R5f_re[it5][it3][it1],
-                R5f_im[it5][it3][it1],
-                R6f_re[it5][it3][it1],
-                R6f_im[it5][it3][it1],
-                R7f_re[it5][it3][it1],
-                R7f_im[it5][it3][it1],
-                R8f_re[it5][it3][it1],
-                R8f_im[it5][it3][it1]);
-        fprintf(out3D,"\n");
-      }
-  fclose(out3D);
-  free(name);
+    if (flag_compressoutput==0){
+      if (asprintf(&name,"%s_t_spec3D_peak2%s",base_name,extension) < 0) nrerror("failed to write string");
+      out3D=fopen(name,"wt");
+    } else {
+      if (asprintf(&name,"gzip > %s_t_spec3D_peak2%s.gz",base_name,extension) < 0) nrerror("failed to write string");
+      out3D=popen(name,"wt");
+    }
+    for(it1=1;it1<=nt;it1++)
+      for(it3=1;it3<=nt;it3++)
+	for(it5=1;it5<=nt;it5++)
+	  {
+	    fprintf(out3D,"%10.5g %10.5g %10.5g %10.5g %10.5g %10.5g %10.5g %10.5g",
+		    R5f_re[it5][it3][it1],
+		    R5f_im[it5][it3][it1],
+		    R6f_re[it5][it3][it1],
+		    R6f_im[it5][it3][it1],
+		    R7f_re[it5][it3][it1],
+		    R7f_im[it5][it3][it1],
+		    R8f_re[it5][it3][it1],
+		    R8f_im[it5][it3][it1]);
+	    fprintf(out3D,"\n");
+	  }
+    if (flag_compressoutput==0)
+      fclose(out3D);
+    else
+      pclose(out3D);
+    free(name);
+
 
   if (n_levels>=3){
-    if (asprintf(&name,"%s_t_spec3D_peak3%s",base_name,extension) < 0) nrerror("failed to write string");
+    if (flag_compressoutput==0){
+      if (asprintf(&name,"%s_t_spec3D_peak3%s",base_name,extension) < 0) nrerror("failed to write string");
+      out3D=fopen(name,"wt");
+    } else {
+      if (asprintf(&name,"gzip > %s_t_spec3D_peak3%s.gz",base_name,extension) < 0) nrerror("failed to write string");
+      out3D=popen(name,"wt");
+    }
     out3D=fopen(name,"wt");
     for(it1=1;it1<=nt;it1++)
       for(it3=1;it3<=nt;it3++)
@@ -588,12 +643,20 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
 		    R12f_im[it5][it3][it1]);
 	    fprintf(out3D,"\n");
 	  }
-    fclose(out3D);
+    if (flag_compressoutput==0)
+      fclose(out3D);
+    else
+      pclose(out3D);
     free(name);
   } /* end n_levels>=3 */
 
-  if (asprintf(&name,"%s_t_spec3D_peak4%s",base_name,extension) < 0) nrerror("failed to write string");
-  out3D=fopen(name,"wt");
+  if (flag_compressoutput==0){
+    if (asprintf(&name,"%s_t_spec3D_peak4%s",base_name,extension) < 0) nrerror("failed to write string");
+    out3D=fopen(name,"wt");
+  } else {
+    if (asprintf(&name,"gzip > %s_t_spec3D_peak4%s.gz",base_name,extension) < 0) nrerror("failed to write string");
+    out3D=popen(name,"wt");
+  }
   for(it1=1;it1<=nt;it1++)
     for(it3=1;it3<=nt;it3++)
       for(it5=1;it5<=nt;it5++)
@@ -609,9 +672,19 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
                 R16f_im[it5][it3][it1]);
         fprintf(out3D,"\n");
       }
-  fclose(out3D);
-  free(name);
-  if (asprintf(&name,"%s_t_spec3D_peak5%s",base_name,extension) < 0) nrerror("failed to write string");
+    if (flag_compressoutput==0)
+      fclose(out3D);
+    else
+      pclose(out3D);
+    free(name);
+
+  if (flag_compressoutput==0){
+    if (asprintf(&name,"%s_t_spec3D_peak5%s",base_name,extension) < 0) nrerror("failed to write string");
+    out3D=fopen(name,"wt");
+  } else {
+    if (asprintf(&name,"gzip > %s_t_spec3D_peak5%s.gz",base_name,extension) < 0) nrerror("failed to write string");
+    out3D=popen(name,"wt");
+  }
   out3D=fopen(name,"wt");
   for(it1=1;it1<=nt;it1++)
     for(it3=1;it3<=nt;it3++)
@@ -628,11 +701,20 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
                 R20f_im[it5][it3][it1]);
         fprintf(out3D,"\n");
       }
-  fclose(out3D);
+  if (flag_compressoutput==0)
+    fclose(out3D);
+  else
+    pclose(out3D);
   free(name);
   } /* end if n_levels>=2 */
 
-  if (asprintf(&name,"%s_t_spec3D%s",base_name,extension) < 0) nrerror("failed to write string");
+  if (flag_compressoutput==0){
+    if (asprintf(&name,"%s_t_spec3D%s",base_name,extension) < 0) nrerror("failed to write string");
+    out3D=fopen(name,"wt");
+  } else {
+    if (asprintf(&name,"gzip > %s_t_spec3D%s.gz",base_name,extension) < 0) nrerror("failed to write string");
+    out3D=popen(name,"wt");
+  }
   out3D=fopen(name,"wt");
   for(it1=1;it1<=nt;it1++)
     for(it3=1;it3<=nt;it3++)
@@ -649,7 +731,10 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
                 R4tot_im[it5][it3][it1]);
         fprintf(out3D,"\n");
       }
-  fclose(out3D);
+  if (flag_compressoutput==0)
+    fclose(out3D);
+  else
+    pclose(out3D);
   free(name);
 
 }
