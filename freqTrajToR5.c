@@ -2199,6 +2199,12 @@ int main(int argc, char *argv[]) {
       if (asprintf(&parameter_file_name,"%s",argv[count+1]) < 0) nrerror("Failed to write string");
       break;
     }
+    /* if the help flag is passed */
+    if (fnmatch(argv[count],"-h",FNM_CASEFOLD) == 0 || fnmatch(argv[count],"--help",FNM_CASEFOLD) == 0){
+      display_usage(argc,argv);
+    }
+
+
   }
 
   // error if parameter_file_name is still empty
