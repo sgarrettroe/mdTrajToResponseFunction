@@ -452,7 +452,7 @@ void read_w_files(int nprotons, int proton_offset, int nsteps, int step_offset,f
 
 
 void writeResultsTime(const char base_name[],const int nt,const char extension[],
-		      const int n_levels,
+		      const int n_levels,const float mean_w[],
 		      float Sf_re[],float Sf_im[],
 		      float **P1f_re,float **P1f_im,float **P2f_re,float **P2f_im,
 		      float **P3f_re,float **P3f_im,float **P4f_re,float **P4f_im,
@@ -474,12 +474,21 @@ void writeResultsTime(const char base_name[],const int nt,const char extension[]
  * calculated with the highest time argument as the fastest changing
  * element (t5 then t3 then t1) */
 {
-  char *name;
-  int it1,it3,it5;
+  char *name,*mean_w_file_name,*string;
+  int i,it1,it3,it5;
   FILE *out1D,*out2D,*out3D;
   const int flag_compressoutput = globalArgs.flag_compressoutput;
 
   printf("Write Results\n");
+  /* output the mean freq shift to the param file */
+  for (i=0;i<globalArgs.n_levels;i++){
+    if (asprintf(&string,"mean_w_%i",i) < 0) nrerror("failed to write string");
+    if (asprintf(&mean_w_file_name,"%s_mean_w_%i%s.dat",base_name,i,extension) < 0) nrerror("failed to write string");
+    gaWriteFloat(mean_w_file_name,string,mean_w[i]);
+    free(string);
+    free(mean_w_file_name);
+  }
+
   /* 1D */
   if (flag_compressoutput==0){
     if (asprintf(&name,"%s_t_spec1D%s",base_name,extension) < 0) nrerror("failed to write string");
@@ -1973,7 +1982,7 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 		}//end for it1
 	    }//end if noncondon
 	    
-	if((isample+nsamples*(iproton-1))%20000==0)
+	    if((isample+nsamples*(iproton-1))%80000==0) //roughly 10 protons for nskip = 15
             {
               /*write intermediate results*/
               normalizeResults(nt,dt,(isample+nsamples*(iproton-1)),
@@ -2006,7 +2015,7 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
                                R17f_re,R17f_im,R18f_re,R18f_im,
 			       R19f_re,R19f_im,R20f_re,R20f_im,
                                R1tot_re,R1tot_im,R2tot_re,R2tot_im,R3tot_re,R3tot_im,R4tot_re,R4tot_im);
-	      writeResultsTime(base_name,nt,extension,n_levels,
+	      writeResultsTime(base_name,nt,extension,n_levels,mean_w,
 			       Sf_re,Sf_im,
 			       P1f_re,P1f_im,P2f_re,P2f_im,
 			       P3f_re,P3f_im,P4f_re,P4f_im,
@@ -2059,7 +2068,7 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 		       R17f_re,R17f_im,R18f_re,R18f_im,
 		       R19f_re,R19f_im,R20f_re,R20f_im,
 		       R1tot_re,R1tot_im,R2tot_re,R2tot_im,R3tot_re,R3tot_im,R4tot_re,R4tot_im);
-      writeResultsTime(base_name,nt,extension,n_levels,
+      writeResultsTime(base_name,nt,extension,n_levels,mean_w,
 		       Sf_re,Sf_im,
 		       P1f_re,P1f_im,P2f_re,P2f_im,
 		       P3f_re,P3f_im,P4f_re,P4f_im,
@@ -2252,7 +2261,7 @@ int main(int argc, char *argv[]) {
   time_t my_time=time(0); // time process started
   time_t end_time; // time process ended
   
-  char *base_name,*parameter_file_name,*time_file_name,*mean_w_file_name,*string;
+  char *base_name,*parameter_file_name,*time_file_name;
   float **t2_t4_pairs;
   int n_t2_t4_pairs;
   float ***w_matrices;
@@ -2417,15 +2426,6 @@ int main(int argc, char *argv[]) {
   /* read frequency file */
   read_w_files(nprotons,proton_offset,nsteps,step_offset,w_matrices,mean_w);
   read_x_files(nprotons,proton_offset,nsteps,step_offset,x_matrices,mean_x);
-
-  /* output the mean freq shift to the param file */
-  for (i=0;i<globalArgs.n_levels;i++){
-    if (asprintf(&string,"mean_w_%i",i) < 0) nrerror("failed to write string");
-    if (asprintf(&mean_w_file_name,"%s_mean_w_%i.dat",base_name,i) < 0) nrerror("failed to write string");
-    gaWriteFloat(mean_w_file_name,string,mean_w[i]);
-    free(string);
-    free(mean_w_file_name);
-  }
 
   // main calculation
   freqTrajToR5(base_name,t2_t4_pairs,n_t2_t4_pairs,nsteps,nprotons,proton_offset,w_matrices,x_matrices,mean_w,mean_x);
