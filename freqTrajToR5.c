@@ -1,3 +1,4 @@
+#define _GNU_SOURCE /* needed on schroedinger */
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
@@ -6,6 +7,10 @@
 #include <errno.h>
 #include <unistd.h>
 #include <getopt.h>
+/*
+#ifndef BSD
+#endif
+*/
 #include <fnmatch.h>
 #include "globalArgs.h"
 #include "mymath.h"
@@ -1084,7 +1089,7 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 
   float t2,t4;
   
-  int i,j,isample,i_level,it,it1,it3,it5,nt2,nt4,ntraject,nsamples,ipoptime,iproton,ind1,ind2;
+  int i,j,isample,i_level,it,it1,it3,it5,nt2,nt4,ntraject,nsamples,ipoptime,iproton,ind1=0,ind2=0;
   float *dwint1;          /* trajectories after preintegrating/coarse graining  */   
   float *dwint2;          /* trajectories after preintegrating/coarse graining  */   
   float *dwint3;          /* trajectories after preintegrating/coarse graining  */   
@@ -2237,13 +2242,17 @@ void freqTrajToR5( const char *base_name, float **t2_t4_pairs, const int n_t2_t4
 
     }
 
-
+/******************************************************************************
+ *
+ *  Main
+ *
+ */
 int main(int argc, char *argv[]) {
   int i;
   time_t my_time=time(0); // time process started
   time_t end_time; // time process ended
   
-  char *base_name,*parameter_file_name,*time_file_name,*string;
+  char *base_name,*parameter_file_name,*time_file_name,*mean_w_file_name,*string;
   float **t2_t4_pairs;
   int n_t2_t4_pairs;
   float ***w_matrices;
@@ -2412,8 +2421,10 @@ int main(int argc, char *argv[]) {
   /* output the mean freq shift to the param file */
   for (i=0;i<globalArgs.n_levels;i++){
     if (asprintf(&string,"mean_w_%i",i) < 0) nrerror("failed to write string");
-    gaWriteFloat(parameter_file_name,string,mean_w[i]);
+    if (asprintf(&mean_w_file_name,"%s_mean_w_%i.dat",base_name,i) < 0) nrerror("failed to write string");
+    gaWriteFloat(mean_w_file_name,string,mean_w[i]);
     free(string);
+    free(mean_w_file_name);
   }
 
   // main calculation
